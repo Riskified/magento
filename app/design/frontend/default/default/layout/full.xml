@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <default>
+    </default>
+    <full_index_index>
+        <reference name="content">
+            <block type="full/full" name="full" template="full/full.phtml" />
+        </reference>
+    </full_index_index>
+</layout> 
