@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Riskified_Full>
+            <active>true</active>
+            <codePool>local</codePool>
+        </Riskified_Full>
+    </modules>
+</config> 
