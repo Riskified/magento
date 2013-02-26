@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<config>
-    <modules>
-        <Excellence_Riskified>
-            <active>true</active>
-            <codePool>local</codePool>
-        </Excellence_Riskified>
-    </modules>
-</config> 
