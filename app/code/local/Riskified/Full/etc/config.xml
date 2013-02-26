@@ -110,11 +110,27 @@
             <full>
                 <class>Riskified_Full_Block</class>
             </full>
+            <!-- <adminhtml>
+                <rewrite>
+                    <sales_order_view>Riskified_Full_Block_Adminhtml_View</sales_order_view>
+                </rewrite>
+            </adminhtml> -->
         </blocks>
         <helpers>
             <full>
                 <class>Riskified_Full_Helper</class>
             </full>
         </helpers>
+        <events>
+	     <checkout_type_onepage_save_order_after> <!-- Name of Event -->
+	         <observers>
+                 <save_after> <!-- Any Unique Identifier -->
+                  <type>singleton</type>
+                  <class>Riskified_Full_Model_Observer</class> <!-- Over Model Class -->
+                  <method>saveOrderAfter</method> <!-- name of function -->
+                </save_after>
+	        </observers>
+	      </checkout_type_onepage_save_order_after>    
+		</events>
     </global>
 </config>

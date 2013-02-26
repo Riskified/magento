@@ -10,6 +10,59 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 		
 		return $this;
 	}   
+	
+	
+	/*****mycode*****
+	public function riskiAction(){
+		$order_id = $this->getRequest()->getParam('order_id');
+		echo"<pre>";
+		$order_model = Mage::getModel('sales/order')->load($order_id);
+		$billing_address = $order_model->getBillingAddress();
+		$shipping_address = $order_model->getShippingAddress();
+		$data = array();
+		$data['id'] 			= $order_model->getId();
+		$data['shipping_line'] 	= $order_model->getShippingDescription();
+		$data['email']			= $order_model->getCustomerEmail();
+		$data['total_spent']	= $order_model->getGrandTotal();
+		$data['created_at']		= $order_model->getCreatedAt();
+		//$data['gateway']		=;
+		$data['browser_ip']		= $order_model->getRemoteIp();
+		
+		$data['billing_address']['first_name'] 	= $billing_address->getFirstname();
+		$data['billing_address']['last_name']	= $billing_address->getLastname();
+		$data['billing_address']['address1'] 	= $billing_address->getStreet();
+		$data['billing_address']['address2'] 	= '';
+		$data['billing_address']['city'] 		= $billing_address->getCity();
+		$data['billing_address']['company'] 	= $billing_address->getCompany();
+		$data['billing_address']['country'] 	= Mage::getModel('directory/country')->load($billing_address->getCountryId())->getName();
+		$data['billing_address']['phone'] 		= $billing_address->getTelephone();
+		$data['billing_address']['province'] 	= $billing_address->getRegion();
+		$data['billing_address']['zip'] 		= $billing_address->getPostcode();
+		
+		$data['shipping_address']['first_name'] = $shipping_address->getFirstname();
+		$data['shipping_address']['last_name'] 	= $shipping_address->getLastname();
+		$data['shipping_address']['address1'] 	= $shipping_address->getgetStreet();
+		$data['shipping_address']['address2'] 	= '';
+		$data['shipping_address']['city'] 		= $shipping_address->getCity();
+		$data['shipping_address']['company'] 	= $shipping_address->getCompany();
+		$data['shipping_address']['country'] 	= Mage::getModel('directory/country')->load($shipping_address->getCountryId())->getName();
+		$data['shipping_address']['phone'] 		= $shipping_address->getTelephone();
+		$data['shipping_address']['province'] 	= $shipping_address->getRegion();
+		$data['shipping_address']['zip'] 		= $shipping_address->getPostcode();
+		
+		
+		
+		
+		
+		
+		print_r($order_model->getData());
+		echo"</pre>";
+		die;
+	}
+	
+	*/
+	
+	
  
 	public function indexAction() {
 		$this->_initAction()
@@ -211,4 +264,6 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
         $response->sendResponse();
         die;
     }
+    
+    
 }
