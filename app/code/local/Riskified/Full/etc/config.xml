@@ -122,12 +122,12 @@
             </full>
         </helpers>
         <events>
-	     <checkout_type_onepage_save_order_after> <!-- Name of Event -->
+	     <checkout_type_onepage_save_order_after> 
 	         <observers>
-                 <save_after> <!-- Any Unique Identifier -->
+                 <save_after> 
                   <type>singleton</type>
-                  <class>Riskified_Full_Model_Observer</class> <!-- Over Model Class -->
-                  <method>saveOrderAfter</method> <!-- name of function -->
+                  <class>Riskified_Full_Model_Observer</class> 
+                  <method>saveOrderAfter</method> 
                 </save_after>
 	        </observers>
 	      </checkout_type_onepage_save_order_after>    
