@@ -26,6 +26,9 @@ class Riskified_Full_Model_Observer{
 		$customer_id = $order_model->getCustomerId();
     	$customer_details = Mage::getModel('customer/customer')->load($customer_id);
 		$payment_details = $order_model->getPayment();
+		//print_r($payment_details->getData());
+		//echo"###################";
+		//print_r($order_model->getData());
 		$add = $billing_address->getStreet();
 		$sadd = $shipping_address->getStreet();
 		// generating data
@@ -99,7 +102,15 @@ class Riskified_Full_Model_Observer{
 		
 		$data['tax_lines']	=NULL;
 		
-		// payment details
+		$payment_method = 
+		
+		
+		
+		
+		
+		
+		
+		// payment details if paypal
 		$data['payment_details']['avs_result_code']	= $payment_details->getAdditionalInformation('paypal_avs_code');
 		$data['payment_details']['credit_card_bin']	=NULL;
 		$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
@@ -174,6 +185,7 @@ class Riskified_Full_Model_Observer{
 		Mage::log($data_string,null,"json_string.log");
 		//firing curl
 		$result = $this->fireCurl($data_string);
+		//die;
 	}
 	
 	
