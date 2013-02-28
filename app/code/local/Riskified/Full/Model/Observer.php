@@ -102,7 +102,7 @@ class Riskified_Full_Model_Observer{
 		
 		$data['tax_lines']	=NULL;
 		
-		$payment_method = 
+		//$payment_method = 
 		
 		
 		
