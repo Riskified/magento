@@ -26,9 +26,6 @@ class Riskified_Full_Model_Observer{
 		$customer_id = $order_model->getCustomerId();
     	$customer_details = Mage::getModel('customer/customer')->load($customer_id);
 		$payment_details = $order_model->getPayment();
-		//print_r($payment_details->getData());
-		//echo"###################";
-		//print_r($order_model->getData());
 		$add = $billing_address->getStreet();
 		$sadd = $shipping_address->getStreet();
 		// generating data
@@ -98,26 +95,40 @@ class Riskified_Full_Model_Observer{
 		$data ['shipping_lines'][]['price']	= $order_model->getShippingAmount();
 		$data ['shipping_lines'][]['source']	=NULL;
 		$data ['shipping_lines'][]['title']	= $order_model->getShippingDescription();
-
-		
 		$data['tax_lines']	=NULL;
 		
-		//$payment_method = 
-		
-		
-		
-		
-		
-		
-		
-		// payment details if paypal
-		$data['payment_details']['avs_result_code']	= $payment_details->getAdditionalInformation('paypal_avs_code');
-		$data['payment_details']['credit_card_bin']	=NULL;
-		$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
-		$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$payment_details->getCcLast4();
-		$data['payment_details']['credit_card_company']	= $payment_details->getCcType();
 		// payment details
 		
+		if($payment_details->getMethod() == 'authorizenet')
+		{
+			// payment details if authorize
+			foreach ($payment_details->getAdditionalInformation() as $additional_data){
+				foreach ($additional_data as $key => $trans_data){
+					$data['payment_details']['avs_result_code']	= NULL;
+					$data['payment_details']['credit_card_bin']	= NULL;
+					$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
+					$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$trans_data['cc_last4'];
+					$data['payment_details']['credit_card_company']= $trans_data['cc_type'];
+				}
+			}
+		}elseif ($payment_details->getMethod() == 'paypal_direct'){
+			// payment details if paypal
+			$data['payment_details']['avs_result_code']	= $payment_details->getAdditionalInformation('paypal_avs_code');
+			$data['payment_details']['credit_card_bin']	=NULL;
+			$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
+			$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$payment_details->getCcLast4();
+			$data['payment_details']['credit_card_company']	= $payment_details->getCcType();
+		}else{
+			$data['payment_details']['avs_result_code']	= NULL;
+			$data['payment_details']['credit_card_bin']	=NULL;
+			$data['payment_details']['cvv_result_code']	= NULL;
+			$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$payment_details->getCcLast4();
+			$data['payment_details']['credit_card_company']	= $payment_details->getCcType();
+		}
+		
+		
+		// payment details
+		 
 		$data['fulfillments']	=NULL;
 		
 		// client details
@@ -185,7 +196,6 @@ class Riskified_Full_Model_Observer{
 		Mage::log($data_string,null,"json_string.log");
 		//firing curl
 		$result = $this->fireCurl($data_string);
-		//die;
 	}
 	
 	
