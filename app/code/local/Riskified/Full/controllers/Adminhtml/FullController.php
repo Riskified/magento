@@ -12,57 +12,37 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 	}   
 	
 	
-	/*****mycode*****
-	public function riskiAction(){
-		$order_id = $this->getRequest()->getParam('order_id');
-		echo"<pre>";
-		$order_model = Mage::getModel('sales/order')->load($order_id);
-		$billing_address = $order_model->getBillingAddress();
-		$shipping_address = $order_model->getShippingAddress();
-		$data = array();
-		$data['id'] 			= $order_model->getId();
-		$data['shipping_line'] 	= $order_model->getShippingDescription();
-		$data['email']			= $order_model->getCustomerEmail();
-		$data['total_spent']	= $order_model->getGrandTotal();
-		$data['created_at']		= $order_model->getCreatedAt();
-		//$data['gateway']		=;
-		$data['browser_ip']		= $order_model->getRemoteIp();
-		
-		$data['billing_address']['first_name'] 	= $billing_address->getFirstname();
-		$data['billing_address']['last_name']	= $billing_address->getLastname();
-		$data['billing_address']['address1'] 	= $billing_address->getStreet();
-		$data['billing_address']['address2'] 	= '';
-		$data['billing_address']['city'] 		= $billing_address->getCity();
-		$data['billing_address']['company'] 	= $billing_address->getCompany();
-		$data['billing_address']['country'] 	= Mage::getModel('directory/country')->load($billing_address->getCountryId())->getName();
-		$data['billing_address']['phone'] 		= $billing_address->getTelephone();
-		$data['billing_address']['province'] 	= $billing_address->getRegion();
-		$data['billing_address']['zip'] 		= $billing_address->getPostcode();
-		
-		$data['shipping_address']['first_name'] = $shipping_address->getFirstname();
-		$data['shipping_address']['last_name'] 	= $shipping_address->getLastname();
-		$data['shipping_address']['address1'] 	= $shipping_address->getgetStreet();
-		$data['shipping_address']['address2'] 	= '';
-		$data['shipping_address']['city'] 		= $shipping_address->getCity();
-		$data['shipping_address']['company'] 	= $shipping_address->getCompany();
-		$data['shipping_address']['country'] 	= Mage::getModel('directory/country')->load($shipping_address->getCountryId())->getName();
-		$data['shipping_address']['phone'] 		= $shipping_address->getTelephone();
-		$data['shipping_address']['province'] 	= $shipping_address->getRegion();
-		$data['shipping_address']['zip'] 		= $shipping_address->getPostcode();
-		
-		
-		
-		
-		
-		
-		print_r($order_model->getData());
-		echo"</pre>";
-		die;
+	/*****mycode******/
+	
+	Private function fireCurl($link){
+		$ch = curl_init($link);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'X_RISKIFIED_SHOP_DOMAIN:magento.riskified.com',
+			'User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.97 Safari/537.22',
+			'Accept-Encoding: gzip,deflate,sdch',
+			'Accept-Language: en-US,en;q=0.8'
+				)
+		);
+		$result = curl_exec($ch);
+		return $result;
 	}
 	
-	*/
 	
+	public function riskiAction(){
+		$id = $this->getRequest()->getParam('order_id');
+		$link = "http://public-beta.herokuapp.com/shopify_links/submit_order?shop=magento.riskified.com&id=$id";
+		try {
+			$result = $this->fireCurl($link);
+			Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__('Order was submited successfully'));
+		} catch (Exception $e) {
+			Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
+			Mage::logException($e);
+		}
+		$this->_redirectReferer();
+	}
 	
+	/*****mycode******/
  
 	public function indexAction() {
 		$this->_initAction()

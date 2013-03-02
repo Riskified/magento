@@ -110,11 +110,11 @@
             <full>
                 <class>Riskified_Full_Block</class>
             </full>
-            <!-- <adminhtml>
+            <adminhtml>
                 <rewrite>
                     <sales_order_view>Riskified_Full_Block_Adminhtml_View</sales_order_view>
                 </rewrite>
-            </adminhtml> -->
+            </adminhtml>
         </blocks>
         <helpers>
             <full>
