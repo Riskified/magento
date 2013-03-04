@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <tabs>
+        <newtab translate="label" module="full">
+            <label>Riskified</label>
+            <sort_order>999</sort_order>
+        </newtab>
+    </tabs>
+    <sections>
+        <fullsection translate="label" module="full">
+            <class>separator-top</class>
+            <label>Full</label>
+            <tab>newtab</tab>
+            <sort_order>130</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <full translate="label">
+                    <label>API settings</label>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <patient translate="label">
+                            <label>Secret Key</label>
+                            <frontend_type>Text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </patient>
+                    </fields>
+                </full>
+                </groups>
+            </fullsection>
+    </sections>
+</config>
