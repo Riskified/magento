@@ -1,0 +1,43 @@
+<?php
+/**
+ * Magento
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Open Software License (OSL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/osl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@magentocommerce.com so we can send you a copy immediately.
+ *
+ * @category    design
+ * @package     default_default
+ * @copyright   Copyright (c) 2011 Excellence Technologies (http://www.excellencetechnologies.in)
+ * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
+?>
+
+<script type="text/javascript">
+//<![CDATA[
+           
+document.observe("dom:loaded", function() {
+	fullimg = "<span id='full_inf_div' style='display:block; margin-top:1em;'><img src = '<?php echo $this->getSkinUrl('images/moneybookers/banner.jpg'); ?>'></span>";
+	fullimg += "<br><br>";
+	fullimg += "<p>Other Required information</p>";
+	fullimg += "<p>Other Required information</p>";
+	fullimg += "<p>Other Required information</p>";
+	fullimg += "<p>Other Required information</p>";
+	fullimg += "<p>Other Required information</p>";
+		
+	 if (!document.getElementById("fullsection_full_activationstatus")) {
+         return;
+     }
+	 document.getElementById("fullsection_full_activationstatus").style.display = "none";
+	 $('fullsection_full_activationstatus').up().insert(fullimg);
+});
+   
+//]]>
+</script>
+

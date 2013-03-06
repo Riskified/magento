@@ -5,4 +5,9 @@
             <block type="full/adminhtml_full" name="full" />
         </reference>
     </full_adminhtml_full_index>
+    <adminhtml_system_config_edit>
+        <reference name="content">
+            <block type="core/template" name="full_jsinit"  template="full/jsinit.phtml"></block>
+        </reference>
+    </adminhtml_system_config_edit>
 </layout>
