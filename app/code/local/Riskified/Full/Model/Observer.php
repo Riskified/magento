@@ -1,7 +1,8 @@
 <?php
 class Riskified_Full_Model_Observer{
 	
-	Private function fireCurl($data_string){
+	Private function fireCurl($data_string,$hash_code){
+		$domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
 		$ch = curl_init('http://public-beta.herokuapp.com/webhooks/order_created');
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
@@ -9,8 +10,15 @@ class Riskified_Full_Model_Observer{
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 		'Content-Type: application/json',
 		'Content-Length: ' . strlen($data_string),
-		'X_RISKIFIED_SHOP_DOMAIN:magento.riskified.com')
+		'X_RISKIFIED_SHOP_DOMAIN:'.$domain,
+		'X_RISKIFIED_HMAC_SHA256:'.$hash_code)
 		);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		/* print_r($data_string);echo"<br>";
+		print_r(strlen($data_string));echo"<br>";
+		print_r($domain);echo"<br>";
+		print_r($hash_code);echo"<br>";
+		die; */
 		$result = curl_exec($ch);
 		return $result;
 	}
@@ -28,7 +36,7 @@ class Riskified_Full_Model_Observer{
 		$payment_details = $order_model->getPayment();
 		$add = $billing_address->getStreet();
 		$sadd = $shipping_address->getStreet();
-		// generating data
+		// gathering data
 		$data = array();
 		$data['id'] 			= $order_model->getId();
 		$data['name'] 			= $order_model->getId();
@@ -119,6 +127,7 @@ class Riskified_Full_Model_Observer{
 			$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$payment_details->getCcLast4();
 			$data['payment_details']['credit_card_company']	= $payment_details->getCcType();
 		}else{
+			// payment details if anything else
 			$data['payment_details']['avs_result_code']	= NULL;
 			$data['payment_details']['credit_card_bin']	=NULL;
 			$data['payment_details']['cvv_result_code']	= NULL;
@@ -192,12 +201,29 @@ class Riskified_Full_Model_Observer{
 		$data['shipping_address']['zip'] 		= $shipping_address->getPostcode();
 		$data['shipping_address']['province_code'] =NULL;
 		
+		// json encode
 		$data_string = json_encode($data);
 		Mage::log($data_string,null,"json_string.log");
+		
+		//generating hash 
+		$s_key = Mage::getStoreConfig('fullsection/full/key',Mage::app()->getStore());
+		$hash_code = hash_hmac('sha256', $data_string, $s_key);
+		
 		//firing curl
-		$result = $this->fireCurl($data_string);
+		$result = $this->fireCurl($data_string,$hash_code);
 	}
 	
-	
+	public function addMassAction($observer)
+	{
+		$block = $observer->getEvent()->getBlock();
+		if(get_class($block) =='Mage_Adminhtml_Block_Widget_Grid_Massaction'
+				&& $block->getRequest()->getControllerName() == 'sales_order')
+		{
+			$block->addItem('full', array(
+					'label' => 'Riskified',
+					'url' => Mage::app()->getStore()->getUrl('full/adminhtml_full/riskimass'),
+			));
+		}
+	}
 
 }
