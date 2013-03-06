@@ -82,6 +82,17 @@
 				</full>
 			</updates>
 		</layout>
+		<events>
+	        <core_block_abstract_prepare_layout_before>
+	            <observers>
+	                <before_grid_prep>
+	                    <type>singleton</type>
+	                    <class>Riskified_Full_Model_Observer</class>
+	                    <method>addMassAction</method>
+	                </before_grid_prep>
+	            </observers>
+	        </core_block_abstract_prepare_layout_before>
+    	</events>
     </adminhtml>   
     <global>
         <models>
