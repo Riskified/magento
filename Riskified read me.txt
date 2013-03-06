@@ -1,0 +1,5 @@
+Riskified_Full  module readme file:-
+	
+		If a new payment gateway is to be added following file needs to be altered
+		:=> riskified\app\code\local\Riskified\Full\Model\Observer.php
+		In this in section under "payment details", add a 'if...else' condition. It will be done according to the 'key value' pair of saved payment information.
