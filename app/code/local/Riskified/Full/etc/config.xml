@@ -35,19 +35,6 @@
         </routers>
     </admin>
     <adminhtml>
-		<!-- <menu>
-			<full module="full">
-				<title>Full</title>
-				<sort_order>71</sort_order>               
-				<children>
-					<items module="full">
-						<title>Manage Items</title>
-						<sort_order>0</sort_order>
-						<action>full/adminhtml_full</action>
-					</items>
-				</children>
-			</full>
-		</menu> -->
 		<acl>
 			<resources>
 				<all>
@@ -95,7 +82,7 @@
     	</events>
     </adminhtml>   
     <global>
-        <models>
+        <!-- <models>
             <full>
                 <class>Riskified_Full_Model</class>
                 <resourceModel>full_mysql4</resourceModel>
@@ -128,11 +115,11 @@
                     <use>core_read</use>
                 </connection>
             </full_read>
-        </resources>
+        </resources>  -->
         <blocks>
-            <full>
+            <!-- <full>
                 <class>Riskified_Full_Block</class>
-            </full>
+            </full> -->
             <adminhtml>
                 <rewrite>
                     <sales_order_view>Riskified_Full_Block_Adminhtml_View</sales_order_view>
