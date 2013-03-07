@@ -82,45 +82,8 @@
     	</events>
     </adminhtml>   
     <global>
-        <!-- <models>
-            <full>
-                <class>Riskified_Full_Model</class>
-                <resourceModel>full_mysql4</resourceModel>
-            </full>
-            <full_mysql4>
-                <class>Riskified_Full_Model_Mysql4</class>
-                <entities>
-                    <full>
-                        <table>full</table>
-                    </full>
-                </entities>
-            </full_mysql4>
-        </models>
-        <resources>
-            <full_setup>
-                <setup>
-                    <module>Riskified_Full</module>
-                </setup>
-                <connection>
-                    <use>core_setup</use>
-                </connection>
-            </full_setup>
-            <full_write>
-                <connection>
-                    <use>core_write</use>
-                </connection>
-            </full_write>
-            <full_read>
-                <connection>
-                    <use>core_read</use>
-                </connection>
-            </full_read>
-        </resources>  -->
-        <blocks>
-            <!-- <full>
-                <class>Riskified_Full_Block</class>
-            </full> -->
-            <adminhtml>
+       <blocks>
+           <adminhtml>
                 <rewrite>
                     <sales_order_view>Riskified_Full_Block_Adminhtml_View</sales_order_view>
                 </rewrite>
