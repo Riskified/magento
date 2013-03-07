@@ -9,7 +9,7 @@
     <sections>
         <fullsection translate="label" module="full">
             <class>separator-top</class>
-            <label>Full</label>
+            <label>Settings</label>
             <tab>newtab</tab>
             <sort_order>130</sort_order>
             <show_in_default>1</show_in_default>
