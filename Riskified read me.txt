@@ -3,3 +3,8 @@ Riskified_Full  module readme file:-
 		If a new payment gateway is to be added following file needs to be altered
 		:=> riskified\app\code\local\Riskified\Full\Model\Observer.php
 		In this in section under "payment details", add a 'if...else' condition. It will be done according to the 'key value' pair of saved payment information.
+
+Database Entries
+	There are only two entries corresponding to the two admin configuration fields in table core_config_data
+		:=> fullsection/full/domain (It stores the doman name)
+		:=> fullsection/full/key  (It stores the secret key)
