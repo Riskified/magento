@@ -35,19 +35,6 @@
         </routers>
     </admin>
     <adminhtml>
-		<!-- <menu>
-			<full module="full">
-				<title>Full</title>
-				<sort_order>71</sort_order>               
-				<children>
-					<items module="full">
-						<title>Manage Items</title>
-						<sort_order>0</sort_order>
-						<action>full/adminhtml_full</action>
-					</items>
-				</children>
-			</full>
-		</menu> -->
 		<acl>
 			<resources>
 				<all>
@@ -59,6 +46,18 @@
 							<title>Full Module</title>
 							<sort_order>10</sort_order>
 						</Riskified_Full>
+						 <system>
+                            <children>
+                                <config>
+                                    <children>
+	                                     <fullsection translate="title" module="full">  <!-- This is name of the section created by us -->
+	                                         <title>Riskified</title>  <!-- Title as shown in User->Roles->Permissions Window -->
+	                                         <sort_order>99</sort_order>
+	                                     </fullsection>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
 					</children>
 				</admin>
 			</resources>
@@ -70,47 +69,21 @@
 				</full>
 			</updates>
 		</layout>
+		<events>
+	        <core_block_abstract_prepare_layout_before>
+	            <observers>
+	                <before_grid_prep>
+	                    <type>singleton</type>
+	                    <class>Riskified_Full_Model_Observer</class>
+	                    <method>addMassAction</method>
+	                </before_grid_prep>
+	            </observers>
+	        </core_block_abstract_prepare_layout_before>
+    	</events>
     </adminhtml>   
     <global>
-        <models>
-            <full>
-                <class>Riskified_Full_Model</class>
-                <resourceModel>full_mysql4</resourceModel>
-            </full>
-            <full_mysql4>
-                <class>Riskified_Full_Model_Mysql4</class>
-                <entities>
-                    <full>
-                        <table>full</table>
-                    </full>
-                </entities>
-            </full_mysql4>
-        </models>
-        <resources>
-            <full_setup>
-                <setup>
-                    <module>Riskified_Full</module>
-                </setup>
-                <connection>
-                    <use>core_setup</use>
-                </connection>
-            </full_setup>
-            <full_write>
-                <connection>
-                    <use>core_write</use>
-                </connection>
-            </full_write>
-            <full_read>
-                <connection>
-                    <use>core_read</use>
-                </connection>
-            </full_read>
-        </resources>
-        <blocks>
-            <full>
-                <class>Riskified_Full_Block</class>
-            </full>
-            <adminhtml>
+       <blocks>
+           <adminhtml>
                 <rewrite>
                     <sales_order_view>Riskified_Full_Block_Adminhtml_View</sales_order_view>
                 </rewrite>
