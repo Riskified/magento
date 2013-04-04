@@ -3,7 +3,7 @@
     <modules>
         <Riskified_Full>
             <active>true</active>
-            <codePool>local</codePool>
+            <codePool>community</codePool>
         </Riskified_Full>
     </modules>
 </config> 
