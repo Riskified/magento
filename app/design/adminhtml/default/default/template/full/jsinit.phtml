@@ -19,25 +19,117 @@
  */
 ?>
 
+<style type="text/css">
+    .riskified-botton {
+        font-family: Helvetica Neue;
+        font-size: 23px;
+        line-height: 25px;
+        color: #FFF;
+        background-color: #9bc47f;
+        padding: 5px 10px;
+        border: 1px solid #828282;
+        display: inline-block;
+        text-decoration: none;
+        width: 294px;
+        text-align: center;
+        font-weight: 300;
+        letter-spacing: 0.05em;
+        margin-bottom: 20px;
+
+    }
+
+    .riskified-botton:hover{
+        background-color: #edd364;
+    }
+
+    .step-inner {
+        display: inline-block;
+        vertical-align: top;
+        float: right;
+    }
+
+    .step-action {
+        display: inline-block;
+        float: right;
+    }
+
+    .step-wrapper {
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 1px solid #dedede;
+        display: block;
+        width: 800px
+    }
+    #activate-form input{
+        display: block;
+        width: 300px;
+        line-height: 30px;
+        font-size: 17px;
+        margin-bottom: 10px;
+        padding-left: 10px  ;
+    }
+    fieldset {
+        background: #FFF;
+    }
+</style>
+
 <script type="text/javascript">
 //<![CDATA[
            
 document.observe("dom:loaded", function() {
-	fullimg = "<span id='full_inf_div' style='display:block; margin-top:1em;'><img src = '<?php echo $this->getSkinUrl('images/moneybookers/banner.jpg'); ?>'></span>";
-	fullimg += "<br><br>";
-	fullimg += "<p>Other Required information</p>";
-	fullimg += "<p>Other Required information</p>";
-	fullimg += "<p>Other Required information</p>";
-	fullimg += "<p>Other Required information</p>";
-	fullimg += "<p>Other Required information</p>";
-		
-	 if (!document.getElementById("fullsection_full_activationstatus")) {
+	var rhtml = ''
+  rhtml += '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">'
+  rhtml += '  <img width="204px" height="53px" src="<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"/>'
+  rhtml += '</span>'
+  rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;">'
+  rhtml += '  The Riskified extension was successfully installed. <br>All that is left to do is to activate your extension and <br>connect it with a Riskified account'
+  rhtml += '</div>'
+  rhtml += '<span class="step-wrapper">'
+  rhtml += '    <div class="step-title"  style="font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #393536; display:inline-block">'
+  rhtml += '    1. Create Your Account'
+  rhtml += '        <span  style="margin-left: 20px;font-family:Helvetica Neue; font-size: 14px; line-height: 17px; color: #828282; padding: 5px; display:block">'
+  rhtml += '            Already have an account? go to step #2'
+  rhtml += '        </span>'
+  rhtml += '    </div>'
+  rhtml += '    <span class="step-inner">'
+  rhtml += '        <span class="step-action">'
+  rhtml += '            <a class="riskified-botton" style="margin-top:13px"  href="http://www.riskified.com/?platform=magento#install-section" target="_blank">Create an account</a>'
+  rhtml += '        </span>'
+  rhtml += '    </span>'
+  rhtml += '</span>'
+  rhtml += '<span class="step-wrapper">'
+  rhtml += '    <div class="step-title"  style="font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #393536; display:inline-block">'
+  rhtml += '        2. Activate you extension'
+  rhtml += '    </div>'
+  rhtml += '    <span class="step-inner">'
+  rhtml += '        <form id="activate-form">'
+  rhtml += '            <input type="text" pattern="" placeholder="your-riskified.shop.domain">'
+  rhtml += '            <input type="password" pattern="" placeholder="your Riskified password">'
+  rhtml += '        </form>'
+  rhtml += '        <span class="step-action">'
+  rhtml += '            <a class="riskified-botton" href="javascript:activate()">Activate your account</a>'
+  rhtml += '        </span>'
+  rhtml += '    </span>'
+  rhtml += '</span>'
+      if (!document.getElementById("fullsection_full_activationstatus")) {
          return;
      }
-	 document.getElementById("fullsection_full_activationstatus").style.display = "none";
-	 $('fullsection_full_activationstatus').up().insert(fullimg);
+     var keyRow = $$('#row_fullsection_full_key')
+     if (keyRow.size()== 0){
+       return;
+     }else{
+       keyRow = keyRow[0];
+     }
+     var mbody = keyRow.up();
+     var mtable = mbody.up();
+     mtable.hide();
+     var section = mtable.up();
+     section.setStyle({backgroundColor: '#FFF'});
+     section.insert(rhtml);
+     
 });
    
 //]]>
 </script>
+
 
