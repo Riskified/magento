@@ -220,7 +220,7 @@ class Riskified_Full_Model_Observer{
 				&& $block->getRequest()->getControllerName() == 'sales_order')
 		{
 			$block->addItem('full', array(
-					'label' => 'Riskified',
+					'label' => 'Submit to Riskified',
 					'url' => Mage::app()->getStore()->getUrl('full/adminhtml_full/riskimass'),
 			));
 		}
