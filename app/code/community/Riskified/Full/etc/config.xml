@@ -88,6 +88,11 @@
                     <sales_order_view>Riskified_Full_Block_Adminhtml_View</sales_order_view>
                 </rewrite>
             </adminhtml>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_grid>Riskified_Full_Block_Adminhtml_Grid</sales_order_grid>
+                </rewrite>
+            </adminhtml>
         </blocks>
         <helpers>
             <full>
