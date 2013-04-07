@@ -52,6 +52,8 @@
     .riskified-botton:hover{
         background-color: #edd364;
         background: #edd364;
+        text-decoration: none;
+        color: #FFF;
     }
 
     .step-inner {
@@ -81,9 +83,6 @@
         margin-bottom: 10px;
         padding-left: 10px  ;
     }
-    fieldset {
-        background: #FFF;
-    }
     
     .text-notice {
       font-weight: 300;
@@ -106,11 +105,11 @@
 //<![CDATA[
 
 function showRiskifiedNotice(noticeId){
-	$$(noticeId)[0].show();
+	$$(noticeId)[0].style.setProperty("display","block");
 }
 
 function hideRiskifiedNotice(noticeId){
-	$$(noticeId)[0].hide();
+	$$(noticeId)[0].style.setProperty("display","none");
 }
 
 function activate(){
@@ -119,7 +118,6 @@ function activate(){
     showRiskifiedNotice("#magento-notice");
     return;
   }
-  $$("#fullsection_full_domain")[0].value = riskifiedShopDomain;
   var riskifiedPassword = $$("#riskified-shop-password")[0].value;
 
   if (riskifiedPassword == ""){
@@ -129,7 +127,6 @@ function activate(){
 
   var generatedKey = "<?php echo sha1(microtime(true).mt_rand(10000,90000)); ?>";
   $$("#fullsection_full_key")[0].value = generatedKey;
-  
   var keys = "<?php echo $allkeys ?>";
   new Ajax.Request('http://public-beta.herokuapp.com/magento/activate', {
     method: 'POST',
@@ -188,7 +185,7 @@ document.observe("dom:loaded", function() {
   rhtml += '    <span class="step-inner" id="activation-done">';
   rhtml += '        <span class="step-action">';
   rhtml += '            <span class="done-message" style="display:block; margin-bottom:25; text-align:center; font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #9bc47f;">Activation was successfull</span>';
-  rhtml += '            <span class="done-message" style="display:block; margin-bottom:25; text-align:center; font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #9bc47f;">Saving...</span>';
+  rhtml += '            <span class="done-message" style="display:block; margin-bottom:25; text-align:center; font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #828282;">Saving...</span>';
   rhtml += '        </span>';
   rhtml += '    </span>';
   rhtml += '</span>';
@@ -200,22 +197,24 @@ document.observe("dom:loaded", function() {
      }else{
        keyRow = keyRow[0];
      }
-     var mbody = keyRow.up();
-     var mtable = mbody.up();
      
      var activationstatus = $$("#fullsection_full_activationstatus")[0].value;
+     var section = $$("#fullsection_full")[0];
+
      if (activationstatus === 'ACTIVE') {
-       rhtml = '<a class="riskified-botton" href="http://public-beta.herokuapp.com" target="_blank">Go to Riskified App</a>';
+       rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" src="http://magento.riskified.com/magento/skin/adminhtml/default/default/images/riskified/logo.jpg"></span>';
+       rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
+       rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="http://public-beta.herokuapp.com" target="_blank">Go to Riskified App</a>';
      }else{
-         mtable.hide();
+     	section.style.display = "none";
+       $$(".entry-edit-head.collapseable")[0].style.display = "none";
      }
      htmlBody = rhtml;
-     
-     var section = mtable.up();
-     section.setStyle({backgroundColor: '#FFF'});
-     section.insert(htmlBody);
+    
+     section.up().insert({top:htmlBody});
      
 });
    
 //]]>
 </script>
+
