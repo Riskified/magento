@@ -5,7 +5,7 @@
 
 (function() {
 	function riskifiedBeaconLoad() {
-		var url = "http://shopify.riskified.com/assets/beacon.js";
+		var url = "http://riskified-staging.herokuapp.com/assets/beacon.js";
 		var s = document.createElement('script');
 		s.type = 'text/javascript';
 		s.async = true;

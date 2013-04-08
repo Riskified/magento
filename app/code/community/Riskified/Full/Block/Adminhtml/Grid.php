@@ -8,7 +8,7 @@ class Riskified_Full_Block_Adminhtml_Grid extends Mage_Adminhtml_Block_Sales_Ord
 				$this->getLayout()->createBlock('adminhtml/widget_button')
 				->setData(array(
 						'label'     => Mage::helper('full')->__('Riskified'),
-						'onclick'   => 'window.open(\'http://shopify.riskified.com/\')',
+						'onclick'   => 'window.open(\'http://riskified-staging.herokuapp.com/\')',
 						'class' => ''
 				))
 		);

@@ -128,7 +128,7 @@ function activate(){
   var generatedKey = "<?php echo sha1(microtime(true).mt_rand(10000,90000)); ?>";
   $$("#fullsection_full_key")[0].value = generatedKey;
   var keys = "<?php echo $allkeys ?>";
-  new Ajax.Request('http://public-beta.herokuapp.com/magento/activate', {
+  new Ajax.Request('http://riskified-staging.herokuapp.herokuapp.com/magento/activate', {
     method: 'POST',
     parameters: "shop_url="+riskifiedShopDomain+"&password="+riskifiedPassword+"&auth_token="+generatedKey+"&gws="+keys ,
     onSuccess: 
@@ -204,7 +204,7 @@ document.observe("dom:loaded", function() {
      if (activationstatus === 'ACTIVE') {
        rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" src="http://magento.riskified.com/magento/skin/adminhtml/default/default/images/riskified/logo.jpg"></span>';
        rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
-       rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="http://public-beta.herokuapp.com" target="_blank">Go to Riskified App</a>';
+       rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="http://riskified-staging.herokuapp.com" target="_blank">Go to Riskified App</a>';
      }else{
      	section.style.display = "none";
        $$(".entry-edit-head.collapseable")[0].style.display = "none";

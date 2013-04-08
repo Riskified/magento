@@ -24,7 +24,7 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 		}
 		
 		$domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
-		$link = "http://public-beta.herokuapp.com/shopify_links/".$action."?shop=".$domain.$end;
+		$link = "http://riskified-staging.herokuapp.com/shopify_links/".$action."?shop=".$domain.$end;
 		return $link;
 	}
 	
