@@ -126,7 +126,10 @@ function activate(){
   }
 
   var generatedKey = "<?php echo sha1(microtime(true).mt_rand(10000,90000)); ?>";
+
   $$("#fullsection_full_key")[0].value = generatedKey;
+  $$("#fullsection_full_domain")[0].value = riskifiedShopDomain;
+
   var keys = "<?php echo $allkeys ?>";
   new Ajax.Request('https://app.riskified.com/magento/activate', {
     method: 'POST',
