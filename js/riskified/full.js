@@ -5,7 +5,7 @@
 
 (function() {
 	function riskifiedBeaconLoad() {
-		var url = document.getElementById('full_do_info').value;
+		var url = "http://app.riskified.com/assets/beacon.js?shop="+document.getElementById('full_do_info').value;
 		var s = document.createElement('script');
 		s.type = 'text/javascript';
 		s.async = true;
