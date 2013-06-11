@@ -23,9 +23,36 @@ class Riskified_Full_Model_Observer{
 		return $result;
 	}
 	
+
+	public function saveOrderBefore($evt)
+	{
+        Mage::log("Entering saveOrderBefore");
+		#$p1 = $evt->getPayment();
+		#$p2 = $payment->getOrder();
+
+        #Mage::log($p1->debug());
+        #Mage::log($p2->debug());
+        Mage::log($evt->debug());
+        Mage::log("Exiting saveOrderBefore");
+    }
+
+	public function salesOrderPlaceEnd($evt)
+	{
+        Mage::log("Entering salesOrderPlaceEnd");
+		#$p1 = $evt->getPayment();
+		#$p2 = $payment->getOrder();
+
+        #Mage::log($p1->debug());
+        #Mage::log($p2->debug());
+        Mage::log($evt->debug());
+        Mage::log("Exiting salesOrderPlaceEnd");
+    }
+
 	public function saveOrderAfter($evt)
 	{
+        Mage::log("Entering saveOrderAfter");
 		$order = $evt->getOrder();
+        Mage::log($order->debug());
 		$order_id = $order->getId();
 		$order = Mage::getModel('sales/order');
 		$order_model = $order->load($order_id);
@@ -34,6 +61,7 @@ class Riskified_Full_Model_Observer{
 		$customer_id = $order_model->getCustomerId();
     	$customer_details = Mage::getModel('customer/customer')->load($customer_id);
 		$payment_details = $order_model->getPayment();
+        Mage::log($payment_details->debug());
 		$add = $billing_address->getStreet();
 		$sadd = $shipping_address->getStreet();
 		// gathering data
