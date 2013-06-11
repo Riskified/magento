@@ -3,7 +3,8 @@ class Riskified_Full_Model_Observer{
 	
 	Private function fireCurl($data_string,$hash_code){
 		$domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
-		$ch = curl_init('http://app.riskified.com/webhooks/merchant_order_created');
+		#$ch = curl_init('http://app.riskified.com/webhooks/merchant_order_created');
+		$ch = curl_init('http://127.0.0.1:3000/webhooks/merchant_order_created');
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -27,32 +28,19 @@ class Riskified_Full_Model_Observer{
 	public function saveOrderBefore($evt)
 	{
         Mage::log("Entering saveOrderBefore");
-		#$p1 = $evt->getPayment();
-		#$p2 = $payment->getOrder();
-
-        #Mage::log($p1->debug());
-        #Mage::log($p2->debug());
-        Mage::log($evt->debug());
+		$payment = $evt->getPayment();
+        $payment->setAdditionalInformation('riskified_cc_bin', substr($payment->getCcNumber(),0,6));
         Mage::log("Exiting saveOrderBefore");
     }
 
 	public function salesOrderPlaceEnd($evt)
 	{
-        Mage::log("Entering salesOrderPlaceEnd");
-		#$p1 = $evt->getPayment();
-		#$p2 = $payment->getOrder();
-
-        #Mage::log($p1->debug());
-        #Mage::log($p2->debug());
-        Mage::log($evt->debug());
-        Mage::log("Exiting salesOrderPlaceEnd");
     }
 
 	public function saveOrderAfter($evt)
 	{
         Mage::log("Entering saveOrderAfter");
 		$order = $evt->getOrder();
-        Mage::log($order->debug());
 		$order_id = $order->getId();
 		$order = Mage::getModel('sales/order');
 		$order_model = $order->load($order_id);
@@ -61,7 +49,6 @@ class Riskified_Full_Model_Observer{
 		$customer_id = $order_model->getCustomerId();
     	$customer_details = Mage::getModel('customer/customer')->load($customer_id);
 		$payment_details = $order_model->getPayment();
-        Mage::log($payment_details->debug());
 		$add = $billing_address->getStreet();
 		$sadd = $shipping_address->getStreet();
 		// gathering data
@@ -140,9 +127,10 @@ class Riskified_Full_Model_Observer{
 			// payment details if authorize
 			foreach ($payment_details->getAdditionalInformation() as $additional_data){
 				foreach ($additional_data as $key => $trans_data){
-					$data['payment_details']['avs_result_code']	= NULL;
-					$data['payment_details']['credit_card_bin']	= NULL;
-					$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
+					$data['payment_details']['credit_card_bin']	= $payment_details->getAdditionalInformation('riskified_cc_bin');
+					$data['payment_details']['avs_result_code']	= $trans_data['cc_avs_result_code'];
+					$data['payment_details']['cvv_result_code']	= $trans_data['cc_response_code'];
+					#$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
 					$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$trans_data['cc_last4'];
 					$data['payment_details']['credit_card_company']= $trans_data['cc_type'];
 				}
