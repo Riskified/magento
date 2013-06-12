@@ -41,6 +41,7 @@ class Riskified_Full_Model_Observer{
 	{
         Mage::log("Entering saveOrderAfter");
 		$order = $evt->getOrder();
+        Mage::log($order->debug());
 		$order_id = $order->getId();
 		$order = Mage::getModel('sales/order');
 		$order_model = $order->load($order_id);
@@ -193,6 +194,10 @@ class Riskified_Full_Model_Observer{
 		//billing info
 		$data['billing_address']['first_name'] 	= $billing_address->getFirstname();
 		$data['billing_address']['last_name']	= $billing_address->getLastname();
+		$data['billing_address']['name']   	    = $data['billing_address']['first_name'] . " " . $data['billing_address']['last_name'];
+        Mage::log($data['billing_address']['first_name']);
+        Mage::log($data['billing_address']['last_name']);
+        Mage::log($data['billing_address']['name']);
 		$data['billing_address']['address1'] 	= $add['0'];
 		$data['billing_address']['address2'] 	= $add['1'];
 		$data['billing_address']['city'] 		= $billing_address->getCity();
@@ -206,6 +211,7 @@ class Riskified_Full_Model_Observer{
 		//shipping info
 		$data['shipping_address']['first_name'] = $shipping_address->getFirstname();
 		$data['shipping_address']['last_name'] 	= $shipping_address->getLastname();
+		$data['shipping_address']['name']   	= $data['shipping_address']['first_name'] . " " . $data['shipping_address']['last_name'];
 		$data['shipping_address']['address1'] 	= $sadd['0'];
 		$data['shipping_address']['address2'] 	= $sadd['1'];
 		$data['shipping_address']['city'] 		= $shipping_address->getCity();
