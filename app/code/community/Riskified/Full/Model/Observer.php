@@ -3,8 +3,7 @@ class Riskified_Full_Model_Observer{
 	
 	Private function fireCurl($data_string,$hash_code){
 		$domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
-		#$ch = curl_init('http://app.riskified.com/webhooks/merchant_order_created');
-		$ch = curl_init('http://127.0.0.1:3000/webhooks/merchant_order_created');
+		$ch = curl_init('http://app.riskified.com/webhooks/merchant_order_created');
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
