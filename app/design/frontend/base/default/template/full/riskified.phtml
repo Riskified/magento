@@ -3,8 +3,6 @@
 <script type="text/javascript">
 (function() {
     function riskifiedBeaconLoad() {
-        var eyal = "<?php echo Mage::getBaseUrl();?>";
-        var store_domain ="<?php echo Mage::getBaseUrl (Mage_Core_Model_Store::URL_TYPE_WEB);?>"; 
         var store_domain="<?php echo Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore())?>";
         var url = "http://app.riskified.com/assets/beacon.js?shop="+store_domain;
         var s = document.createElement('script');
