@@ -48,20 +48,20 @@ mkdir $1/skin/adminhtml/default/default/images
 mkdir $1/skin/adminhtml/default/default/images/riskified
 
 # Copy the source files.
-cp ./app/code/community/Riskified/Full/Block/Adminhtml/Grid.php                 $1/app/code/community/Riskified/Full/Block/Adminhtml/Grid.php
-cp ./app/code/community/Riskified/Full/Block/Adminhtml/View.php                 $1/app/code/community/Riskified/Full/Block/Adminhtml/View.php
-cp ./app/code/community/Riskified/Full/Block/Jsinit.php                         $1/app/code/community/Riskified/Full/Block/Jsinit.php
-cp ./app/code/community/Riskified/Full/controllers/Adminhtml/FullController.php $1/app/code/community/Riskified/Full/controllers/Adminhtml/FullController.php
-cp ./app/code/community/Riskified/Full/etc/config.xml                           $1/app/code/community/Riskified/Full/etc/config.xml
-cp ./app/code/community/Riskified/Full/etc/system.xml                           $1/app/code/community/Riskified/Full/etc/system.xml
-cp ./app/code/community/Riskified/Full/Helper/Data.php                          $1/app/code/community/Riskified/Full/Helper/Data.php
-cp ./app/code/community/Riskified/Full/Model/Authorizenet.php                   $1/app/code/community/Riskified/Full/Model/Authorizenet.php
-cp ./app/code/community/Riskified/Full/Model/Observer.php                       $1/app/code/community/Riskified/Full/Model/Observer.php
-cp ./app/design/adminhtml/default/default/layout/full.xml                       $1/app/design/adminhtml/default/default/layout/full.xml
-cp ./app/design/adminhtml/default/default/template/full/jsinit.phtml            $1/app/design/adminhtml/default/default/template/full/jsinit.phtml
-cp ./app/etc/modules/Riskified_Full.xml                                         $1/app/etc/modules/Riskified_Full.xml
-cp ./js/riskified/full.js                                                       $1/js/riskified/full.js
-cp ./skin/adminhtml/default/default/images/riskified/logo.jpg                   $1/skin/adminhtml/default/default/images/riskified/logo.jpg
-cp ./app/design/frontend/base/default/template/full/riskified.phtml             $1/app/design/frontend/base/default/template/full/riskified.phtml
-cp ./app/design/frontend/base/default/layout/full.xml                           $1/app/design/frontend/base/default/layout/full.xml
+cp ./app/code/community/Riskified/Full/Block/Adminhtml/Grid.php                 $1/app/code/community/Riskified/Full/Block/Adminhtml/
+cp ./app/code/community/Riskified/Full/Block/Adminhtml/View.php                 $1/app/code/community/Riskified/Full/Block/Adminhtml/
+cp ./app/code/community/Riskified/Full/Block/Jsinit.php                         $1/app/code/community/Riskified/Full/Block/
+cp ./app/code/community/Riskified/Full/controllers/Adminhtml/FullController.php $1/app/code/community/Riskified/Full/controllers/Adminhtml/
+cp ./app/code/community/Riskified/Full/etc/config.xml                           $1/app/code/community/Riskified/Full/etc/
+cp ./app/code/community/Riskified/Full/etc/system.xml                           $1/app/code/community/Riskified/Full/etc/
+cp ./app/code/community/Riskified/Full/Helper/Data.php                          $1/app/code/community/Riskified/Full/Helper/
+cp ./app/code/community/Riskified/Full/Model/Authorizenet.php                   $1/app/code/community/Riskified/Full/Model/
+cp ./app/code/community/Riskified/Full/Model/Observer.php                       $1/app/code/community/Riskified/Full/Model/
+cp ./app/design/adminhtml/default/default/layout/full.xml                       $1/app/design/adminhtml/default/default/layout/
+cp ./app/design/adminhtml/default/default/template/full/jsinit.phtml            $1/app/design/adminhtml/default/default/template/full/
+cp ./app/etc/modules/Riskified_Full.xml                                         $1/app/etc/modules/
+cp ./js/riskified/full.js                                                       $1/js/riskified/
+cp ./skin/adminhtml/default/default/images/riskified/logo.jpg                   $1/skin/adminhtml/default/default/images/riskified/
+cp ./app/design/frontend/base/default/template/full/riskified.phtml             $1/app/design/frontend/base/default/template/full/
+cp ./app/design/frontend/base/default/layout/full.xml                           $1/app/design/frontend/base/default/layout/
 
