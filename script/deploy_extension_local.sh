@@ -44,7 +44,6 @@ cp ./app/code/community/Riskified/Full/Model/Observer.php                       
 cp ./app/design/adminhtml/default/default/layout/full.xml                       $1/app/design/adminhtml/default/default/layout/
 cp ./app/design/adminhtml/default/default/template/full/jsinit.phtml            $1/app/design/adminhtml/default/default/template/full/
 cp ./app/etc/modules/Riskified_Full.xml                                         $1/app/etc/modules/
-cp ./js/riskified/full.js                                                       $1/js/riskified/
 cp ./skin/adminhtml/default/default/images/riskified/logo.jpg                   $1/skin/adminhtml/default/default/images/riskified/
 cp ./app/design/frontend/base/default/template/full/riskified.phtml             $1/app/design/frontend/base/default/template/full/
 cp ./app/design/frontend/base/default/layout/full.xml                           $1/app/design/frontend/base/default/layout/
