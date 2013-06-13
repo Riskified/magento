@@ -6,6 +6,25 @@ echo "Magento root dir is $MAGENTO_ROOT_DIR"
 # Todo: make this script cleaner with a loop
 
 # Clean the files in the installation
+rm -rf $1/app/code/community/Riskified/Full/Block/Adminhtml/*
+rmdir $1/app/code/community/Riskified/Full/Block/Adminhtml
+rm -rf $1/app/code/community/Riskified/Full/Block/*
+rmdir $1/app/code/community/Riskified/Full/Block
+rm -rf $1/app/code/community/Riskified/Full/controllers/Adminhtml/*
+rmdir $1/app/code/community/Riskified/Full/controllers/Adminhtml
+rm -rf $1/app/code/community/Riskified/Full/controllers/*
+rmdir $1/app/code/community/Riskified/Full/controllers
+rm -rf $1/app/code/community/Riskified/Full/etc/*
+rmdir $1/app/code/community/Riskified/Full/etc
+rm -rf $1/app/code/community/Riskified/Full/Helper/*
+rmdir $1/app/code/community/Riskified/Full/Helper
+rm -rf $1/app/code/community/Riskified/Full/Model/*
+rmdir $1/app/code/community/Riskified/Full/Model
+rm -rf $1/app/code/community/Riskified/Full/*
+rmdir $1/app/code/community/Riskified/Full
+rm -rf $1/app/code/community/Riskified/*
+rmdir $1/app/code/community/Riskified
+
 rm -rf $1/app/design/adminhtml/default/default/layout/full.xml/*
 rmdir $1/app/design/adminhtml/default/default/layout/full.xml
 rm -rf $1/app/design/adminhtml/default/default/template/full/jsinit.phtml/*
