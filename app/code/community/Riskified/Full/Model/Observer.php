@@ -40,7 +40,7 @@ class Riskified_Full_Model_Observer{
 	{
         Mage::log("Entering saveOrderAfter");
 		$order = $evt->getOrder();
-        Mage::log($order->debug());
+        //Mage::log($order->debug());
 		$order_id = $order->getId();
 		$order = Mage::getModel('sales/order');
 		$order_model = $order->load($order_id);
@@ -194,9 +194,6 @@ class Riskified_Full_Model_Observer{
 		$data['billing_address']['first_name'] 	= $billing_address->getFirstname();
 		$data['billing_address']['last_name']	= $billing_address->getLastname();
 		$data['billing_address']['name']   	    = $data['billing_address']['first_name'] . " " . $data['billing_address']['last_name'];
-        Mage::log($data['billing_address']['first_name']);
-        Mage::log($data['billing_address']['last_name']);
-        Mage::log($data['billing_address']['name']);
 		$data['billing_address']['address1'] 	= $add['0'];
 		$data['billing_address']['address2'] 	= $add['1'];
 		$data['billing_address']['city'] 		= $billing_address->getCity();
