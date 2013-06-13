@@ -6,22 +6,7 @@ echo "Magento root dir is $MAGENTO_ROOT_DIR"
 # Todo: make this script cleaner with a loop
 
 # Clean the files in the installation
-rm $1/app/code/community/Riskified/Full/Block/Adminhtml/Grid.php
-rm $1/app/code/community/Riskified/Full/Block/Adminhtml/View.php
-rm $1/app/code/community/Riskified/Full/Block/Jsinit.php
-rm $1/app/code/community/Riskified/Full/controllers/Adminhtml/FullController.php
-rm $1/app/code/community/Riskified/Full/etc/config.xml
-rm $1/app/code/community/Riskified/Full/etc/system.xml
-rm $1/app/code/community/Riskified/Full/Helper/Data.php
-rm $1/app/code/community/Riskified/Full/Model/Authorizenet.php
-rm $1/app/code/community/Riskified/Full/Model/Observer.php
-rm $1/app/design/adminhtml/default/default/layout/full.xml
-rm $1/app/design/adminhtml/default/default/template/full/jsinit.phtml
-rm $1/app/design/frontend/default/default/layout/full.xml
-rm $1/app/design/frontend/default/default/template/full/full.phtml
-rm $1/app/etc/modules/Riskified_Full.xml
-rm $1/js/riskified/full.js
-rm $1/skin/adminhtml/default/default/images/riskified/logo.jpg
+./script/cleanup.sh
 
 # Create the directories
 mkdir $1/app/code/community/Riskified
@@ -43,7 +28,6 @@ mkdir $1/app/design/frontend/default
 mkdir $1/app/design/frontend/base/default
 mkdir $1/app/design/frontend/base/default/template
 mkdir $1/app/design/frontend/base/default/template/full
-mkdir $1/js/riskified
 mkdir $1/skin/adminhtml/default/default/images
 mkdir $1/skin/adminhtml/default/default/images/riskified
 
@@ -64,4 +48,7 @@ cp ./js/riskified/full.js                                                       
 cp ./skin/adminhtml/default/default/images/riskified/logo.jpg                   $1/skin/adminhtml/default/default/images/riskified/
 cp ./app/design/frontend/base/default/template/full/riskified.phtml             $1/app/design/frontend/base/default/template/full/
 cp ./app/design/frontend/base/default/layout/full.xml                           $1/app/design/frontend/base/default/layout/
+cp ./package_xml_file/riskified_magento.xml                                     $1/var/connect
+
+
 

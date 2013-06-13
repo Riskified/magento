@@ -18,6 +18,7 @@ rmdir $1/js/riskified
 rm -rf $1/skin/adminhtml/default/default/images/riskified/logo.jpg/*
 rmdir $1/skin/adminhtml/default/default/images/riskified/logo.jpg
 rmdir $1/skin/adminhtml/default/default/images/riskified
+rmdir $1/skin/adminhtml/default/default/images/riskified
 rm -rf $1/app/design/frontend/base/default/template/full/riskified.phtml/*
 rmdir $1/app/design/frontend/base/default/template/full/riskified.phtml
 rm -rf $1/app/design/frontend/base/default/layout/full.xml/*
@@ -38,6 +39,7 @@ rm $1/app/design/frontend/default/default/layout/full.xml
 rm $1/app/design/frontend/default/default/template/full/full.phtml
 rm $1/app/etc/modules/Riskified_Full.xml
 rm $1/js/riskified/full.js
+rmdir $1/js/riskified
 rm $1/skin/adminhtml/default/default/images/riskified/logo.jpg
 rm $1/app/design/frontend/base/default/template/full/riskified.phtml
 rm $1/app/design/frontend/base/default/layout/full.xml
