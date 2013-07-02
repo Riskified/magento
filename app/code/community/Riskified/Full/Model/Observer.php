@@ -121,13 +121,15 @@ class Riskified_Full_Model_Observer{
 		$data['tax_lines']	=NULL;
 		
 		// payment details
-		
+
+		$bin_number = $payment_details->getAdditionalInformation('riskified_cc_bin');
+
 		if($payment_details->getMethod() == 'authorizenet')
 		{
 			// payment details if authorize
 			foreach ($payment_details->getAdditionalInformation() as $additional_data){
 				foreach ($additional_data as $key => $trans_data){
-					$data['payment_details']['credit_card_bin']	= $payment_details->getAdditionalInformation('riskified_cc_bin');
+					$data['payment_details']['credit_card_bin']	= $bin_number;
 					$data['payment_details']['avs_result_code']	= $trans_data['cc_avs_result_code'];
 					$data['payment_details']['cvv_result_code']	= $trans_data['cc_response_code'];
 					#$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
@@ -138,7 +140,7 @@ class Riskified_Full_Model_Observer{
 		}elseif ($payment_details->getMethod() == 'paypal_direct'){
 			// payment details if paypal
 			$data['payment_details']['avs_result_code']	= $payment_details->getAdditionalInformation('paypal_avs_code');
-			$data['payment_details']['credit_card_bin']	=NULL;
+			$data['payment_details']['credit_card_bin']	= $bin_number;
 			$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
 			$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$payment_details->getCcLast4();
 			$data['payment_details']['credit_card_company']	= $payment_details->getCcType();
