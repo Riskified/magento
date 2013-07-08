@@ -4,7 +4,7 @@
 (function() {
     function riskifiedBeaconLoad() {
         var store_domain="<?php echo Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore())?>";
-        var url = ('https:' == document.location.protocol ? 'https://' : 'http://') + "app.riskified.com/assets/beacon.js?shop="+store_domain;
+        var url = ('https:' == document.location.protocol ? 'https://' : 'http://') + "riskx-shopify-app.herokuapp.com/assets/beacon.js?shop="+store_domain;
         var s = document.createElement('script');
         s.type = 'text/javascript';
         s.async = true;
