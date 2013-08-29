@@ -146,6 +146,7 @@ class Riskified_Full_Model_Observer{
 			$data['payment_details']['credit_card_company']	= $payment_details->getCcType();
 		}elseif ($payment_details->getMethod() == 'sagepaydirectpro'){
 			// payment details if sagepaydirectpro
+			
 			$sage = $order_model->getSagepayInfo(); 
 			$data['payment_details']['avs_result_code']	= $sage->getData('address_result');
 			$data['payment_details']['credit_card_bin']	= $bin_number;
