@@ -144,6 +144,14 @@ class Riskified_Full_Model_Observer{
 			$data['payment_details']['cvv_result_code']	= $payment_details->getAdditionalInformation('paypal_cvv2_match');
 			$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$payment_details->getCcLast4();
 			$data['payment_details']['credit_card_company']	= $payment_details->getCcType();
+		}elseif ($payment_details->getMethod() == 'sagepaydirectpro'){
+			// payment details if sagepaydirectpro
+			$sage = $order_model->getSagepayInfo(); 
+			$data['payment_details']['avs_result_code']	= $sage->getData('address_result');
+			$data['payment_details']['credit_card_bin']	= $bin_number;
+			$data['payment_details']['cvv_result_code']	= $sage->getData('cv2result');
+			$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$sage->getData('last_four_digits');
+			$data['payment_details']['credit_card_company']	= $sage->getData('card_type');
 		}else{
 			// payment details if anything else
 			$data['payment_details']['avs_result_code']	= NULL;
