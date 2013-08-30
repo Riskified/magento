@@ -8,6 +8,8 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 	/*****mycode******/
 	Private function getSubmitUrlByIds($ids)
 	{
+		$call = Mage::getModel('Riskified_Full_Model_Observer');
+		$call->saveOrderAfter($ids);
 		$end='';
 		if(is_array($ids))
 		{
@@ -24,7 +26,7 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 		}
 		
 		$domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
-		$link = "http://    app.riskified.com/shopify_links/".$action."?shop=".$domain.$end;
+		$link = "http://app.riskified.com/shopify_links/".$action."?shop=".$domain.$end;
 		return $link;
 	}
 	
