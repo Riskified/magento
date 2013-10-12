@@ -206,7 +206,7 @@ document.observe("dom:loaded", function() {
      var section = $$("#fullsection_full")[0];
 
      if (activationstatus === 'ACTIVE') {
-       rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" src="http://magento.riskified.com/magento/skin/adminhtml/default/default/images/riskified/logo.jpg"></span>';
+       rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" "<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"></span>';
        rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
        rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="http://app.riskified.com" target="_blank">Go to Riskified App</a>';
      }else{
