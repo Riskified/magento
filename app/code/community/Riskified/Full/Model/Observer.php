@@ -61,7 +61,7 @@ class Riskified_Full_Model_Observer{
 			// gathering data
 			$data = array();
 			$data['id'] 			= $order_model->getId();
-			$data['name'] 			= $order_model->getId();
+			$data['name'] 			= $order_model->getIncrementId();
 			$data['email']			= $order_model->getCustomerEmail();
 			$data['total_spent']	= $order_model->getGrandTotal();
 			$data['created_at']		= $order_model->getCreatedAt();
