@@ -162,10 +162,10 @@ class Riskified_Full_Model_Observer{
 				$data['payment_details']['credit_card_company']	= $sage->getData('card_type');
 			}else{
 				// payment details if anything else
-				$data['payment_details']['avs_result_code']	= NULL;
-				$data['payment_details']['credit_card_bin']	=NULL;
-				$data['payment_details']['cvv_result_code']	= NULL;
-				$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$payment_details->getCcLast4();
+                $data['payment_details']['avs_result_code']     = $payment_details->getCcAvsStatus();
+                $data['payment_details']['credit_card_bin']     = $bin_number;
+                $data['payment_details']['cvv_result_code']     = $payment_details->getCcCidStatus();
+ 				$data['payment_details']['credit_card_number']	= "XXXX-XXXX-".$payment_details->getCcLast4();
 				$data['payment_details']['credit_card_company']	= $payment_details->getCcType();
 			}
 			
