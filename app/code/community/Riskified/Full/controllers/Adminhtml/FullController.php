@@ -1,6 +1,6 @@
 <?php
 
-class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_action
+class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_Action
 {
 
 
