@@ -32,7 +32,7 @@ class Riskified_Full_Model_Observer{
     } else {
       $orderIds = $observer->getEvent()->getOrderIds();
       if (empty($orderIds) || !is_array($orderIds)) {
-        Mage::log("Empty or not array");
+        //Mage::log("Empty or not array");
         return;
       } else {
         foreach ($orderIds as $order_id) {
