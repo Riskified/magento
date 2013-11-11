@@ -117,24 +117,26 @@ class Riskified_Full_Model_Observer{
       $data['checkout_id']	=NULL;
 
       //forlast products
+      $i = 0;
       foreach ($order_model->getItemsCollection() as $key => $val)
       {
-        $data['line_items'][]['fulfillment_service']	=NULL;
-        $data['line_items'][]['fulfillment_status']	=NULL;
-        $data['line_items'][]['grams']	= $val->getWeight();
-        $data['line_items'][]['id']	= $val->getItemId();
-        $data['line_items'][]['price']	= $val->getPrice();
-        $data['line_items'][]['product_id']	= $val->getItemId();
-        $data['line_items'][]['quantity']	= $val->getQtyOrdered();
-        $data['line_items'][]['requires_shipping']	=NULL;
-        $data['line_items'][]['sku']	= $val->getSku();
-        $data['line_items'][]['title']	= $val->getName();
-        $data['line_items'][]['variant_id']	=NULL;
-        $data['line_items'][]['variant_title']	=NULL;
-        $data['line_items'][]['vendor']	= $order_model->getStoreName();
-        $data['line_items'][]['name']	= $val->getName();
-        $data['line_items'][]['variant_inventory_management']	=NULL;
-        $data['line_items'][]['properties']	=NULL;
+        $data['line_items'][$i]['fulfillment_service']	=NULL;
+        $data['line_items'][$i]['fulfillment_status']	=NULL;
+        $data['line_items'][$i]['grams']	= $val->getWeight();
+        $data['line_items'][$i]['id']	= $val->getItemId();
+        $data['line_items'][$i]['price']	= $val->getPrice();
+        $data['line_items'][$i]['product_id']	= $val->getItemId();
+        $data['line_items'][$i]['quantity']	= $val->getQtyOrdered();
+        $data['line_items'][$i]['requires_shipping']	=NULL;
+        $data['line_items'][$i]['sku']	= $val->getSku();
+        $data['line_items'][$i]['title']	= $val->getName();
+        $data['line_items'][$i]['variant_id']	=NULL;
+        $data['line_items'][$i]['variant_title']	=NULL;
+        $data['line_items'][$i]['vendor']	= $order_model->getStoreName();
+        $data['line_items'][$i]['name']	= $val->getName();
+        $data['line_items'][$i]['variant_inventory_management']	=NULL;
+        $data['line_items'][$i]['properties']	=NULL;
+        $i++;
       }
 
       //shipping details
