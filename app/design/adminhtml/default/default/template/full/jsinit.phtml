@@ -131,7 +131,7 @@ function activate(){
   $$("#fullsection_full_domain")[0].value = riskifiedShopDomain;
 
   var keys = "<?php echo $allkeys ?>";
-  var activateURL = 'https://app.riskified.com/magento/activate';
+  var activateURL = '<?php echo Mage::helper("full")->getConfigUrl()?>magento/activate';
   new Ajax.Request(activateURL, {
     method: 'POST',
     parameters: "shop_url="+riskifiedShopDomain+"&password="+riskifiedPassword+"&auth_token="+generatedKey+"&gws="+keys ,
@@ -208,7 +208,7 @@ document.observe("dom:loaded", function() {
      if (activationstatus === 'ACTIVE') {
        rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" src="<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"></span>';
        rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
-       rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="http://app.riskified.com" target="_blank">Go to Riskified App</a>';
+       rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="<?php echo Mage::helper('full')->getConfigUrl()?>" target="_blank">Go to Riskified App</a>';
      }else{
      	section.style.display = "none";
        $$(".entry-edit-head.collapseable")[0].style.display = "none";

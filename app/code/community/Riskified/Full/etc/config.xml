@@ -88,6 +88,9 @@
                     <authorizenet>Riskified_Full_Model_Authorizenet</authorizenet>
                 </rewrite>
             </paygate>
+            <full>
+                <class>Riskified_Full_Model</class>
+            </full>
         </models>
        <blocks>
            <adminhtml>
@@ -116,15 +119,6 @@
                 </save_after>
 	        </observers>
 	      </checkout_type_onepage_save_order_after>    
-	     <checkout_onepage_controller_success_action> 
-	         <observers>
-                 <save_after> 
-                  <type>singleton</type>
-                  <class>Riskified_Full_Model_Observer</class> 
-                  <method>checkoutOnePageControllerSuccess</method> 
-                </save_after>
-	        </observers>
-	      </checkout_onepage_controller_success_action>    
           <sales_order_payment_place_start> 
               <observers>
                   <save_after> 
@@ -135,14 +129,14 @@
               </observers>
           </sales_order_payment_place_start>    
           <sales_order_payment_place_end> 
-            <observers>
-              <save_after> 
-                <type>singleton</type>
-                <class>Riskified_Full_Model_Observer</class> 
-                <method>salesOrderPlaceEnd</method> 
-              </save_after>
-            </observers>
-          </sales_order_payment_place_end>
+              <observers>
+                  <save_after> 
+                      <type>singleton</type>
+                      <class>Riskified_Full_Model_Observer</class> 
+                      <method>salesOrderPlaceEnd</method> 
+                  </save_after>
+              </observers>
+          </sales_order_payment_place_end>    
 		</events>
     </global>
 </config>
