@@ -37,7 +37,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
                     // change order status to 'On Hold'
                     $comment = 'Verified and declined by Riskified';
                     $isCustomerNotified = false;
-                    $orders->setState(Mage_Sales_Model_Order::STATE_HOLDED, true, $comment)->save();
+                    $orders->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, $comment)->save();
                     break;
                     
                 default:
