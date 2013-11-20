@@ -22,7 +22,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
         if($localHash != $riskiHash)
             $this->_redirect();
         
-        if(!empty($orderId))
+        if(!empty($orderId) && $status != 'captured')
         {
             $orders = Mage::getModel('sales/order')
                      ->load($orderId);
@@ -39,11 +39,12 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
                     $isCustomerNotified = false;
                     $orders->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, $comment)->save();
                     break;
-                    
-                default:
+                
+                case 'submited':
                     // change order status to 'Pending'
                     $orders->setState(Mage_Sales_Model_Order::STATE_NEW, true)->save();
-                    break;
+                    break;   
+                
             }
             /* available order statuses
                 
