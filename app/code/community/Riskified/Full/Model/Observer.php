@@ -55,21 +55,24 @@ class Riskified_Full_Model_Observer{
             switch ($status) {
                 case 'approved':
                     //change order status to 'Processing'
-                    $orders->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true)->save();
+                    $comment = 'Reviewed and approved by Riskified';
+                    $orders->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, $comment)->save();
                     break;
-                    
+
                 case 'declined':
                     // change order status to 'On Hold'
-                    $comment = 'Verified and declined by Riskified';
+                    $comment = 'Reviewed and declined by Riskified';
                     $isCustomerNotified = false;
-                    $orders->setState(Mage_Sales_Model_Order::STATE_CANCELED, true, $comment)->save();
+                    $status = Mage_Sales_Model_Order::STATUS_FRAUD;
+                    $orders->setState(Mage_Sales_Model_Order::STATE_CANCELED, $status , $comment)->save();
                     break;
-                    
-                case 'submited':
+
+                case 'submitted':
                     // change order status to 'Pending'
-                    $orders->setState(Mage_Sales_Model_Order::STATE_NEW, true)->save();
-                    break;    
-                
+                    $comment = 'Under review by Riskified';
+                    $orders->setState(Mage_Sales_Model_Order::STATE_HOLDED, true,$comment)->save();
+                    break;
+
             }
             
         }
