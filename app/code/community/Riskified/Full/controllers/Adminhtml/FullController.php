@@ -1,6 +1,6 @@
 <?php
 
-class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_Action
+class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_action
 {
 
 
@@ -26,11 +26,33 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 		}
 		
 		$domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
-		$link = "http://app.riskified.com/shopify_links/".$action."?shop=".$domain.$end;
+		$link = Mage::helper('full')->getConfigUrl()."shopify_links/".$action."?shop=".$domain.$end;
 		return $link;
 	}
 	
-	
+	/*
+     *  BGB 
+     *
+    public function showAction()
+    {
+        $this->loadLayout();
+        $this->_setActiveMenu('full');
+        $this->_addBreadcrumb(Mage::helper('full')->__('Riskified'), Mage::helper('full')->__('Riskified'));
+        
+        $this->renderLayout();
+    }
+    
+    public function showapiAction()
+    {
+        $this->loadLayout();
+        $this->_setActiveMenu('full');
+        $this->_addBreadcrumb(Mage::helper('full')->__('RiskifiedApi'), Mage::helper('full')->__('RiskifiedApi'));
+        
+        $this->renderLayout();
+    }
+    
+    /****/// \\\***/
+    
 	public function riskiAction()
 	{
 		$id = $this->getRequest()->getParam('order_id');
