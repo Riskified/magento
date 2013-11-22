@@ -32,7 +32,7 @@ class Riskified_Full_Model_Observer{
             $orderId = $decodedResponse->order->id;
             $status = $decodedResponse->order->status;
              
-            if($orderId && $status && $status != 'captured')
+            if($orderId && $status)
             {
                  $mapresponse = $this->mapStatus($orderId,$status);
             }
@@ -44,13 +44,10 @@ class Riskified_Full_Model_Observer{
     /*
      * BGB
      */
-    private function mapStatus($orderId, $status)
+    public function mapStatus($orderId, $status)
     {
         
-        if(empty($orderId) && empty($status))
-            $this->_redirect();
-        
-        if(!empty($orderId))
+        if(!empty($orderId) && $status != 'captured')
         {
             $orders = Mage::getModel('sales/order')
                      ->load($orderId);
