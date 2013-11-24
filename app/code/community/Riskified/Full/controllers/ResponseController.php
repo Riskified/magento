@@ -24,8 +24,11 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
         
            
         $observer = Mage::getModel('full/observer');
-        $observer->mapStatus($orderId, $status);
-        
+        $riskified_result = $observer->mapStatus($status);
+        $order = Mage::getModel('sales/order');
+        $order_model = $order->load($orderId);
+        $order_model->setState($riskified_result["state"],$riskified_result["mage_status"], $riskified_result["comment"]);
+        $order_model->save();
     }
 }
     

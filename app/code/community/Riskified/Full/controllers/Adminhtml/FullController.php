@@ -40,7 +40,7 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 			Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
 			Mage::logException($e);
 		}
-		$this->_redirectUrl(Mage::helper('adminhtml')->getUrl("/adminhtml/sales_order/view");
+		Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/index", array('id'=>$id)));
 	}
 
 	public function riskimassAction()
@@ -57,4 +57,7 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 			Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
 			Mage::logException($e);
 		}
-		$this->_redirectUrl(Mage::helper('adminhtml')->getUrl("/adminhtml/sales_order/index")
+		Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/index"));
+
+	}
+}

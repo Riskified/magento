@@ -2,6 +2,7 @@
 class Riskified_Full_Model_Observer{
     
     Private function fireCurl($data_string,$hash_code,$submit_now = false){
+        Mage::log("Call Riskified webhook  submit_now : $submit_now, data : $data_string");
         $domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
         $ch = curl_init(Mage::helper('full')->getConfigUrl().'/webhooks/merchant_order_created');
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
@@ -12,9 +13,11 @@ class Riskified_Full_Model_Observer{
                 'Content-Length: ' . strlen($data_string),
                 'X_RISKIFIED_SHOP_DOMAIN:'.$domain,
                 'X_RISKIFIED_HMAC_SHA256:'.$hash_code);
+
         if ($submit_now){
             array_push($headers,'X_RISKIFIED_SUBMIT_NOW:ok');
         }
+
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         // echo "from here:<pre>";
@@ -24,61 +27,58 @@ class Riskified_Full_Model_Observer{
         // print_r($domain);echo"<br>";
         // print_r($hash_code);echo"<br>";
         // die;
-        $result = curl_exec($ch);
 
+        $result = curl_exec($ch);
         //change order status if no error message
         $orderId = $status = false;
         $decodedResponse = json_decode($result);
 
-        if(isset($decodedResponse->order))
-        {
+        $state = null;
+        if(isset($decodedResponse->order)){
             $orderId = $decodedResponse->order->id;
             $status = $decodedResponse->order->status;
-
-            if($orderId && $status)
-            {
-                 $mapresponse = $this->mapStatus($orderId,$status);
+            if($orderId && $status){
+                 $state = $this->mapStatus($status);
             }
         }
 
-        return $result;
+        return $state;
     }
 
     /*
      * BGB
      */
-    public function mapStatus($orderId, $status)
-    {
-
-        if(!empty($orderId) && $status != 'captured')
-        {
-            $orders = Mage::getModel('sales/order')
-                     ->load($orderId);
-
+    public function mapStatus($status){
+        Mage::log("Riskified mapStatus : $status");
+        $state = null;
+        $mage_status = true;
+        $comment = null;
+        if($status != 'captured'){
             switch ($status) {
                 case 'approved':
                     //change order status to 'Processing'
                     $comment = 'Reviewed and approved by Riskified';
-                    $orders->setState(Mage_Sales_Model_Order::STATE_PROCESSING, true, $comment)->save();
+                    $state = Mage_Sales_Model_Order::STATE_PROCESSING;
                     break;
 
                 case 'declined':
                     // change order status to 'On Hold'
                     $comment = 'Reviewed and declined by Riskified';
                     $isCustomerNotified = false;
-                    $status = Mage_Sales_Model_Order::STATUS_FRAUD;
-                    $orders->setState(Mage_Sales_Model_Order::STATE_CANCELED, $status , $comment)->save();
+                    $mage_status = Mage_Sales_Model_Order::STATUS_FRAUD;
+                    $state = Mage_Sales_Model_Order::STATE_CANCELED;
                     break;
 
                 case 'submitted':
                     // change order status to 'Pending'
                     $comment = 'Under review by Riskified';
-                    $orders->setState(Mage_Sales_Model_Order::STATE_HOLDED, true,$comment)->save();
+                    $state = Mage_Sales_Model_Order::STATE_HOLDED;
                     break;
 
             }
-
+            Mage::log("mapStatus state = $state");
         }
+        return array("state" => $state, "mage_status" => $mage_status, "comment" => $comment );
     }
     /* *** /// end BGB \\\ *** */
 
@@ -238,13 +238,13 @@ class Riskified_Full_Model_Observer{
             $data['fulfillments']   =NULL;
 
             // client details
-            $data['client_details']['accept_language']  =NULL;
+            $data['client_details']['accept_language']  = NULL;
             $data['client_details']['browser_ip']   = $order_model->getRemoteIp();;
-            $data['client_details']['session_hash'] =NULL;
+            $data['client_details']['session_hash'] = NULL;
             $data['client_details']['user_agent']   = Mage::helper('core/http')->getHttpUserAgent();
 
 
-            $data['customer']['accepts_marketing']  =NULL;
+            $data['customer']['accepts_marketing']  = NULL;
             $data['customer']['created_at'] = $customer_details->getCreatedAt();
             $data['customer']['email']  = $customer_details->getEmail();
             $data['customer']['first_name'] =$customer_details->getFirstname();
@@ -256,12 +256,14 @@ class Riskified_Full_Model_Observer{
             ->addFieldToSelect('entity_id')
             ->addFieldToSelect('base_grand_total');
             $total = 0;
+            $num = 0;
+            $last_id = -1;
             foreach ($customer_order_details as $num => $entity_id){
                 $last_id = $entity_id->getData('entity_id');
                 $total = $total+$entity_id->getData('base_grand_total');
             }
 
-            $data['customer']['last_order_id']  =$last_id;
+            $data['customer']['last_order_id']  = $last_id;
             $data['customer']['note']   =NULL;
             $data['customer']['orders_count']   = ++$num;
             $data['customer']['state']  =NULL;
@@ -285,6 +287,7 @@ class Riskified_Full_Model_Observer{
             $data['billing_address']['province']    = $billing_address->getRegion();
             $data['billing_address']['zip']         = $billing_address->getPostcode();
             $data['billing_address']['province']    = NULL;
+
             //shipping info
             $data['shipping_address']['first_name'] = $shipping_address->getFirstname();
             $data['shipping_address']['last_name']  = $shipping_address->getLastname();
@@ -301,14 +304,17 @@ class Riskified_Full_Model_Observer{
             $data['shipping_address']['province_code'] = NULL;
             // json encode
             $data_string = json_encode($data);
-            Mage::log($data_string,null,"json_string.log");
+            Mage::log($data_string);
             //generating hash
             $s_key = Mage::getStoreConfig('fullsection/full/key',Mage::app()->getStore());
             $hash_code = hash_hmac('sha256', $data_string, $s_key);
 
             //firing curl
-            $result = $this->fireCurl($data_string,$hash_code,$submit_now);
-            
+            $riskified_result = $this->fireCurl($data_string,$hash_code,$submit_now);
+            $order_model->setState($riskified_result["state"],$riskified_result["mage_status"], $riskified_result["comment"]);
+            $order_model->save();
+
+            Mage::log("riskified_result : $riskified_result");
         }
         return;
     }
