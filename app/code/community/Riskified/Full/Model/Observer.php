@@ -1,18 +1,21 @@
 <?php
 class Riskified_Full_Model_Observer{
     
-    Private function fireCurl($data_string,$hash_code){
+    Private function fireCurl($data_string,$hash_code,$submit_now = false){
         $domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
         $ch = curl_init(Mage::helper('full')->getConfigUrl().'/webhooks/merchant_order_created');
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($data_string),
-        'X_RISKIFIED_SHOP_DOMAIN:'.$domain,
-        'X_RISKIFIED_HMAC_SHA256:'.$hash_code)
-        );
+        $headers = array(
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($data_string),
+                'X_RISKIFIED_SHOP_DOMAIN:'.$domain,
+                'X_RISKIFIED_HMAC_SHA256:'.$hash_code);
+        if ($submit_now){
+            array_push($headers,'X_RISKIFIED_SUBMIT_NOW:ok');
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         // echo "from here:<pre>";
         // print_r($data_string);echo"teeeeeeeeeeeeeeeeest<br>";
@@ -20,38 +23,38 @@ class Riskified_Full_Model_Observer{
         // print_r(strlen($data_string));echo"<br>";
         // print_r($domain);echo"<br>";
         // print_r($hash_code);echo"<br>";
-        // die; 
+        // die;
         $result = curl_exec($ch);
-        
+
         //change order status if no error message
         $orderId = $status = false;
         $decodedResponse = json_decode($result);
-        
+
         if(isset($decodedResponse->order))
         {
             $orderId = $decodedResponse->order->id;
             $status = $decodedResponse->order->status;
-             
+
             if($orderId && $status)
             {
                  $mapresponse = $this->mapStatus($orderId,$status);
             }
         }
-       
+
         return $result;
     }
-    
+
     /*
      * BGB
      */
     public function mapStatus($orderId, $status)
     {
-        
+
         if(!empty($orderId) && $status != 'captured')
         {
             $orders = Mage::getModel('sales/order')
                      ->load($orderId);
-            
+
             switch ($status) {
                 case 'approved':
                     //change order status to 'Processing'
@@ -74,11 +77,11 @@ class Riskified_Full_Model_Observer{
                     break;
 
             }
-            
+
         }
     }
     /* *** /// end BGB \\\ *** */
-    
+
 
     public function saveOrderBefore($evt)
     {
@@ -94,13 +97,17 @@ class Riskified_Full_Model_Observer{
 
     public function saveOrderAfter($evt)
     {
+        $submit_now = false;
         if(is_object($evt)){
             $order = $evt->getOrder();
             $order_ids[] = $order->getId();
-        }elseif (is_array($evt)){
-            $order_ids = $evt;
         }else{
-            $order_ids[] = $evt;
+            $submit_now = true;
+            if (is_array($evt)){
+                $order_ids = $evt;
+            }else{
+                $order_ids[] = $evt;
+            }
         }
         foreach ($order_ids as $order_id) {
             Mage::log("Entering saveOrderAfter");
@@ -113,7 +120,7 @@ class Riskified_Full_Model_Observer{
             $payment_details = $order_model->getPayment();
             $add = $billing_address->getStreet();
             $sadd = $shipping_address->getStreet();
-            
+
             // gathering data
             $data = array();
             $data['id']             = $order_model->getId();
@@ -154,7 +161,7 @@ class Riskified_Full_Model_Observer{
             $data['note_attributes'] = NULL;
             $data['processing_method'] = NULL;
             $data['checkout_id']    =NULL;
-            
+
             //forlast products
             foreach ($order_model->getItemsCollection() as $key => $val)
             {
@@ -175,18 +182,18 @@ class Riskified_Full_Model_Observer{
                 $data['line_items'][]['variant_inventory_management']   =NULL;
                 $data['line_items'][]['properties'] =NULL;
             }
-                    
+
             //shipping details
             $data ['shipping_lines'][]['code']  = $order_model->getShippingMethod();
             $data ['shipping_lines'][]['price'] = $order_model->getShippingAmount();
             $data ['shipping_lines'][]['source']    =NULL;
             $data ['shipping_lines'][]['title'] = $order_model->getShippingDescription();
             $data['tax_lines']  =NULL;
-            
+
             // payment details
-    
+
             $bin_number = $payment_details->getAdditionalInformation('riskified_cc_bin');
-    
+
             if($payment_details->getMethod() == 'authorizenet')
             {
                 // payment details if authorize
@@ -209,8 +216,8 @@ class Riskified_Full_Model_Observer{
                 $data['payment_details']['credit_card_company'] = $payment_details->getCcType();
             }elseif ($payment_details->getMethod() == 'sagepaydirectpro'){
                 // payment details if sagepaydirectpro
-    
-                $sage = $order_model->getSagepayInfo(); 
+
+                $sage = $order_model->getSagepayInfo();
                 $data['payment_details']['avs_result_code'] = $sage->getData('address_result');
                 $data['payment_details']['credit_card_bin'] = $bin_number;
                 $data['payment_details']['cvv_result_code'] = $sage->getData('cv2result');
@@ -224,26 +231,26 @@ class Riskified_Full_Model_Observer{
                 $data['payment_details']['credit_card_number']  = "XXXX-XXXX-".$payment_details->getCcLast4();
                 $data['payment_details']['credit_card_company'] = $payment_details->getCcType();
             }
-            
-            
+
+
             // payment details
-             
+
             $data['fulfillments']   =NULL;
-            
+
             // client details
             $data['client_details']['accept_language']  =NULL;
             $data['client_details']['browser_ip']   = $order_model->getRemoteIp();;
             $data['client_details']['session_hash'] =NULL;
             $data['client_details']['user_agent']   = Mage::helper('core/http')->getHttpUserAgent();
-            
-            
+
+
             $data['customer']['accepts_marketing']  =NULL;
             $data['customer']['created_at'] = $customer_details->getCreatedAt();
             $data['customer']['email']  = $customer_details->getEmail();
             $data['customer']['first_name'] =$customer_details->getFirstname();
             $data['customer']['id'] = $customer_details->getEntityId();
             $data['customer']['last_name']  = $customer_details->getLastname();
-            
+
             $customer_order_details = Mage::getModel('sales/order')->getCollection()
             ->addFieldToFilter('customer_id', array('eq' => $customer_id))
             ->addFieldToSelect('entity_id')
@@ -253,7 +260,7 @@ class Riskified_Full_Model_Observer{
                 $last_id = $entity_id->getData('entity_id');
                 $total = $total+$entity_id->getData('base_grand_total');
             }
-            
+
             $data['customer']['last_order_id']  =$last_id;
             $data['customer']['note']   =NULL;
             $data['customer']['orders_count']   = ++$num;
@@ -262,7 +269,7 @@ class Riskified_Full_Model_Observer{
             $data['customer']['updated_at'] = $customer_details->getUpdatedAt();
             $data['customer']['tags']   =NULL;
             $data['customer']['last_order_name']    =NULL;
-    
+
             //$data[NULL]   =NULL;
             //billing info
             $data['billing_address']['first_name']  = $billing_address->getFirstname();
@@ -291,16 +298,16 @@ class Riskified_Full_Model_Observer{
             $data['shipping_address']['phone']      = $shipping_address->getTelephone();
             $data['shipping_address']['province']   = $shipping_address->getRegion();
             $data['shipping_address']['zip']        = $shipping_address->getPostcode();
-            $data['shipping_address']['province_code'] = NULL;  
+            $data['shipping_address']['province_code'] = NULL;
             // json encode
             $data_string = json_encode($data);
             Mage::log($data_string,null,"json_string.log");
-            //generating hash 
+            //generating hash
             $s_key = Mage::getStoreConfig('fullsection/full/key',Mage::app()->getStore());
             $hash_code = hash_hmac('sha256', $data_string, $s_key);
-            
+
             //firing curl
-            $result = $this->fireCurl($data_string,$hash_code);
+            $result = $this->fireCurl($data_string,$hash_code,$submit_now);
             
         }
         return;
