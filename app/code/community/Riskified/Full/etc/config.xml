@@ -5,6 +5,15 @@
             <version>0.9.3</version>
         </Riskified_Full>
     </modules>
+    <default>
+      <fullsection>
+        <full>
+          <url>0</url>
+          <beaconurl>beacon.riskified.com</beaconurl>
+          <status_control_active>1</status_control_active>
+        </full>
+      </fullsection>
+    </default>
     <frontend>
         <routers>
             <full>

@@ -6,8 +6,11 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
         $orderId = $_REQUEST['id'];
         $status = $_REQUEST['status'];
         
-        if(empty($orderId) && empty($status))
-            $this->_redirect();
+        if (empty($orderId) && empty($status)) {
+          Mage::app()->getResponse()->setRedirect(Mage::getBaseUrl());
+          Mage::app()->getResponse()->sendResponse();
+          exit;
+        }
         
         //generating local hash
         $data['status'] = $_REQUEST['status'];
@@ -19,16 +22,22 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
         $headers = getallheaders();
         $riskiHash = $headers['X-Riskified-Hmac-Sha256'];
         
-        if($localHash != $riskiHash)
-            $this->_redirect();
+        if ($localHash != $riskiHash) {
+          Mage::app()->getResponse()->setRedirect(Mage::getBaseUrl());
+          Mage::app()->getResponse()->sendResponse();
+          exit;
+        }
         
            
         $observer = Mage::getModel('full/observer');
         $riskified_result = $observer->mapStatus($status);
         $order = Mage::getModel('sales/order');
-        $order_model = $order->load($orderId);
-        $order_model->setState($riskified_result["state"],$riskified_result["mage_status"], $riskified_result["comment"]);
-        $order_model->save();
+        $status_control_active = Mage::helper('full')->getConfigStatusControlActive();
+        if ($status_control_active){
+          $order_model = $order->load($orderId);
+          $order_model->setState($riskified_result["state"],$riskified_result["mage_status"], $riskified_result["comment"]);
+          $order_model->save();
+        }
     }
 }
     
