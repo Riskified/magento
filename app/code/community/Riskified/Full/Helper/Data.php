@@ -17,4 +17,8 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
     public function getShopDomain(){
       return Mage::getStoreConfig('fullsection/full/domain');
     }
+
+    public function getExtensionVersion(){
+        return (string) Mage::getConfig()->getNode()->modules->Riskified_Full->version;
+    }
 }

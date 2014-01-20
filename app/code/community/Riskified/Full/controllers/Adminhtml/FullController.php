@@ -31,8 +31,8 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 		$id = $this->getRequest()->getParam('order_id');
 		try
 		{
-            $call = Mage::getModel('Riskified_Full_Model_Observer');
-		    $call->saveOrderAfter($id);
+      $call = Mage::getModel('Riskified_Full_Model_Observer');
+		  $call->saveOrderAfter($id);
 			Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__('Order was submited successfully'));
 		}
 		catch (Exception $e)
@@ -48,8 +48,8 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
 		$order_ids = $this->getRequest()->getParam('order_ids');
 		try
 		{
-            $call = Mage::getModel('Riskified_Full_Model_Observer');
-		    $call->saveOrderAfter($order_ids);
+      $call = Mage::getModel('Riskified_Full_Model_Observer');
+		  $call->saveOrderAfter($order_ids);
 			Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__('Orders were submited successfully'));
 		}
 		catch (Exception $e)

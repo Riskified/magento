@@ -3,7 +3,8 @@ class Riskified_Full_Model_Observer{
     
     Private function fireCurl($data_string,$hash_code,$submit_now = false){
         Mage::log("Call Riskified webhook  submit_now : $submit_now, data : $data_string");
-        $domain = Mage::getStoreConfig('fullsection/full/domain',Mage::app()->getStore());
+        $domain = Mage::helper('full')->getShopDomain();
+        $version = Mage::helper('full')->getExtensionVersion();
         $ch = curl_init(Mage::helper('full')->getConfigUrl().'/webhooks/merchant_order_created');
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
@@ -12,6 +13,7 @@ class Riskified_Full_Model_Observer{
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($data_string),
                 'X_RISKIFIED_SHOP_DOMAIN:'.$domain,
+                'X_RISKIFIED_VERSION:'.$version,
                 'X_RISKIFIED_HMAC_SHA256:'.$hash_code);
 
         if ($submit_now){
