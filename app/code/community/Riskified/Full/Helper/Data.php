@@ -21,4 +21,10 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
     public function getExtensionVersion(){
         return (string) Mage::getConfig()->getNode()->modules->Riskified_Full->version;
     }
+    
+    public function getSessionId(){
+        $visitorData = Mage::getSingleton('core/session')->getVisitorData();
+        return $visitorData['session_id'];
+    }
+    
 }

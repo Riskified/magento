@@ -111,6 +111,9 @@ class Riskified_Full_Model_Observer{
                 $order_ids[] = $evt;
             }
         }
+        
+        $session_id = Mage::helper('full')->getSessionId();
+        
         foreach ($order_ids as $order_id) {
             Mage::log("Entering saveOrderAfter");
             $order = Mage::getModel('sales/order');
@@ -122,6 +125,8 @@ class Riskified_Full_Model_Observer{
             $payment_details = $order_model->getPayment();
             $add = $billing_address->getStreet();
             $sadd = $shipping_address->getStreet();
+
+
 
             // gathering data
             $data = array();
@@ -240,6 +245,7 @@ class Riskified_Full_Model_Observer{
             $data['fulfillments']   =NULL;
 
             // client details
+            $data['client_details']['session_id'] = $session_id;
             $data['client_details']['accept_language']  = NULL;
             $data['client_details']['browser_ip']   = $order_model->getRemoteIp();;
             $data['client_details']['session_hash'] = NULL;

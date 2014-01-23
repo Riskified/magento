@@ -62,6 +62,7 @@
                             <comment></comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>5</sort_order>
+                            <class>riskified_activationstatus</class>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>

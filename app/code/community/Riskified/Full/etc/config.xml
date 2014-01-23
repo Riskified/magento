@@ -10,6 +10,7 @@
         <full>
           <url>0</url>
           <beaconurl>beacon.riskified.com</beaconurl>
+          <activationstatus>ACTIVE</activationstatus>
           <status_control_active>1</status_control_active>
         </full>
       </fullsection>
