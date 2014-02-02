@@ -33,4 +33,4 @@ in admin:
 scp bitnami@ec2-50-17-5-41.compute-1.amazonaws.com:/opt/bitnami/apps/magento/htdocs/var/connect/riskified_magento-1.0.0.tgz ~/Downloads/riskified_magento-1.0.0.tgz 
 ```
 
-- Install and test on clean store
+- Install and test on clean store : ec2-54-224-59-181.compute-1.amazonaws.com
