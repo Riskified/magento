@@ -20,3 +20,17 @@ Riskified magento extension
 rsync -azh app/  bitnami@ec2-50-17-5-41.compute-1.amazonaws.com:/opt/bitnami/apps/magento/htdocs/app/
 ```
 
+### Packaging
+in admin:
+
+- System->Magento Connect->Package Extensions
+- "Load Local Package"-> riskified_magento
+- Change the version and write a description
+- Save
+- Download to local disk
+
+```sh
+scp bitnami@ec2-50-17-5-41.compute-1.amazonaws.com:/opt/bitnami/apps/magento/htdocs/var/connect/riskified_magento-1.0.0.tgz ~/Downloads/riskified_magento-1.0.0.tgz 
+```
+
+- Install and test on clean store
