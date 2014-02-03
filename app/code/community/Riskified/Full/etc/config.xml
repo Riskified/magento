@@ -8,10 +8,9 @@
     <default>
       <fullsection>
         <full>
-          <url>0</url>
+          <order_status_sync>2</order_status_sync>
+          <url>http://app.riskified.com</url>
           <beaconurl>beacon.riskified.com</beaconurl>
-          <activationstatus>ACTIVE</activationstatus>
-          <status_control_active>1</status_control_active>
         </full>
       </fullsection>
     </default>

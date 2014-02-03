@@ -5,9 +5,8 @@
         var session_id = <?php echo Mage::helper('full')->getSessionId(); ?>;
         var store_domain="<?php echo Mage::helper('full')->getShopDomain() ?>";
         var statusControlActive = "<?php echo Mage::helper('full')->getConfigStatusControlActive() ?>";
-        var cookie = "<?php echo $_COOKIE['frontend'] ?>";
         var version = "<?php echo Mage::helper('full')->getExtensionVersion() ?>";
-        var url = ('https:' == document.location.protocol ? 'https://' : 'http://') + "<?php echo Mage::helper('full')->getConfigBeaconUrl()?>?shop="+store_domain+"&sid="+cookie+"&v="+version;
+        var url = ('https:' == document.location.protocol ? 'https://' : 'http://') + "<?php echo Mage::helper('full')->getConfigBeaconUrl()?>?shop="+store_domain+"&sid="+session_id+"&v="+version;
         var s = document.createElement('script');
         s.type = 'text/javascript';
         s.async = true;

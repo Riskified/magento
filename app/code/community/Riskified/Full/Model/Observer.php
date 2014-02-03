@@ -141,9 +141,9 @@ class Riskified_Full_Model_Observer{
             $data['buyer_accepts_marketing']    =NULL;
             $data['cancel_reason']  =NULL;
             $data['cancelled_at']   =NULL;
-            $data['cart_token']     =NULL;
+            $data['cart_token']     = $session_id;
             $data['closed_at']      =NULL;
-            $data['currency']       =$order_model->getBaseCurrencyCode();
+            $data['currency']       = $order_model->getBaseCurrencyCode();
             $data['financial_status']=NULL;
             $data['fulfillment_status'] =NULL;
             $data['landing_site']   ="/";
@@ -245,7 +245,6 @@ class Riskified_Full_Model_Observer{
             $data['fulfillments']   =NULL;
 
             // client details
-            $data['client_details']['session_id'] = $session_id;
             $data['client_details']['accept_language']  = NULL;
             $data['client_details']['browser_ip']   = $order_model->getRemoteIp();;
             $data['client_details']['session_hash'] = NULL;
