@@ -15,7 +15,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
         //generating local hash
         $data['status'] = $status;
         $data_string = 'id='.$orderId.'&status='.$status;
-        $s_key = Mage::getStoreConfig('fullsection/full/key',Mage::app()->getStore());
+        $s_key = Mage::helper('full')->getAuthToken();
         $localHash = hash_hmac('sha256', $data_string, $s_key);
             
         //generating hash 

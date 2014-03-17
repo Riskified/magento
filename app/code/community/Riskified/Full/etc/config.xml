@@ -9,7 +9,7 @@
       <fullsection>
         <full>
           <order_status_sync>0</order_status_sync>
-          <url>http://app.riskified.com</url>
+          <url>https://app.riskified.com</url>
           <beaconurl>beacon.riskified.com</beaconurl>
         </full>
       </fullsection>

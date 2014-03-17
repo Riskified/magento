@@ -2,7 +2,7 @@
 <script type="text/javascript">
 (function() {
     function riskifiedBeaconLoad() {
-        var session_id = <?php echo Mage::helper('full')->getSessionId(); ?>;
+        var session_id = "<?php echo Mage::helper('full')->getSessionId(); ?>";
         var store_domain="<?php echo Mage::helper('full')->getShopDomain() ?>";
         var statusControlActive = "<?php echo Mage::helper('full')->getConfigStatusControlActive() ?>";
         var version = "<?php echo Mage::helper('full')->getExtensionVersion() ?>";

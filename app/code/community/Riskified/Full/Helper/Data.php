@@ -2,12 +2,25 @@
 
 class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    public function getAdminUrl(){
+      $out = null;
+      $match = preg_match("/(.*)full\/response\/getresponse.*/i", Mage::helper('adminhtml')->getUrl('full/response/getresponse'),$out);
+      if ($match){
+        return $out[1];
+      }else{
+        return "";
+      }
+    }
+    public function getAuthToken(){
+      return Mage::getStoreConfig('fullsection/full/key',Mage::app()->getStore());
+    }
+
     public function getConfigUrl(){
         return Mage::getStoreConfig('fullsection/full/url');
     }
 
     public function getConfigStatusControlActive(){
-        return Mage::getStoreConfig('fullsection/full/status_control_active');
+        return Mage::getStoreConfig('fullsection/full/order_status_sync');
     }
 
     public function getConfigBeaconUrl(){

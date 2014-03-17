@@ -271,7 +271,7 @@ class Riskified_Full_Model_Observer{
             }
 
             $data['customer']['last_order_id']  = $last_id;
-            $data['customer']['note']   =NULL;
+            $data['customer']['note']  = NULL;
             $data['customer']['orders_count']   = ++$num;
             $data['customer']['state']  =NULL;
             $data['customer']['total_spent']    = $total;
@@ -313,7 +313,7 @@ class Riskified_Full_Model_Observer{
             $data_string = json_encode($data);
             Mage::log($data_string);
             //generating hash
-            $s_key = Mage::getStoreConfig('fullsection/full/key',Mage::app()->getStore());
+            $s_key = Mage::helper('full')->getAuthToken();
             $hash_code = hash_hmac('sha256', $data_string, $s_key);
 
             //firing curl

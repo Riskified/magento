@@ -14,7 +14,7 @@
  *
  * @category    design
  * @package     default_default
- * @copyright   Copyright (c) 2011 Excellence Technologies (http://www.excellencetechnologies.in)
+ * @copyright   Copyright (c) 2011 Riskified (http://www.riskified.com)
  * @license     http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 ?>
@@ -133,13 +133,41 @@ function activate(){
 
   $$("#fullsection_full_key")[0].value = generatedKey;
   $$("#fullsection_full_domain")[0].value = riskifiedShopDomain;
+  riskifiedActivation(riskifiedPassword,riskifiedShopDomain,generatedKey)
+}
 
+function riskifiedOnSave(event){
+  try
+  {
+    var fullsectionIndex = document.location.href.indexOf('fullsection');
+    if (fullsectionIndex == -1){
+      return;
+    }
+    var riskifiedShopDomain = '<?php echo Mage::helper("full")->getShopDomain()?>'
+    var generatedKey = '<?php echo Mage::helper('full')->getAuthToken()?>';
+
+    var version = "<?php echo Mage::helper('full')->getExtensionVersion() ?>";
+    var extensionConfigSaveEndpoint = '<?php echo Mage::helper("full")->getConfigUrl()?>magento/config';
+    var admin_url =   '<?php echo Mage::helper("full")->getAdminUrl()?>';
+
+    new Ajax.Request(extensionConfigSaveEndpoint, {
+        method: 'POST',
+        parameters: "shop_url="+riskifiedShopDomain+"&auth_token="+generatedKey+"&admin_url="+admin_url+"&version"+version
+    });
+  }catch(err){
+    console.log("error reporting new config params");
+  }
+  return true;
+}
+
+function riskifiedActivation(riskifiedPassword,riskifiedShopDomain,generatedKey){
   var keys = "<?php echo $allkeys ?>";
   var activateURL = '<?php echo Mage::helper("full")->getConfigUrl()?>magento/activate';
+
   new Ajax.Request(activateURL, {
     method: 'POST',
     parameters: "shop_url="+riskifiedShopDomain+"&password="+riskifiedPassword+"&auth_token="+generatedKey+"&gws="+keys ,
-    onSuccess: 
+    onSuccess:
       function(response) {
         hideRiskifiedNotice("#magento-notice");
         var activationstatus = $$("#fullsection_full_activationstatus")[0];
@@ -149,7 +177,7 @@ function activate(){
         $$("#activation-pre")[0].style.setProperty("display","none");
         $$("#activate_button")[0].disabled = true;
       },
-    onFailure: 
+    onFailure:
       function(response) {
         showRiskifiedNotice("#magento-notice");
       }
@@ -220,7 +248,7 @@ document.observe("dom:loaded", function() {
      htmlBody = rhtml;
     
      section.up().insert({top:htmlBody});
-     
+     $$(".save").forEach(function(saveButton){saveButton.observe('click',riskifiedOnSave)})
 });
    
 //]]>
