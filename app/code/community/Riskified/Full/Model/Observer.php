@@ -284,8 +284,19 @@ class Riskified_Full_Model_Observer{
             $data['billing_address']['first_name']  = $billing_address->getFirstname();
             $data['billing_address']['last_name']   = $billing_address->getLastname();
             $data['billing_address']['name']        = $data['billing_address']['first_name'] . " " . $data['billing_address']['last_name'];
-            $data['billing_address']['address1']    = $add['0'];
-            $data['billing_address']['address2']    = $add['1'];
+            if (!is_null($add) && array_key_exists('0', $add)) {
+              $data['billing_address']['address1']    = $add['0'];
+            } else
+            {
+              $data['billing_address']['address1'] 	= NULL;
+            }
+            if (!is_null($add) && array_key_exists('1', $add)) {
+              $data['billing_address']['address2'] 	= $add['1'];
+            } else
+            {
+              $data['billing_address']['address2'] 	= NULL;
+            }
+            
             $data['billing_address']['city']        = $billing_address->getCity();
             $data['billing_address']['company']     = $billing_address->getCompany();
             $data['billing_address']['country']     = Mage::getModel('directory/country')->load($billing_address->getCountryId())->getName();
@@ -299,8 +310,18 @@ class Riskified_Full_Model_Observer{
             $data['shipping_address']['first_name'] = $shipping_address->getFirstname();
             $data['shipping_address']['last_name']  = $shipping_address->getLastname();
             $data['shipping_address']['name']       = $data['shipping_address']['first_name'] . " " . $data['shipping_address']['last_name'];
-            $data['shipping_address']['address1']   = $sadd['0'];
-            $data['shipping_address']['address2']   = $sadd['1'];
+            if (!is_null($sadd) && array_key_exists('0', $sadd)) {
+              $data['shipping_address']['address1']	= $sadd['0'];
+            } else
+            {
+              $data['shipping_address']['address1']	= NULL;
+            }
+            if (!is_null($sadd) && array_key_exists('1', $sadd)) {
+              $data['shipping_address']['address2']	= $sadd['1'];
+            } else
+            {
+              $data['shipping_address']['address2']	= NULL;
+            }
             $data['shipping_address']['city']       = $shipping_address->getCity();
             $data['shipping_address']['company']    = $shipping_address->getCompany();
             $data['shipping_address']['country']    = Mage::getModel('directory/country')->load($shipping_address->getCountryId())->getName();
