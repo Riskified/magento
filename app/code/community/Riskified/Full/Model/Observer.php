@@ -43,6 +43,9 @@ class Riskified_Full_Model_Observer{
         foreach ($order_ids as $order_id) {
             Mage::log("Entering saveOrderAfter for " . $order_id);
 
+            $model = Mage::getModel('customer/order')->load($order_id);
+            Mage::log('getCustomer $customer_details: ' . serialize($customer) );
+
             $model = Mage::getModel('sales/order')->load($order_id);
             $order = $this->getOrder($model);
 
@@ -125,14 +128,11 @@ class Riskified_Full_Model_Observer{
     }
 
     private function getCustomer($model) {
+//        $customer_details = $model->getCustomer();
+
         $customer_id = $model->getCustomerId();
         $customer_details = Mage::getModel('customer/customer')->load($customer_id);
         Mage::log('getCustomer $customer_id ' . $customer_id );
-
-        $customer = Mage::getModel("customer/customer");
-        $customer->setWebsiteId(Mage::app()->getWebsite()->getId());
-        $customer->loadByEmail($model->getCustomerEmail());
-        Mage::log('getCustomer $customer_details: ' . serialize($customer) );
 
         $customer_order_details = Mage::getModel('sales/order')->getCollection()
             ->addFieldToFilter('customer_id', array('eq' => $customer_id))
