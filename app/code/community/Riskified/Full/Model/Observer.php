@@ -43,10 +43,10 @@ class Riskified_Full_Model_Observer{
         foreach ($order_ids as $order_id) {
             Mage::log("Entering saveOrderAfter for " . $order_id);
 
-            $model = Mage::getModel('customer/order')->load($order_id);
-            Mage::log('getCustomer $customer_details: ' . serialize($customer) );
-
             $model = Mage::getModel('sales/order')->load($order_id);
+
+            Mage::log('getCustomer $customer_details: ' . serialize($model->loadCustomer()) );
+
             $order = $this->getOrder($model);
 
             Mage::log("Call Riskified webhook submit_now : $submit_now, data : ".PHP_EOL.json_encode(json_decode($order->toJson())).PHP_EOL);
