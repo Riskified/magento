@@ -1,56 +1,278 @@
 <?php
+
+require_once(Mage::getBaseDir('lib') . DIRECTORY_SEPARATOR . 'riskified_php_sdk' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Riskified' . DIRECTORY_SEPARATOR . 'autoloader.php');
+use Riskified\Common\Riskified;
+use Riskified\Common\Env;
+use Riskified\Common\Signature;
+use Riskified\OrderWebhook\Model;
+use Riskified\OrderWebhook\Transport;
+
+$authToken = "1388add8a99252fc1a4974de471e73cd";
+Riskified::init(Mage::helper('full')->getShopDomain(), $authToken, Env::SANDBOX);
+
 class Riskified_Full_Model_Observer{
-    
-    Private function fireCurl($data_string,$hash_code,$submit_now = false){
-        Mage::log("Call Riskified webhook  submit_now : $submit_now, data : $data_string");
-        $domain = Mage::helper('full')->getShopDomain();
-        $version = Mage::helper('full')->getExtensionVersion();
-        $ch = curl_init(Mage::helper('full')->getConfigUrl().'/webhooks/merchant_order_created');
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $headers = array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($data_string),
-                'X_RISKIFIED_SHOP_DOMAIN:'.$domain,
-                'X_RISKIFIED_VERSION:'.$version,
-                'X_RISKIFIED_HMAC_SHA256:'.$hash_code);
 
-        if ($submit_now){
-            array_push($headers,'X_RISKIFIED_SUBMIT_NOW:ok');
-        }
-
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        // echo "from here:<pre>";
-        // print_r($data_string);echo"teeeeeeeeeeeeeeeeest<br>";
-        // echo "</pre>";
-        // print_r(strlen($data_string));echo"<br>";
-        // print_r($domain);echo"<br>";
-        // print_r($hash_code);echo"<br>";
-        // die;
-
-        $result = curl_exec($ch);
-        //change order status if no error message
-        $orderId = $status = false;
-        $decodedResponse = json_decode($result);
-
-        $state = null;
-        if(isset($decodedResponse->order)){
-            $orderId = $decodedResponse->order->id;
-            $status = $decodedResponse->order->status;
-            if($orderId && $status){
-                 $state = $this->mapStatus($status);
-            }
-        }
-
-        return $state;
+    public function saveOrderBefore($evt)
+    {
+        Mage::log("Entering saveOrderBefore");
+        $payment = $evt->getPayment();
+        $payment->setAdditionalInformation('riskified_cc_bin', substr($payment->getCcNumber(),0,6));
+        Mage::log("Exiting saveOrderBefore");
     }
 
-    /*
-     * BGB
-     */
-    public function mapStatus($status){
+    public function salesOrderPlaceEnd($evt)
+    {
+    }
+
+    public function saveOrderAfter($evt) {
+        //        $version = Mage::helper('full')->getExtensionVersion();
+//        $ch = curl_init(Mage::helper('full')->getConfigUrl().'/webhooks/merchant_order_created');
+
+        $transport = new Transport\CurlTransport(new Signature\HttpDataSignature());
+        $transport->timeout = 15;
+        Mage::log("Sending data to ".$transport->full_path());
+
+        if (is_object($evt)) {
+            $submit_now = false;
+            $order_ids[] = $evt->getOrder()->getId();
+        } else {
+            $submit_now = true;
+            $order_ids = (is_array($evt)) ? $evt : array($evt);
+        }
+
+        foreach ($order_ids as $order_id) {
+            Mage::log("Entering saveOrderAfter for " . $order_id);
+
+            $model = Mage::getModel('sales/order')->load($order_id);
+            $order = $this->getOrder($model);
+
+            Mage::log("Call Riskified webhook submit_now : $submit_now, data : ".PHP_EOL.json_encode(json_decode($order->toJson())).PHP_EOL);
+
+            if ($submit_now)
+                $response = $transport->submitOrder($order);
+            else
+                $response = $transport->createOrUpdateOrder($order);
+
+            Mage::log("Riskified webhook RESPONSE:".PHP_EOL.json_encode($response).PHP_EOL);
+
+            if(isset($response->order)){
+                $orderId = $response->order->id;
+                $status = $response->order->status;
+                if($orderId && $status){
+                    $state = $this->mapStatus($status);
+
+                    Mage::log("$state: ". json_encode($state));
+
+                    $model->setState($state["state"],$state["mage_status"], $state["comment"]);
+                    $model->save();
+                }
+            }
+        }
+        return;
+    }
+
+    public function addMassAction($observer)
+    {
+        $block = $observer->getEvent()->getBlock();
+        if(get_class($block) =='Mage_Adminhtml_Block_Widget_Grid_Massaction'
+            && $block->getRequest()->getControllerName() == 'sales_order')
+        {
+            $block->addItem('full', array(
+                'label' => 'Submit to Riskified',
+                'url' => Mage::app()->getStore()->getUrl('full/adminhtml_full/riskimass'),
+            ));
+        }
+    }
+
+
+    private function getOrder($model) {
+        $order = new Model\Order(array(
+            'id' => $model->getId(),
+            'name' => $model->getIncrementId(),
+            'email' => $model->getCustomerEmail(),
+            'total_spent' => $model->getGrandTotal(),
+            'cancel_reason' => null,
+            'cancelled_at' => null,
+            'created_at' => $model->getCreatedAt(),
+            'closed_at' => null,
+            'currency' => $model->getBaseCurrencyCode(),
+            'updated_at' => $model->getUpdatedAt(),
+            'gateway' => $model->getPayment()->getMethod(),
+            'browser_ip' => $model->getRemoteIp(),
+            'cart_token' => Mage::helper('full')->getSessionId(),
+            'note' => $model->getCustomerNote(),
+            'referring_site' => 'null',
+            'total_price' => $model->getGrandTotal(),
+            'total_discounts' => $model->getDiscountAmount()
+
+//            'subtotal_price' => $model->getBaseSubtotalInclTax(),
+//            'discount_codes' => $model->getDiscountDescription(),
+//            'taxes_included' => true,
+//            'total_tax' => $model->getBaseTaxAmount(),
+//            'total_weight' => $model->getWeight(),
+//            'fullfillments' => null
+        ));
+
+        $order->customer = $this->getCustomer($model);
+        $order->shipping_address = $this->getShippingAddress($model);
+        $order->billing_address = $this->getBillingAddress($model);
+        $order->payment_details = $this->getPaymentDetails($model);
+        $order->line_items = $this->getLineItems($model);
+        $order->shipping_lines = $this->getShippingLines($model);
+
+//        $order->client_details = $this->getClientDetails($model);
+
+        return $order;
+    }
+
+    private function getCustomer($model) {
+        $customer_id = $model->getCustomerId();
+        $customer_details = Mage::getModel('customer/customer')->load($customer_id);
+        $customer_order_details = Mage::getModel('sales/order')->getCollection()
+            ->addFieldToFilter('customer_id', array('eq' => $customer_id))
+            ->addFieldToSelect('entity_id')
+            ->addFieldToSelect('base_grand_total');
+        $total_spent = 0;
+        $orders_count = 0;
+        $last_order_id = -1;
+        foreach ($customer_order_details as $orders_count => $entity_id){
+            $last_order_id = $entity_id->getData('entity_id');
+            $total_spent = $total_spent+$entity_id->getData('base_grand_total');
+        }
+        $orders_count++;
+
+        return new Model\Customer(array(
+            'created_at' => $customer_details->getCreatedAt(),
+            'email' => $customer_details->getEmail(),
+            'first_name' => $customer_details->getFirstname(),
+            'last_name' => $customer_details->getLastname(),
+            'id' => $customer_details->getEntityId(),
+            'note' => null, // $model->getCustomerNote(),
+            'orders_count' => $orders_count,
+            'verified_email' => true
+
+//            'updated_at' => $customer_details->getUpdatedAt(),
+//            'last_order_id' => $last_order_id,
+//            'state' => null,
+//            'total_spent' => $total_spent,
+//            'tags' => null,
+//            'last_order_name' => null,
+//            'accepts_marketing' => null
+
+        ));
+    }
+
+    private function getShippingAddress($model) {
+        return new Model\ShippingAddress($this->getAddressArray($model->getShippingAddress()));
+    }
+
+    private function getBillingAddress($model) {
+        return new Model\BillingAddress($this->getAddressArray($model->getBillingAddress()));
+    }
+
+    private function getPaymentDetails($model) {
+        $payment = $model->getPayment();
+
+        switch ($payment->getMethod()) {
+            case 'authorizenet':
+                foreach ($payment->getAdditionalInformation() as $additional_data){
+                    foreach ($additional_data as $key => $trans_data){
+                        $avs_result_code = $trans_data['cc_avs_result_code'];
+                        $cvv_result_code = $trans_data['cc_response_code'];
+                        $credit_card_number  = "XXXX-XXXX-".$trans_data['cc_last4'];
+                        $credit_card_company = $trans_data['cc_type'];
+                    }
+                }
+                break;
+
+            case 'paypal_direct':
+                $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
+                $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
+                $credit_card_number = "XXXX-XXXX-".$payment->getCcLast4();
+                $credit_card_company = $payment->getCcType();
+                break;
+
+            case 'sagepaydirectpro':
+                $sage = $model->getSagepayInfo();
+                $avs_result_code = $sage->getData('address_result');
+                $cvv_result_code = $sage->getData('cv2result');
+                $credit_card_number = "XXXX-XXXX-".$sage->getData('last_four_digits');
+                $credit_card_company = $sage->getData('card_type');
+                break;
+
+            default:
+                $avs_result_code = $payment->getCcAvsStatus();
+                $cvv_result_code     = $payment->getCcCidStatus();
+                $credit_card_number  = "XXXX-XXXX-".$payment->getCcLast4();
+                $credit_card_company = $payment->getCcType();
+                break;
+        }
+
+        return new Model\PaymentDetails(array(
+            'avs_result_code' => $avs_result_code,
+            'cvv_result_code' => $cvv_result_code,
+            'credit_card_number' => $credit_card_number,
+            'credit_card_company' => $credit_card_company,
+            'credit_card_bin' => $payment->getAdditionalInformation('riskified_cc_bin'),
+        ));
+    }
+
+    private function getLineItems($model) {
+        $line_items = array();
+        foreach ($model->getItemsCollection() as $key => $val) {
+            $line_items[] = new Model\LineItem(array(
+                'price' => $val->getPrice(),
+                'quantity' => $val->getQtyOrdered(),
+                'title' => $val->getName(),
+                'sku' => $val->getSku(),
+                'product_id' => $val->getItemId(),
+//                'grams' => $val->getWeight(),
+//                'vendor' => $order_model->getStoreName(),
+            ));
+        }
+        return $line_items;
+    }
+
+    private function getShippingLines($model) {
+        return new Model\ShippingLine(array(
+            'price' => $model->getShippingAmount(),
+            'title' => $model->getShippingDescription(),
+            'code' => $model->getShippingMethod()
+        ));
+    }
+
+    private function getClientDetails($model) {
+        return new Model\ClientDetails(array(
+            'accept_language' => null,
+            'browser_ip' => $model->getRemoteIp(),
+            'session_hash' => null,
+            'user_agent' => Mage::helper('core/http')->getHttpUserAgent()
+        ));
+    }
+
+    private function getAddressArray($address) {
+        $street = $address->getStreet();
+        $address_1 = (!is_null($street) && array_key_exists('0', $street)) ? $street['0'] : null;
+        $address_2 = (!is_null($street) && array_key_exists('1', $street)) ? $street['1'] : null;
+
+        return array(
+            'first_name' => $address->getFirstname(),
+            'last_name' => $address->getLastname(),
+            'name' => $address->getFirstname() . " " . $address->getLastname(),
+            'company' => $address->getCompany(),
+            'address1' => $address_1,
+            'address2' => $address_2,
+            'city' => $address->getCity(),
+            'country_code' => $address->getCountryId(),
+            'country' => Mage::getModel('directory/country')->load($address->getCountryId())->getName(),
+            // 'province_code'
+            'province' => $address->getRegion(),
+            'zip' => $address->getPostcode(),
+            'phone' => $address->getTelephone(),
+        );
+    }
+
+    private function mapStatus($status){
         Mage::log("Riskified mapStatus : $status");
         $state = null;
         $mage_status = true;
@@ -81,283 +303,6 @@ class Riskified_Full_Model_Observer{
             Mage::log("mapStatus state = $state");
         }
         return array("state" => $state, "mage_status" => $mage_status, "comment" => $comment );
-    }
-    /* *** /// end BGB \\\ *** */
-
-
-    public function saveOrderBefore($evt)
-    {
-        Mage::log("Entering saveOrderBefore");
-        $payment = $evt->getPayment();
-        $payment->setAdditionalInformation('riskified_cc_bin', substr($payment->getCcNumber(),0,6));
-        Mage::log("Exiting saveOrderBefore");
-    }
-
-    public function salesOrderPlaceEnd($evt)
-    {
-    }
-
-    public function saveOrderAfter($evt)
-    {
-        $submit_now = false;
-        if(is_object($evt)){
-            $order = $evt->getOrder();
-            $order_ids[] = $order->getId();
-        }else{
-            $submit_now = true;
-            if (is_array($evt)){
-                $order_ids = $evt;
-            }else{
-                $order_ids[] = $evt;
-            }
-        }
-        
-        $session_id = Mage::helper('full')->getSessionId();
-        
-        foreach ($order_ids as $order_id) {
-            Mage::log("Entering saveOrderAfter");
-            $order = Mage::getModel('sales/order');
-            $order_model = $order->load($order_id);
-            $billing_address = $order_model->getBillingAddress();
-            $shipping_address = $order_model->getShippingAddress();
-            $customer_id = $order_model->getCustomerId();
-            $customer_details = Mage::getModel('customer/customer')->load($customer_id);
-            $payment_details = $order_model->getPayment();
-            $add = $billing_address->getStreet();
-            $sadd = $shipping_address->getStreet();
-
-
-
-            // gathering data
-            $data = array();
-            $data['id']             = $order_model->getId();
-            $data['name']           = $order_model->getIncrementId();
-            $data['email']          = $order_model->getCustomerEmail();
-            $data['total_spent']    = $order_model->getGrandTotal();
-            $data['created_at']     = $order_model->getCreatedAt();
-            $data['updated_at']     = $order_model->getUpdatedAt();
-            $data['gateway']        = $payment_details->getMethod();
-            $data['browser_ip']     = $order_model->getRemoteIp();
-            $data['buyer_accepts_marketing']    =NULL;
-            $data['cancel_reason']  =NULL;
-            $data['cancelled_at']   =NULL;
-            $data['cart_token']     = $session_id;
-            $data['closed_at']      =NULL;
-            $data['currency']       = $order_model->getBaseCurrencyCode();
-            $data['financial_status']=NULL;
-            $data['fulfillment_status'] =NULL;
-            $data['landing_site']   ="/";
-            $data['note']           = $order_model->getCustomerNote();
-            $data['number']         =NULL;
-            $data['reference']      =NULL;
-            $data['referring_site'] =NULL;
-            $data['source']         =NULL;
-            $data['subtotal_price'] = $order_model->getBaseSubtotalInclTax();
-            $data['taxes_included'] =TRUE;
-            $data['token']          =NULL;
-            $data['total_discounts']= $order_model->getDiscountAmount();
-            $data['total_line_items_price'] = $order_model->getGrandTotal();
-            $data['total_price']    =$order_model->getGrandTotal();
-            $data['total_price_usd']=$order_model->getGrandTotal();
-            $data['total_tax']      =$order_model->getBaseTaxAmount();
-            $data['total_weight']   = $order_model->getWeight();
-            $data['user_id']        =$order_model->getCustomerId();
-            $data['landing_site_ref']=NULL;
-            $data['order_number']   =$order_model->getId();
-            $data['discount_codes'] =$order_model->getDiscountDescription();
-            $data['note_attributes'] = NULL;
-            $data['processing_method'] = NULL;
-            $data['checkout_id']    =NULL;
-
-            //forlast products
-            foreach ($order_model->getItemsCollection() as $key => $val)
-            {
-                $data['line_items'][]['fulfillment_service']    =NULL;
-                $data['line_items'][]['fulfillment_status'] =NULL;
-                $data['line_items'][]['grams']  = $val->getWeight();
-                $data['line_items'][]['id'] = $val->getItemId();
-                $data['line_items'][]['price']  = $val->getPrice();
-                $data['line_items'][]['product_id'] = $val->getItemId();
-                $data['line_items'][]['quantity']   = $val->getQtyOrdered();
-                $data['line_items'][]['requires_shipping']  =NULL;
-                $data['line_items'][]['sku']    = $val->getSku();
-                $data['line_items'][]['title']  = $val->getName();
-                $data['line_items'][]['variant_id'] =NULL;
-                $data['line_items'][]['variant_title']  =NULL;
-                $data['line_items'][]['vendor'] = $order_model->getStoreName();
-                $data['line_items'][]['name']   = $val->getName();
-                $data['line_items'][]['variant_inventory_management']   =NULL;
-                $data['line_items'][]['properties'] =NULL;
-            }
-
-            //shipping details
-            $data ['shipping_lines'][]['code']  = $order_model->getShippingMethod();
-            $data ['shipping_lines'][]['price'] = $order_model->getShippingAmount();
-            $data ['shipping_lines'][]['source']    =NULL;
-            $data ['shipping_lines'][]['title'] = $order_model->getShippingDescription();
-            $data['tax_lines']  =NULL;
-
-            // payment details
-
-            $bin_number = $payment_details->getAdditionalInformation('riskified_cc_bin');
-
-            if($payment_details->getMethod() == 'authorizenet')
-            {
-                // payment details if authorize
-                foreach ($payment_details->getAdditionalInformation() as $additional_data){
-                    foreach ($additional_data as $key => $trans_data){
-                        $data['payment_details']['credit_card_bin'] = $bin_number;
-                        $data['payment_details']['avs_result_code'] = $trans_data['cc_avs_result_code'];
-                        $data['payment_details']['cvv_result_code'] = $trans_data['cc_response_code'];
-                        #$data['payment_details']['cvv_result_code']    = $payment_details->getAdditionalInformation('paypal_cvv2_match');
-                        $data['payment_details']['credit_card_number']  = "XXXX-XXXX-".$trans_data['cc_last4'];
-                        $data['payment_details']['credit_card_company']= $trans_data['cc_type'];
-                    }
-                }
-            }elseif ($payment_details->getMethod() == 'paypal_direct'){
-                // payment details if paypal
-                $data['payment_details']['avs_result_code'] = $payment_details->getAdditionalInformation('paypal_avs_code');
-                $data['payment_details']['credit_card_bin'] = $bin_number;
-                $data['payment_details']['cvv_result_code'] = $payment_details->getAdditionalInformation('paypal_cvv2_match');
-                $data['payment_details']['credit_card_number']  = "XXXX-XXXX-".$payment_details->getCcLast4();
-                $data['payment_details']['credit_card_company'] = $payment_details->getCcType();
-            }elseif ($payment_details->getMethod() == 'sagepaydirectpro'){
-                // payment details if sagepaydirectpro
-
-                $sage = $order_model->getSagepayInfo();
-                $data['payment_details']['avs_result_code'] = $sage->getData('address_result');
-                $data['payment_details']['credit_card_bin'] = $bin_number;
-                $data['payment_details']['cvv_result_code'] = $sage->getData('cv2result');
-                $data['payment_details']['credit_card_number']  = "XXXX-XXXX-".$sage->getData('last_four_digits');
-                $data['payment_details']['credit_card_company'] = $sage->getData('card_type');
-            }else{
-                // payment details if anything else
-                $data['payment_details']['avs_result_code']     = $payment_details->getCcAvsStatus();
-                $data['payment_details']['credit_card_bin']     = $bin_number;
-                $data['payment_details']['cvv_result_code']     = $payment_details->getCcCidStatus();
-                $data['payment_details']['credit_card_number']  = "XXXX-XXXX-".$payment_details->getCcLast4();
-                $data['payment_details']['credit_card_company'] = $payment_details->getCcType();
-            }
-
-
-            // payment details
-
-            $data['fulfillments']   =NULL;
-
-            // client details
-            $data['client_details']['accept_language']  = NULL;
-            $data['client_details']['browser_ip']   = $order_model->getRemoteIp();;
-            $data['client_details']['session_hash'] = NULL;
-            $data['client_details']['user_agent']   = Mage::helper('core/http')->getHttpUserAgent();
-
-
-            $data['customer']['accepts_marketing']  = NULL;
-            $data['customer']['created_at'] = $customer_details->getCreatedAt();
-            $data['customer']['email']  = $customer_details->getEmail();
-            $data['customer']['first_name'] =$customer_details->getFirstname();
-            $data['customer']['id'] = $customer_details->getEntityId();
-            $data['customer']['last_name']  = $customer_details->getLastname();
-
-            $customer_order_details = Mage::getModel('sales/order')->getCollection()
-            ->addFieldToFilter('customer_id', array('eq' => $customer_id))
-            ->addFieldToSelect('entity_id')
-            ->addFieldToSelect('base_grand_total');
-            $total = 0;
-            $num = 0;
-            $last_id = -1;
-            foreach ($customer_order_details as $num => $entity_id){
-                $last_id = $entity_id->getData('entity_id');
-                $total = $total+$entity_id->getData('base_grand_total');
-            }
-
-            $data['customer']['last_order_id']  = $last_id;
-            $data['customer']['note']  = NULL;
-            $data['customer']['orders_count']   = ++$num;
-            $data['customer']['state']  =NULL;
-            $data['customer']['total_spent']    = $total;
-            $data['customer']['updated_at'] = $customer_details->getUpdatedAt();
-            $data['customer']['tags']   =NULL;
-            $data['customer']['last_order_name']    =NULL;
-
-            //$data[NULL]   =NULL;
-            //billing info
-            $data['billing_address']['first_name']  = $billing_address->getFirstname();
-            $data['billing_address']['last_name']   = $billing_address->getLastname();
-            $data['billing_address']['name']        = $data['billing_address']['first_name'] . " " . $data['billing_address']['last_name'];
-            if (!is_null($add) && array_key_exists('0', $add)) {
-              $data['billing_address']['address1']    = $add['0'];
-            } else
-            {
-              $data['billing_address']['address1'] 	= NULL;
-            }
-            if (!is_null($add) && array_key_exists('1', $add)) {
-              $data['billing_address']['address2'] 	= $add['1'];
-            } else
-            {
-              $data['billing_address']['address2'] 	= NULL;
-            }
-            
-            $data['billing_address']['city']        = $billing_address->getCity();
-            $data['billing_address']['company']     = $billing_address->getCompany();
-            $data['billing_address']['country']     = Mage::getModel('directory/country')->load($billing_address->getCountryId())->getName();
-            $data['billing_address']['country_code']= $billing_address->getCountryId();
-            $data['billing_address']['phone']       = $billing_address->getTelephone();
-            $data['billing_address']['province']    = $billing_address->getRegion();
-            $data['billing_address']['zip']         = $billing_address->getPostcode();
-            $data['billing_address']['province']    = NULL;
-
-            //shipping info
-            $data['shipping_address']['first_name'] = $shipping_address->getFirstname();
-            $data['shipping_address']['last_name']  = $shipping_address->getLastname();
-            $data['shipping_address']['name']       = $data['shipping_address']['first_name'] . " " . $data['shipping_address']['last_name'];
-            if (!is_null($sadd) && array_key_exists('0', $sadd)) {
-              $data['shipping_address']['address1']	= $sadd['0'];
-            } else
-            {
-              $data['shipping_address']['address1']	= NULL;
-            }
-            if (!is_null($sadd) && array_key_exists('1', $sadd)) {
-              $data['shipping_address']['address2']	= $sadd['1'];
-            } else
-            {
-              $data['shipping_address']['address2']	= NULL;
-            }
-            $data['shipping_address']['city']       = $shipping_address->getCity();
-            $data['shipping_address']['company']    = $shipping_address->getCompany();
-            $data['shipping_address']['country']    = Mage::getModel('directory/country')->load($shipping_address->getCountryId())->getName();
-            $data['shipping_address']['country_code']=$shipping_address->getCountryId();
-            $data['shipping_address']['phone']      = $shipping_address->getTelephone();
-            $data['shipping_address']['province']   = $shipping_address->getRegion();
-            $data['shipping_address']['zip']        = $shipping_address->getPostcode();
-            $data['shipping_address']['province_code'] = NULL;
-            // json encode
-            $data_string = json_encode($data);
-            Mage::log($data_string);
-            //generating hash
-            $s_key = Mage::helper('full')->getAuthToken();
-            $hash_code = hash_hmac('sha256', $data_string, $s_key);
-
-            //firing curl
-            $riskified_result = $this->fireCurl($data_string,$hash_code,$submit_now);
-            $order_model->setState($riskified_result["state"],$riskified_result["mage_status"], $riskified_result["comment"]);
-            $order_model->save();
-
-            Mage::log("riskified_result : $riskified_result");
-        }
-        return;
-    }
-    
-    public function addMassAction($observer)
-    {
-        $block = $observer->getEvent()->getBlock();
-        if(get_class($block) =='Mage_Adminhtml_Block_Widget_Grid_Massaction'
-                && $block->getRequest()->getControllerName() == 'sales_order')
-        {
-            $block->addItem('full', array(
-                    'label' => 'Submit to Riskified',
-                    'url' => Mage::app()->getStore()->getUrl('full/adminhtml_full/riskimass'),
-            ));
-        }
     }
 
 }

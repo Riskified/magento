@@ -67,6 +67,7 @@ transactions you would otherwise decline.</description>
          <target>magedesign</target>
          <target>magedesign</target>
          <target>mageskin</target>
+         <target>magelib</target>
       </target>
       <path>
          <path/>
@@ -77,6 +78,7 @@ transactions you would otherwise decline.</description>
          <path>frontend/base/default/layout/full.xml</path>
          <path>frontend/base/default/template/full/riskified.phtml</path>
          <path>adminhtml/default/default/images/riskified/logo.jpg</path>
+         <path>riskified_php_sdk/</path>
       </path>
       <type>
          <type>file</type>
@@ -87,6 +89,7 @@ transactions you would otherwise decline.</description>
          <type>file</type>
          <type>file</type>
          <type>file</type>
+         <type>dir</type>
       </type>
       <include>
          <include/>
@@ -97,8 +100,10 @@ transactions you would otherwise decline.</description>
          <include/>
          <include/>
          <include/>
+         <include/>
       </include>
       <ignore>
+         <ignore/>
          <ignore/>
          <ignore/>
          <ignore/>
