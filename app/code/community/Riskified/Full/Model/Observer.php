@@ -144,13 +144,13 @@ class Riskified_Full_Model_Observer{
 
         return new Model\Customer(array(
             'created_at' => $customer_details->getCreatedAt(),
+            'updated_at' => $customer_details->getUpdatedAt(),
             'email' => $customer_details->getEmail(),
             'first_name' => $customer_details->getFirstname(),
             'last_name' => $customer_details->getLastname(),
             'id' => $customer_details->getEntityId(),
             'orders_count' => $orders_count,
             'verified_email' => true,
-            'updated_at' => $customer_details->getUpdatedAt(),
             'last_order_id' => $last_order_id,
             'total_spent' => $total_spent
         ));
@@ -177,7 +177,7 @@ class Riskified_Full_Model_Observer{
         switch ($payment->getMethod()) {
             case 'authorizenet':
                 $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
-                Mage::log('authorizenet cards_data: ' . serialize($cards_data));
+                Mage::log('authorizenet cards_data: ' . serialize($cards_data) . ' ' . $payment->getCcAvsStatus());
                 $card_data = $cards_data[0];
                 $avs_result_code = $card_data['cc_avs_result_code'];
                 $cvv_result_code = $card_data['cc_response_code'];
