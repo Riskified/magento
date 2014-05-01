@@ -91,26 +91,24 @@ class Riskified_Full_Model_Observer{
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
             'total_spent' => $model->getGrandTotal(),
-            'cancel_reason' => null,
-            'cancelled_at' => null,
+//            'cancel_reason' => null,
+//            'cancelled_at' => null,
             'created_at' => $model->getCreatedAt(),
-            'closed_at' => null,
+//            'closed_at' => null,
             'currency' => $model->getBaseCurrencyCode(),
             'updated_at' => $model->getUpdatedAt(),
             'gateway' => $model->getPayment()->getMethod(),
             'browser_ip' => $model->getRemoteIp(),
             'cart_token' => Mage::helper('full')->getSessionId(),
             'note' => $model->getCustomerNote(),
-            'referring_site' => 'null',
+//            'referring_site' => 'null',
             'total_price' => $model->getGrandTotal(),
-            'total_discounts' => $model->getDiscountAmount()
-
-//            'subtotal_price' => $model->getBaseSubtotalInclTax(),
-//            'discount_codes' => $model->getDiscountDescription(),
-//            'taxes_included' => true,
-//            'total_tax' => $model->getBaseTaxAmount(),
-//            'total_weight' => $model->getWeight(),
-//            'fullfillments' => null
+            'total_discounts' => $model->getDiscountAmount(),
+            'subtotal_price' => $model->getBaseSubtotalInclTax(),
+            'discount_codes' => $model->getDiscountDescription(),
+            'taxes_included' => true,
+            'total_tax' => $model->getBaseTaxAmount(),
+            'total_weight' => $model->getWeight()
         ));
 
         $order->customer = $this->getCustomer($model);
@@ -119,8 +117,7 @@ class Riskified_Full_Model_Observer{
         $order->payment_details = $this->getPaymentDetails($model);
         $order->line_items = $this->getLineItems($model);
         $order->shipping_lines = $this->getShippingLines($model);
-
-//        $order->client_details = $this->getClientDetails($model);
+        $order->client_details = $this->getClientDetails($model);
 
         return $order;
     }
@@ -147,18 +144,16 @@ class Riskified_Full_Model_Observer{
             'first_name' => $customer_details->getFirstname(),
             'last_name' => $customer_details->getLastname(),
             'id' => $customer_details->getEntityId(),
-            'note' => null, // $model->getCustomerNote(),
+//            'note' => null, // $model->getCustomerNote(),
             'orders_count' => $orders_count,
-            'verified_email' => true
-
-//            'updated_at' => $customer_details->getUpdatedAt(),
-//            'last_order_id' => $last_order_id,
+            'verified_email' => true,
+            'updated_at' => $customer_details->getUpdatedAt(),
+            'last_order_id' => $last_order_id,
 //            'state' => null,
-//            'total_spent' => $total_spent,
+            'total_spent' => $total_spent,
 //            'tags' => null,
 //            'last_order_name' => null,
 //            'accepts_marketing' => null
-
         ));
     }
 
@@ -175,6 +170,7 @@ class Riskified_Full_Model_Observer{
 
         switch ($payment->getMethod()) {
             case 'authorizenet':
+                Mage::log('authorizenet additionalInformation: '.$payment->getAdditionalInformation());
                 foreach ($payment->getAdditionalInformation() as $additional_data){
                     foreach ($additional_data as $key => $trans_data){
                         $avs_result_code = $trans_data['cc_avs_result_code'];
@@ -202,8 +198,8 @@ class Riskified_Full_Model_Observer{
 
             default:
                 $avs_result_code = $payment->getCcAvsStatus();
-                $cvv_result_code     = $payment->getCcCidStatus();
-                $credit_card_number  = "XXXX-XXXX-".$payment->getCcLast4();
+                $cvv_result_code = $payment->getCcCidStatus();
+                $credit_card_number = "XXXX-XXXX-".$payment->getCcLast4();
                 $credit_card_company = $payment->getCcType();
                 break;
         }
@@ -226,8 +222,8 @@ class Riskified_Full_Model_Observer{
                 'title' => $val->getName(),
                 'sku' => $val->getSku(),
                 'product_id' => $val->getItemId(),
-//                'grams' => $val->getWeight(),
-//                'vendor' => $order_model->getStoreName(),
+                'grams' => $val->getWeight(),
+                'vendor' => $model->getStoreName()
             ));
         }
         return $line_items;
@@ -243,9 +239,9 @@ class Riskified_Full_Model_Observer{
 
     private function getClientDetails($model) {
         return new Model\ClientDetails(array(
-            'accept_language' => null,
+//            'accept_language' => null,
             'browser_ip' => $model->getRemoteIp(),
-            'session_hash' => null,
+//            'session_hash' => null,
             'user_agent' => Mage::helper('core/http')->getHttpUserAgent()
         ));
     }
