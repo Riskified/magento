@@ -163,11 +163,11 @@ class Riskified_Full_Model_Observer{
     }
 
     private function getShippingAddress($model) {
-        return new Model\ShippingAddress($this->getAddressArray($model->getShippingAddress()));
+        return new Model\Address($this->getAddressArray($model->getShippingAddress()));
     }
 
     private function getBillingAddress($model) {
-        return new Model\BillingAddress($this->getAddressArray($model->getBillingAddress()));
+        return new Model\Address($this->getAddressArray($model->getBillingAddress()));
     }
 
     private function getPaymentDetails($model) {
