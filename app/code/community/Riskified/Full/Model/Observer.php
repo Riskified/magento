@@ -91,17 +91,13 @@ class Riskified_Full_Model_Observer{
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
             'total_spent' => $model->getGrandTotal(),
-//            'cancel_reason' => null,
-//            'cancelled_at' => null,
             'created_at' => $model->getCreatedAt(),
-//            'closed_at' => null,
             'currency' => $model->getBaseCurrencyCode(),
             'updated_at' => $model->getUpdatedAt(),
             'gateway' => $model->getPayment()->getMethod(),
             'browser_ip' => $model->getRemoteIp(),
             'cart_token' => Mage::helper('full')->getSessionId(),
             'note' => $model->getCustomerNote(),
-//            'referring_site' => 'null',
             'total_price' => $model->getGrandTotal(),
             'total_discounts' => $model->getDiscountAmount(),
             'subtotal_price' => $model->getBaseSubtotalInclTax(),
@@ -110,6 +106,12 @@ class Riskified_Full_Model_Observer{
             'total_tax' => $model->getBaseTaxAmount(),
             'total_weight' => $model->getWeight()
         ));
+
+//            'cancel_reason' => null,
+//            'cancelled_at' => null,
+//            'closed_at' => null,
+//            'referring_site' => 'null',
+
 
         $order->customer = $this->getCustomer($model);
         $order->shipping_address = $this->getShippingAddress($model);
@@ -144,17 +146,19 @@ class Riskified_Full_Model_Observer{
             'first_name' => $customer_details->getFirstname(),
             'last_name' => $customer_details->getLastname(),
             'id' => $customer_details->getEntityId(),
-//            'note' => null, // $model->getCustomerNote(),
             'orders_count' => $orders_count,
             'verified_email' => true,
             'updated_at' => $customer_details->getUpdatedAt(),
             'last_order_id' => $last_order_id,
+            'total_spent' => $total_spent
+        ));
+
+//            'note' => null, // $model->getCustomerNote(),
 //            'state' => null,
-            'total_spent' => $total_spent,
 //            'tags' => null,
 //            'last_order_name' => null,
 //            'accepts_marketing' => null
-        ));
+
     }
 
     private function getShippingAddress($model) {
@@ -170,7 +174,7 @@ class Riskified_Full_Model_Observer{
 
         switch ($payment->getMethod()) {
             case 'authorizenet':
-                Mage::log('authorizenet additionalInformation: ' . implode(' ', $payment->getAdditionalInformation()));
+                Mage::log('authorizenet additionalInformation: ' . serialize($payment->getAdditionalInformation()));
                 foreach ($payment->getAdditionalInformation() as $additional_data){
                     foreach ($additional_data as $key => $trans_data) {
                         $avs_result_code = $trans_data['cc_avs_result_code'];
@@ -261,11 +265,12 @@ class Riskified_Full_Model_Observer{
             'city' => $address->getCity(),
             'country_code' => $address->getCountryId(),
             'country' => Mage::getModel('directory/country')->load($address->getCountryId())->getName(),
-            // 'province_code'
             'province' => $address->getRegion(),
             'zip' => $address->getPostcode(),
             'phone' => $address->getTelephone(),
         );
+
+        // 'province_code'
     }
 
     private function mapStatus($status){
