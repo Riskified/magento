@@ -127,7 +127,8 @@ class Riskified_Full_Model_Observer{
     private function getCustomer($model) {
         $customer_id = $model->getCustomerId();
         $customer_details = Mage::getModel('customer/customer')->load($customer_id);
-        Mage::log('getCustomer $customer_id ' . $customer_id . ' $customer_details: ' . serialize($customer_details));
+        Mage::log('getCustomer $customer_id ' . $customer_id );
+        Mage::log('getCustomer $customer_details: ' . serialize( $model->getCustomer()));
 
         $customer_order_details = Mage::getModel('sales/order')->getCollection()
             ->addFieldToFilter('customer_id', array('eq' => $customer_id))
@@ -178,11 +179,11 @@ class Riskified_Full_Model_Observer{
             case 'authorizenet':
                 $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
                 $card_data = $cards_data[0];
-                ob_start();
-                var_dump(get_class_methods(get_class($payment->getMethodInstance())));
-                $str = ob_get_contents();
-                ob_end_clean();
-                Mage::log('authorizenet $payment: ' . $str);
+//                ob_start();
+//                var_dump(get_class_methods(get_class($payment->getMethodInstance())));
+//                $str = ob_get_contents();
+//                ob_end_clean();
+//                Mage::log('authorizenet $payment: ' . serialize($payment->getCardsStorage()->getCards());
                 $avs_result_code = $card_data['cc_avs_result_code'];
                 $cvv_result_code = $card_data['cc_response_code'];
                 $credit_card_number  = "XXXX-XXXX-".$card_data['cc_last4'];
