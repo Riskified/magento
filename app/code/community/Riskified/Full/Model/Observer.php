@@ -222,7 +222,7 @@ class Riskified_Full_Model_Observer{
         foreach ($model->getItemsCollection() as $key => $val) {
             $line_items[] = new Model\LineItem(array(
                 'price' => $val->getPrice(),
-                'quantity' => $val->getQtyOrdered(),
+                'quantity' => intval($val->getQtyOrdered()),
                 'title' => $val->getName(),
                 'sku' => $val->getSku(),
                 'product_id' => $val->getItemId(),
