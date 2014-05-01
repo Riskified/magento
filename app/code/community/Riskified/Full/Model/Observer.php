@@ -44,9 +44,6 @@ class Riskified_Full_Model_Observer{
             Mage::log("Entering saveOrderAfter for " . $order_id);
 
             $model = Mage::getModel('sales/order')->load($order_id);
-
-            Mage::log('getCustomer $customer_details: ' . serialize($model->loadCustomer()) );
-
             $order = $this->getOrder($model);
 
             Mage::log("Call Riskified webhook submit_now : $submit_now, data : ".PHP_EOL.json_encode(json_decode($order->toJson())).PHP_EOL);
@@ -108,13 +105,12 @@ class Riskified_Full_Model_Observer{
             'taxes_included' => true,
             'total_tax' => $model->getBaseTaxAmount(),
             'total_weight' => $model->getWeight()
-        ));
-
-//            'cancel_reason' => null,
+            //            'cancel_reason' => null,
 //            'cancelled_at' => null,
 //            'closed_at' => null,
 //            'referring_site' => 'null',
 
+        ));
 
         $order->customer = $this->getCustomer($model);
         $order->shipping_address = $this->getShippingAddress($model);
@@ -128,12 +124,8 @@ class Riskified_Full_Model_Observer{
     }
 
     private function getCustomer($model) {
-//        $customer_details = $model->getCustomer();
-
         $customer_id = $model->getCustomerId();
         $customer_details = Mage::getModel('customer/customer')->load($customer_id);
-        Mage::log('getCustomer $customer_id ' . $customer_id );
-
         $customer_order_details = Mage::getModel('sales/order')->getCollection()
             ->addFieldToFilter('customer_id', array('eq' => $customer_id))
             ->addFieldToSelect('entity_id')
@@ -158,14 +150,12 @@ class Riskified_Full_Model_Observer{
             'verified_email' => true,
             'last_order_id' => $last_order_id,
             'total_spent' => $total_spent
-        ));
-
 //            'note' => null, // $model->getCustomerNote(),
 //            'state' => null,
 //            'tags' => null,
 //            'last_order_name' => null,
 //            'accepts_marketing' => null
-
+        ));
     }
 
     private function getShippingAddress($model) {
@@ -187,7 +177,7 @@ class Riskified_Full_Model_Observer{
 //                var_dump(get_class_methods(get_class($payment->getMethodInstance())));
 //                $str = ob_get_contents();
 //                ob_end_clean();
-//                Mage::log('authorizenet $payment: ' . serialize($payment->getCardsStorage()->getCards());
+//                Mage::log('authorizenet $payment: ' . $str);
                 $avs_result_code = $card_data['cc_avs_result_code'];
                 $cvv_result_code = $card_data['cc_response_code'];
                 $credit_card_number  = "XXXX-XXXX-".$card_data['cc_last4'];
@@ -216,6 +206,8 @@ class Riskified_Full_Model_Observer{
                 $credit_card_company = $payment->getCcType();
                 break;
         }
+
+        Mage::log('authorizenet getAdditionalInformation: ' . $payment->getAdditionalInformation());
 
         return new Model\PaymentDetails(array(
             'avs_result_code' => $avs_result_code,
