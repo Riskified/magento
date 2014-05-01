@@ -177,7 +177,7 @@ class Riskified_Full_Model_Observer{
         switch ($payment->getMethod()) {
             case 'authorizenet':
                 $card_data = array_values($payment->getAdditionalInformation('authorize_cards'))[0];
-                Mage::log('authorizenet card_data: ' . serialize($card_data);
+                Mage::log('authorizenet card_data: ' . serialize($card_data));
                 $avs_result_code = $card_data['cc_avs_result_code'];
                 $cvv_result_code = $card_data['cc_response_code'];
                 $credit_card_number  = "XXXX-XXXX-".$card_data['cc_last4'];
