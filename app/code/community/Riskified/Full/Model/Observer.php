@@ -26,11 +26,10 @@ class Riskified_Full_Model_Observer{
 
     public function saveOrderAfter($evt) {
         //        $version = Mage::helper('full')->getExtensionVersion();
-//        $ch = curl_init(Mage::helper('full')->getConfigUrl().'/webhooks/merchant_order_created');
 
         $transport = new Transport\CurlTransport(new Signature\HttpDataSignature());
         $transport->timeout = 15;
-        Mage::log("Sending data to ".$transport->full_path());
+        Mage::log("Entering saveOrderAfter, transport: ".$transport->full_path());
 
         if (is_object($evt)) {
             $submit_now = false;
@@ -41,19 +40,19 @@ class Riskified_Full_Model_Observer{
         }
 
         foreach ($order_ids as $order_id) {
-            Mage::log("Entering saveOrderAfter for " . $order_id);
+            Mage::log("Building request, order_id: " . $order_id);
 
             $model = Mage::getModel('sales/order')->load($order_id);
             $order = $this->getOrder($model);
 
-            Mage::log("Call Riskified webhook submit_now : $submit_now, data : ".PHP_EOL.json_encode(json_decode($order->toJson())).PHP_EOL);
+            Mage::log("Posting request, submit_now : $submit_now, data : ".PHP_EOL.json_encode(json_decode($order->toJson())));
 
             if ($submit_now)
                 $response = $transport->submitOrder($order);
             else
                 $response = $transport->createOrUpdateOrder($order);
 
-            Mage::log("Riskified webhook RESPONSE:".PHP_EOL.json_encode($response).PHP_EOL);
+            Mage::log("Riskified response, data: :".PHP_EOL.json_encode($response));
 
             if(isset($response->order)){
                 $orderId = $response->order->id;
@@ -86,7 +85,7 @@ class Riskified_Full_Model_Observer{
 
 
     private function getOrder($model) {
-        $order = new Model\Order(array(
+        $order = new Model\Order(array_filter(array(
             'id' => $model->getId(),
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
@@ -109,8 +108,7 @@ class Riskified_Full_Model_Observer{
 //            'cancelled_at' => null,
 //            'closed_at' => null,
 //            'referring_site' => 'null',
-
-        ));
+        ),'strlen'));
 
         $order->customer = $this->getCustomer($model);
         $order->shipping_address = $this->getShippingAddress($model);
@@ -139,7 +137,7 @@ class Riskified_Full_Model_Observer{
         }
         $orders_count++;
 
-        return new Model\Customer(array(
+        return new Model\Customer(array_filter(array(
             'created_at' => $customer_details->getCreatedAt(),
             'updated_at' => $customer_details->getUpdatedAt(),
             'email' => $customer_details->getEmail(),
@@ -155,7 +153,7 @@ class Riskified_Full_Model_Observer{
 //            'tags' => null,
 //            'last_order_name' => null,
 //            'accepts_marketing' => null
-        ));
+        ),'strlen'));
     }
 
     private function getShippingAddress($model) {
@@ -178,8 +176,8 @@ class Riskified_Full_Model_Observer{
 //                $str = ob_get_contents();
 //                ob_end_clean();
 //                Mage::log('authorizenet $payment: ' . $str);
-                $avs_result_code = $card_data['cc_avs_result_code'];
-                $cvv_result_code = $card_data['cc_response_code'];
+                $avs_result_code = $card_data['cc_avs_result_code']; // getAvsResultCode
+                $cvv_result_code = $card_data['cc_response_code'];  // getCardCodeResponseCode
                 $credit_card_number  = "XXXX-XXXX-".$card_data['cc_last4'];
                 $credit_card_company = $card_data['cc_type'];
                 break;
@@ -207,21 +205,21 @@ class Riskified_Full_Model_Observer{
                 break;
         }
 
-        Mage::log('authorizenet getAdditionalInformation: ' . $payment->getAdditionalInformation());
+        $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
 
-        return new Model\PaymentDetails(array(
+        return new Model\PaymentDetails(array_filter(array(
             'avs_result_code' => $avs_result_code,
             'cvv_result_code' => $cvv_result_code,
             'credit_card_number' => $credit_card_number,
             'credit_card_company' => $credit_card_company,
-            'credit_card_bin' => $payment->getAdditionalInformation('riskified_cc_bin'),
-        ));
+            'credit_card_bin' => $credit_card_bin,
+        ),'strlen'));
     }
 
     private function getLineItems($model) {
         $line_items = array();
         foreach ($model->getItemsCollection() as $key => $val) {
-            $line_items[] = new Model\LineItem(array(
+            $line_items[] = new Model\LineItem(array_filter(array(
                 'price' => $val->getPrice(),
                 'quantity' => intval($val->getQtyOrdered()),
                 'title' => $val->getName(),
@@ -229,26 +227,26 @@ class Riskified_Full_Model_Observer{
                 'product_id' => $val->getItemId(),
                 'grams' => $val->getWeight(),
                 'vendor' => $model->getStoreName()
-            ));
+            ),'strlen'));
         }
         return $line_items;
     }
 
     private function getShippingLines($model) {
-        return new Model\ShippingLine(array(
+        return new Model\ShippingLine(array_filter(array(
             'price' => $model->getShippingAmount(),
             'title' => $model->getShippingDescription(),
             'code' => $model->getShippingMethod()
-        ));
+        ),'strlen'));
     }
 
     private function getClientDetails($model) {
-        return new Model\ClientDetails(array(
+        return new Model\ClientDetails(array_filter(array(
 //            'accept_language' => null,
             'browser_ip' => $model->getRemoteIp(),
 //            'session_hash' => null,
             'user_agent' => Mage::helper('core/http')->getHttpUserAgent()
-        ));
+        ),'strlen'));
     }
 
     private function getAddressArray($address) {
@@ -256,7 +254,7 @@ class Riskified_Full_Model_Observer{
         $address_1 = (!is_null($street) && array_key_exists('0', $street)) ? $street['0'] : null;
         $address_2 = (!is_null($street) && array_key_exists('1', $street)) ? $street['1'] : null;
 
-        return array(
+        return array_filter(array(
             'first_name' => $address->getFirstname(),
             'last_name' => $address->getLastname(),
             'name' => $address->getFirstname() . " " . $address->getLastname(),
@@ -269,7 +267,7 @@ class Riskified_Full_Model_Observer{
             'province' => $address->getRegion(),
             'zip' => $address->getPostcode(),
             'phone' => $address->getTelephone(),
-        );
+        ), 'strlen');
 
         // 'province_code'
     }
