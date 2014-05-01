@@ -170,9 +170,9 @@ class Riskified_Full_Model_Observer{
 
         switch ($payment->getMethod()) {
             case 'authorizenet':
-                Mage::log('authorizenet additionalInformation: '.$payment->getAdditionalInformation());
+                Mage::log('authorizenet additionalInformation: ' . implode(' ', $payment->getAdditionalInformation()));
                 foreach ($payment->getAdditionalInformation() as $additional_data){
-                    foreach ($additional_data as $key => $trans_data){
+                    foreach ($additional_data as $key => $trans_data) {
                         $avs_result_code = $trans_data['cc_avs_result_code'];
                         $cvv_result_code = $trans_data['cc_response_code'];
                         $credit_card_number  = "XXXX-XXXX-".$trans_data['cc_last4'];
