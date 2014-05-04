@@ -1,0 +1,3 @@
+- test payment methods
+- cancel options
+- refactor code

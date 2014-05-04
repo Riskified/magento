@@ -2,18 +2,20 @@
 
 require_once(Mage::getBaseDir('lib') . DIRECTORY_SEPARATOR . 'riskified_php_sdk' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Riskified' . DIRECTORY_SEPARATOR . 'autoloader.php');
 use Riskified\Common\Riskified;
-use Riskified\Common\Env;
 use Riskified\Common\Signature;
 use Riskified\OrderWebhook\Model;
 use Riskified\OrderWebhook\Transport;
 
-$authToken = "1388add8a99252fc1a4974de471e73cd";
-Riskified::init(Mage::helper('full')->getShopDomain(), $authToken, Env::SANDBOX);
+$authToken = Mage::helper('full')->getAuthToken();
+$env = constant('Riskified\Common\Env::'.Mage::helper("full")->getConfigEnv());
+$shopDomain = Mage::helper('full')->getShopDomain();
+
+Mage::log("Riskified init for shop: $shopDomain, env: $env, token: $authToken");
+Riskified::init($shopDomain, $authToken, $env, true);
 
 class Riskified_Full_Model_Observer{
 
-    public function saveOrderBefore($evt)
-    {
+    public function saveOrderBefore($evt) {
         Mage::log("Entering saveOrderBefore");
         $payment = $evt->getPayment();
         $payment->setAdditionalInformation('riskified_cc_bin', substr($payment->getCcNumber(),0,6));
@@ -25,7 +27,8 @@ class Riskified_Full_Model_Observer{
     }
 
     public function saveOrderAfter($evt) {
-        //        $version = Mage::helper('full')->getExtensionVersion();
+        $version = Mage::helper('full')->getExtensionVersion();
+        $headers = array('headers' => array("X_RISKIFIED_VERSION:$version"));
 
         $transport = new Transport\CurlTransport(new Signature\HttpDataSignature());
         $transport->timeout = 15;
@@ -48,21 +51,20 @@ class Riskified_Full_Model_Observer{
             Mage::log("Posting request, submit_now : $submit_now, data : ".PHP_EOL.json_encode(json_decode($order->toJson())));
 
             if ($submit_now)
-                $response = $transport->submitOrder($order);
+                $response = $transport->submitOrder($order, $headers);
             else
-                $response = $transport->createOrUpdateOrder($order);
+                $response = $transport->createOrUpdateOrder($order, $headers);
 
             Mage::log("Riskified response, data: :".PHP_EOL.json_encode($response));
 
             if(isset($response->order)){
                 $orderId = $response->order->id;
                 $status = $response->order->status;
+                $description = (isset($response->order->description)) ? $response->order->description : null;
                 if($orderId && $status){
-                    $state = $this->mapStatus($status);
-
-                    Mage::log("$state: ". json_encode($state));
-
-                    $model->setState($state["state"],$state["mage_status"], $state["comment"]);
+                    $state = $this->mageStateFromStatus($status);
+                    $mageStatus = ($state == Mage_Sales_Model_Order::STATE_CANCELED) ? Mage_Sales_Model_Order::STATUS_FRAUD : true;
+                    $model->setState($state, $mageStatus, $description);
                     $model->save();
                 }
             }
@@ -104,7 +106,7 @@ class Riskified_Full_Model_Observer{
             'taxes_included' => true,
             'total_tax' => $model->getBaseTaxAmount(),
             'total_weight' => $model->getWeight()
-            //            'cancel_reason' => null,
+//            'cancel_reason' => null,
 //            'cancelled_at' => null,
 //            'closed_at' => null,
 //            'referring_site' => 'null',
@@ -123,37 +125,39 @@ class Riskified_Full_Model_Observer{
 
     private function getCustomer($model) {
         $customer_id = $model->getCustomerId();
-        $customer_details = Mage::getModel('customer/customer')->load($customer_id);
-        $customer_order_details = Mage::getModel('sales/order')->getCollection()
-            ->addFieldToFilter('customer_id', array('eq' => $customer_id))
-            ->addFieldToSelect('entity_id')
-            ->addFieldToSelect('base_grand_total');
-        $total_spent = 0;
-        $orders_count = 0;
-        $last_order_id = -1;
-        foreach ($customer_order_details as $orders_count => $entity_id){
-            $last_order_id = $entity_id->getData('entity_id');
-            $total_spent = $total_spent+$entity_id->getData('base_grand_total');
-        }
-        $orders_count++;
+        $customer_props = array(
+            'id' => $customer_id,
+            'email' => $model->getCustomerEmail(),
+            'first_name' => $model->getCustomerFirstname(),
+            'last_name' => $model->getCustomerLastname(),
+            'note' => $model->getCustomerNote(),
+        );
 
-        return new Model\Customer(array_filter(array(
-            'created_at' => $customer_details->getCreatedAt(),
-            'updated_at' => $customer_details->getUpdatedAt(),
-            'email' => $customer_details->getEmail(),
-            'first_name' => $customer_details->getFirstname(),
-            'last_name' => $customer_details->getLastname(),
-            'id' => $customer_details->getEntityId(),
-            'orders_count' => $orders_count,
-            'verified_email' => true,
-            'last_order_id' => $last_order_id,
-            'total_spent' => $total_spent
-//            'note' => null, // $model->getCustomerNote(),
-//            'state' => null,
-//            'tags' => null,
-//            'last_order_name' => null,
-//            'accepts_marketing' => null
-        ),'strlen'));
+        if ($customer_id) {
+            $total_spent = 0;
+            $orders_count = 0;
+            $last_order_id = -1;
+
+            $customer_details = Mage::getModel('customer/customer')->load($customer_id);
+            $customer_props['created_at'] = $customer_details->getCreatedAt();
+            $customer_props['updated_at'] = $customer_details->getUpdatedAt();
+
+            $customer_order_details = Mage::getModel('sales/order')->getCollection()
+                ->addFieldToFilter('customer_id', array('eq' => $customer_id))
+                ->addFieldToSelect('entity_id')
+                ->addFieldToSelect('base_grand_total');
+            foreach ($customer_order_details as $orders_count => $entity_id){
+                $last_order_id = $entity_id->getData('entity_id');
+                $total_spent = $total_spent+$entity_id->getData('base_grand_total');
+            }
+            $orders_count++;
+
+            $customer_props['orders_count'] = $orders_count;
+            $customer_props['last_order_id'] = $last_order_id;
+            $customer_props['total_spent'] = $total_spent;
+        }
+
+        return new Model\Customer(array_filter($customer_props,'strlen'));
     }
 
     private function getShippingAddress($model) {
@@ -171,11 +175,6 @@ class Riskified_Full_Model_Observer{
             case 'authorizenet':
                 $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
                 $card_data = $cards_data[0];
-//                ob_start();
-//                var_dump(get_class_methods(get_class($payment->getMethodInstance())));
-//                $str = ob_get_contents();
-//                ob_end_clean();
-//                Mage::log('authorizenet $payment: ' . $str);
                 $avs_result_code = $card_data['cc_avs_result_code']; // getAvsResultCode
                 $cvv_result_code = $card_data['cc_response_code'];  // getCardCodeResponseCode
                 $credit_card_number  = "XXXX-XXXX-".$card_data['cc_last4'];
@@ -242,9 +241,7 @@ class Riskified_Full_Model_Observer{
 
     private function getClientDetails($model) {
         return new Model\ClientDetails(array_filter(array(
-//            'accept_language' => null,
             'browser_ip' => $model->getRemoteIp(),
-//            'session_hash' => null,
             'user_agent' => Mage::helper('core/http')->getHttpUserAgent()
         ),'strlen'));
     }
@@ -268,41 +265,21 @@ class Riskified_Full_Model_Observer{
             'zip' => $address->getPostcode(),
             'phone' => $address->getTelephone(),
         ), 'strlen');
-
-        // 'province_code'
     }
 
-    private function mapStatus($status){
-        Mage::log("Riskified mapStatus : $status");
-        $state = null;
-        $mage_status = true;
-        $comment = null;
-        if($status != 'captured'){
-            switch ($status) {
-                case 'approved':
-                    //change order status to 'Processing'
-                    $comment = 'Reviewed and approved by Riskified';
-                    $state = Mage_Sales_Model_Order::STATE_PROCESSING;
-                    break;
-
-                case 'declined':
-                    // change order status to 'On Hold'
-                    $comment = 'Reviewed and declined by Riskified';
-                    $isCustomerNotified = false;
-                    $mage_status = Mage_Sales_Model_Order::STATUS_FRAUD;
-                    $state = Mage_Sales_Model_Order::STATE_CANCELED;
-                    break;
-
-                case 'submitted':
-                    // change order status to 'Pending'
-                    $comment = 'Under review by Riskified';
-                    $state = Mage_Sales_Model_Order::STATE_HOLDED;
-                    break;
-
-            }
-            Mage::log("mapStatus state = $state");
+    private function mageStateFromStatus($status) {
+        switch ($status) {
+            case 'approved':
+                return Mage_Sales_Model_Order::STATE_PROCESSING;
+                break;
+            case 'declined':
+                return Mage_Sales_Model_Order::STATE_CANCELED;
+                break;
+            case 'submitted':
+                return Mage_Sales_Model_Order::STATE_HOLDED;
+                break;
         }
-        return array("state" => $state, "mage_status" => $mage_status, "comment" => $comment );
+        return null;
     }
 
 }

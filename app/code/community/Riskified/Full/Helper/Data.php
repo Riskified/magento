@@ -15,16 +15,12 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
       return Mage::getStoreConfig('fullsection/full/key',Mage::app()->getStore());
     }
 
-    public function getConfigUrl(){
-        return Mage::getStoreConfig('fullsection/full/url');
-    }
-
     public function getConfigStatusControlActive(){
         return Mage::getStoreConfig('fullsection/full/order_status_sync');
     }
 
-    public function getConfigBeaconUrl(){
-        return Mage::getStoreConfig('fullsection/full/beaconurl');
+    public function getConfigEnv(){
+        return Mage::getStoreConfig('fullsection/full/env');
     }
 
     public function getShopDomain(){

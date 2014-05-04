@@ -9,8 +9,7 @@
       <fullsection>
         <full>
           <order_status_sync>0</order_status_sync>
-          <url>https://app.riskified.com</url>
-          <beaconurl>beacon.riskified.com</beaconurl>
+          <env>SANDBOX</env>
         </full>
       </fullsection>
     </default>
