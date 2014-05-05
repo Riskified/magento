@@ -1,3 +1,3 @@
 - test payment methods
 - cancel options
-- refactor code
+- order auto-submitted on create?
