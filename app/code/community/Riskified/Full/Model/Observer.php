@@ -24,7 +24,8 @@ class Riskified_Full_Model_Observer{
         foreach ($order_ids as $order_id) {
             $order = Mage::getModel('sales/order')->load($order_id);
 
-            $response = Mage::helper('full/order')->postOrder($order, $submit_now);
+            $helper = Mage::helper('full/order');
+            $response = $helper->postOrder($order, $submit_now);
             Mage::log("Riskified response, data: :".PHP_EOL.json_encode($response));
 
             if (isset($response->order)){
@@ -33,10 +34,7 @@ class Riskified_Full_Model_Observer{
                 $description = $response->order->description;
 
                 if ($orderId && $status){
-                    $state = Mage::helper('full')->stateFromStatus($status);
-                    $mageStatus = ($state == Mage_Sales_Model_Order::STATE_CANCELED) ? Mage_Sales_Model_Order::STATUS_FRAUD : true;
-                    $order->setState($state, $mageStatus, $description);
-                    $order->save();
+                    $helper->updateOrder($order, $status, $description);
                 }
             }
         }

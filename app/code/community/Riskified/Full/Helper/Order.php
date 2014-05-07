@@ -23,6 +23,25 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                          : $transport->createOrUpdateOrder($order, $headers);
     }
 
+    public function updateOrder($order, $status, $description) {
+        switch ($status) {
+            case 'approved':
+                $state = Mage_Sales_Model_Order::STATE_PROCESSING;
+                break;
+            case 'declined':
+                $state = Mage_Sales_Model_Order::STATE_CANCELED;
+                break;
+            case 'submitted':
+                $state = Mage_Sales_Model_Order::STATE_HOLDED;
+                break;
+        }
+        if ($state) {
+            $mageStatus = ($state == Mage_Sales_Model_Order::STATE_CANCELED) ? Mage_Sales_Model_Order::STATUS_FRAUD : true;
+            $order->setState($state, $mageStatus, $description);
+            $order->save();
+        }
+    }
+
     public function getRiskifiedDomain() {
         return Riskified::getHostByEnv();
     }
@@ -56,7 +75,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
             'total_spent' => $model->getGrandTotal(),
-            'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),   // TODO rap all created_at (in customer as well), updated_at (in customer as well), cancelled_at with date formatting of ISO8601
+            'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),
             'currency' => $model->getBaseCurrencyCode(),
             'updated_at' => $this->formatDateAsIso8601($model->getUpdatedAt()),
             'gateway' => $model->getPayment()->getMethod(),
@@ -234,13 +253,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $commentCollection = $model->getStatusHistoryCollection();
         foreach ($commentCollection as $comment) {
             if ($comment->getStatus() === Mage_Sales_Model_Order::STATE_CANCELED) {
-                return Mage::getModel('core/date')->timestamp(time());
+                return 'now';
             }
         }
         return null;
     }
 
     private function formatDateAsIso8601($dateStr) {
-        return ($dateStr==NULL) ? NULL : date('c',$dateStr);
+        return ($dateStr==NULL) ? NULL : date('c',strtotime($dateStr));
     }
 }

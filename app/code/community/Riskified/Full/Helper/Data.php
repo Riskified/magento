@@ -41,19 +41,4 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
         return $visitorData['session_id'];
     }
 
-    public function stateFromStatus($status) {
-        switch ($status) {
-            case 'approved':
-                return Mage_Sales_Model_Order::STATE_PROCESSING;
-                break;
-            case 'declined':
-                return Mage_Sales_Model_Order::STATE_CANCELED;
-                break;
-            case 'submitted':
-                return Mage_Sales_Model_Order::STATE_HOLDED;
-                break;
-        }
-        return null;
-    }
-
 }
