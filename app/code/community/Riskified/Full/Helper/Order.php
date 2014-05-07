@@ -56,9 +56,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
             'total_spent' => $model->getGrandTotal(),
-            'created_at' => $model->getCreatedAt(),
+            'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),   // TODO rap all created_at (in customer as well), updated_at (in customer as well), cancelled_at with date formatting of ISO8601
             'currency' => $model->getBaseCurrencyCode(),
-            'updated_at' => $model->getUpdatedAt(),
+            'updated_at' => $this->formatDateAsIso8601($model->getUpdatedAt()),
             'gateway' => $model->getPayment()->getMethod(),
             'browser_ip' => $model->getRemoteIp(),
             'cart_token' => Mage::helper('full')->getSessionId(),
@@ -70,7 +70,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'taxes_included' => true,
             'total_tax' => $model->getBaseTaxAmount(),
             'total_weight' => $model->getWeight(),
-            'cancelled_at' => $this->getCancelledAt($model)
+            'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model))
         ),'strlen'));
 
         $order->customer = $this->getCustomer($model);
@@ -102,8 +102,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             $last_order_id = -1;
 
             $customer_details = Mage::getModel('customer/customer')->load($customer_id);
-            $customer_props['created_at'] = $customer_details->getCreatedAt();
-            $customer_props['updated_at'] = $customer_details->getUpdatedAt();
+            $customer_props['created_at'] = $this->formatDateAsIso8601($customer_details->getCreatedAt());
+            $customer_props['updated_at'] = $this->formatDateAsIso8601($customer_details->getUpdatedAt());
 
             $customer_order_details = Mage::getModel('sales/order')->getCollection()
                 ->addFieldToFilter('customer_id', array('eq' => $customer_id))
@@ -234,9 +234,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $commentCollection = $model->getStatusHistoryCollection();
         foreach ($commentCollection as $comment) {
             if ($comment->getStatus() === Mage_Sales_Model_Order::STATE_CANCELED) {
-                return date('c', Mage::getModel('core/date')->timestamp(time()));
+                return Mage::getModel('core/date')->timestamp(time());
             }
         }
         return null;
+    }
+
+    private function formatDateAsIso8601($dateStr) {
+        return ($dateStr==NULL) ? NULL : date('c',$dateStr);
     }
 }
