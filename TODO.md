@@ -1,3 +1,0 @@
-- test payment methods
-- cancel options
-- order auto-submitted on create?

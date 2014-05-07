@@ -23,6 +23,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                          : $transport->createOrUpdateOrder($order, $headers);
     }
 
+    public function getRiskifiedDomain() {
+        return Riskified::getHostByEnv();
+    }
 
     private $version;
 
