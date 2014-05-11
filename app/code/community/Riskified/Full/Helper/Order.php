@@ -24,6 +24,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     public function updateOrder($order, $status, $description) {
+        $state = null;
         switch ($status) {
             case 'approved':
                 $state = Mage_Sales_Model_Order::STATE_PROCESSING;
@@ -39,6 +40,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             $mageStatus = ($state == Mage_Sales_Model_Order::STATE_CANCELED) ? Mage_Sales_Model_Order::STATUS_FRAUD : true;
             $order->setState($state, $mageStatus, $description);
             $order->save();
+
+            Mage::log("Updated order " . $order->getId() . " state: $state, mageStatus: $mageStatus, description: $description");
         }
     }
 
@@ -223,6 +226,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     private function getClientDetails($model) {
         return new Model\ClientDetails(array_filter(array(
+            'accept_language' => Mage::app()->getLocale()->getLocaleCode(),
             'browser_ip' => $model->getRemoteIp(),
             'user_agent' => Mage::helper('core/http')->getHttpUserAgent()
         ),'strlen'));

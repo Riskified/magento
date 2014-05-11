@@ -43,7 +43,7 @@ class Riskified_Full_Model_Observer{
     public function salesOrderCancel($evt) {
         $order = $evt->getOrder();
         Mage::helper('full/order')->postOrder($order);
-     }
+    }
 
     public function addMassAction($observer) {
         $block = $observer->getEvent()->getBlock();

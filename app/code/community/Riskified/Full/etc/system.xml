@@ -65,7 +65,7 @@
                         <comment><![CDATA[This is your Riskified's account username]]></comment>
                       </domain>
                       <key translate="label">
-                        <label>Secret Key</label>
+                        <label>Auth token</label>
                         <frontend_type>Text</frontend_type>
                         <sort_order>6</sort_order>
                         <show_in_default>1</show_in_default>
