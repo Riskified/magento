@@ -36,12 +36,17 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 $state = Mage_Sales_Model_Order::STATE_HOLDED;
                 break;
         }
-        if ($state) {
+        if ($status && $description) {
             $mageStatus = ($state == Mage_Sales_Model_Order::STATE_CANCELED) ? Mage_Sales_Model_Order::STATUS_FRAUD : true;
-            $order->setState($state, $mageStatus, $description);
-            $order->save();
+            if ($state && Mage::helper('full')->getConfigStatusControlActive()) {
+                $order->setState($state, $mageStatus, $description);
+                Mage::log("Updated order state " . $order->getId() . " state: $state, mageStatus: $mageStatus, description: $description");
+            } else {
+                $order->addStatusHistoryComment($description);
+                Mage::log("Updated order history comment  " . $order->getId() . " state: $state, mageStatus: $mageStatus, description: $description");
 
-            Mage::log("Updated order " . $order->getId() . " state: $state, mageStatus: $mageStatus, description: $description");
+            }
+            $order->save();
         }
     }
 
@@ -88,7 +93,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'total_price' => $model->getGrandTotal(),
             'total_discounts' => $model->getDiscountAmount(),
             'subtotal_price' => $model->getBaseSubtotalInclTax(),
-            'discount_codes' => $model->getDiscountDescription(),
+            'discount_codes' =>$this->getDiscountCodes($model),
             'taxes_included' => true,
             'total_tax' => $model->getBaseTaxAmount(),
             'total_weight' => $model->getWeight(),
@@ -253,10 +258,21 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         ), 'strlen');
     }
 
+    private function getDiscountCodes($model) {
+        $code = $model->getDiscountDescription();
+        $amount = $model->getDiscountAmount();
+        if ($amount && $code)
+            return new Model\DiscountCode(array_filter(array(
+                'code' => $code,
+                'amount' => $amount
+            )));
+        return null;
+    }
+
     private function getCancelledAt($model) {
         $commentCollection = $model->getStatusHistoryCollection();
         foreach ($commentCollection as $comment) {
-            if ($comment->getStatus() === Mage_Sales_Model_Order::STATE_CANCELED) {
+            if ($comment->getStatus() == Mage_Sales_Model_Order::STATE_CANCELED) {
                 return 'now';
             }
         }

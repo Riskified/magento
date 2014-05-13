@@ -9,7 +9,7 @@
       <fullsection>
         <full>
           <order_status_sync>0</order_status_sync>
-          <env>SANDBOX</env>
+          <env>PROD</env>
           <beaconurl>beacon.riskified.com</beaconurl>
         </full>
       </fullsection>
@@ -139,20 +139,20 @@
           </sales_order_payment_place_start>    
           <sales_order_payment_place_end> 
               <observers>
-                  <save_after> 
+                  <save_after>
                       <type>singleton</type>
                       <class>Riskified_Full_Model_Observer</class> 
-                      <method>salesOrderPlaceEnd</method> 
+                      <method>salesOrderPaymentPlaceEnd</method>
                   </save_after>
               </observers>
           </sales_order_payment_place_end>
           <order_cancel_after>
               <observers>
-                  <save_after>
+                  <save_after_commit>
                       <type>singleton</type>
                       <class>Riskified_Full_Model_Observer</class>
                       <method>salesOrderCancel</method>
-                  </save_after>
+                  </save_after_commit>
               </observers>
           </order_cancel_after>
 		</events>

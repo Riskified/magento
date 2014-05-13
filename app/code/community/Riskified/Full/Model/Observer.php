@@ -3,46 +3,35 @@
 class Riskified_Full_Model_Observer{
 
     public function saveOrderBefore($evt) {
-        Mage::log("Entering saveOrderBefore");
+        Mage::log("saveOrderBefore");
         $payment = $evt->getPayment();
-        $payment->setAdditionalInformation('riskified_cc_bin', substr($payment->getCcNumber(),0,6));
+        $cc_bin = substr($payment->getCcNumber(),0,6);
+        if ($cc_bin)
+            $payment->setAdditionalInformation('riskified_cc_bin', $cc_bin);
     }
 
-    public function salesOrderPlaceEnd($evt)
-    {
+    public function salesOrderPaymentPlaceEnd($evt) {
+        Mage::log("salesOrderPaymentPlaceEnd");
+        $order = $evt->getPayment()->getOrder();
+        $this->postOrder($order);
     }
 
     public function saveOrderAfter($evt) {
         if (is_object($evt)) {
-            $submit_now = false;
-            $order_ids[] = $evt->getOrder()->getId();
+            $order = $evt->getOrder();
+            $this->postOrder($order);
         } else {
-            $submit_now = true;
             $order_ids = (is_array($evt)) ? $evt : array($evt);
-        }
-
-        foreach ($order_ids as $order_id) {
-            $order = Mage::getModel('sales/order')->load($order_id);
-
-            $helper = Mage::helper('full/order');
-            $response = $helper->postOrder($order, $submit_now);
-            Mage::log("Riskified response, data: :".PHP_EOL.json_encode($response));
-
-            if (isset($response->order)){
-                $orderId = $response->order->id;
-                $status = $response->order->status;
-                $description = $response->order->description;
-
-                if ($orderId && $status){
-                    $helper->updateOrder($order, $status, $description);
-                }
+            foreach ($order_ids as $order_id) {
+                $order = Mage::getModel('sales/order')->load($order_id);
+                $this->postOrder($order, true);
             }
         }
     }
 
     public function salesOrderCancel($evt) {
         $order = $evt->getOrder();
-        Mage::helper('full/order')->postOrder($order);
+        $this->postOrder($order);
     }
 
     public function addMassAction($observer) {
@@ -54,6 +43,24 @@ class Riskified_Full_Model_Observer{
                 'label' => 'Submit to Riskified',
                 'url' => Mage::app()->getStore()->getUrl('full/adminhtml_full/riskimass'),
             ));
+        }
+    }
+
+    private function postOrder($order, $submit_now=false) {
+        $helper = Mage::helper('full/order');
+        $response = $helper->postOrder($order, $submit_now);
+        Mage::log("Riskified response, data: :" . PHP_EOL . json_encode($response));
+
+        if (isset($response->order)) {
+            $orderId = $response->order->id;
+            $status = $response->order->status;
+            $description = $response->order->description;
+            if (!$description)
+                $description = "Riskified Status: $status";
+
+            if ($orderId && $status) {
+                $helper->updateOrder($order, $status, $description);
+            }
         }
     }
 

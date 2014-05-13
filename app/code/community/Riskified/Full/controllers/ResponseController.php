@@ -29,13 +29,8 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
           exit;
         }
 
-        $status_control_active = Mage::helper('full')->getConfigStatusControlActive();
-        if ($status_control_active){
-            $order = Mage::getModel('sales/order')->load($orderId);
-            Mage::helper('full/order')->updateOrder($order, $status, $description);
-        }else{
-          Mage::log("Ignoring notification status_control_active : $status_control_active");
-        }
+        $order = Mage::getModel('sales/order')->load($orderId);
+        Mage::helper('full/order')->updateOrder($order, $status, $description);
     }
 }
     
