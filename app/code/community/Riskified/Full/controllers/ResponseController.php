@@ -4,33 +4,12 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
     public function getresponseAction()
     {
         $request = $this->getRequest();
-        $orderId = $request->get('id');
-        $status = $request->get('status');
-        $description = $request->get('description');
-        Mage::log("Processing notification for id : $orderId, status : $status, description: $description");
-        if (empty($orderId) && empty($status)) {
-          Mage::app()->getResponse()->setRedirect(Mage::getBaseUrl());
-          Mage::app()->getResponse()->sendResponse();
-          exit;
-        }
-        
-        //generating local hash
-        $raw_body = $request->getRawBody();
-        $s_key = Mage::helper('full')->getAuthToken();
-        $localHash = hash_hmac('sha256', $raw_body, $s_key);
+        $helper = Mage::helper('full/order');
+        $notification = $helper->parseRequest($request);
+        Mage::log("notification " , serialize($notification));
 
-        //generating hash 
-        $riskiHash = $request->getHeader('X-RISKIFIED-HMAC-SHA256');
-
-        if ($localHash != $riskiHash) {
-          Mage::log("Hashes mismatch localHash : $localHash, riskiHash : $riskiHash");
-          Mage::app()->getResponse()->setRedirect(Mage::getBaseUrl());
-          Mage::app()->getResponse()->sendResponse();
-          exit;
-        }
-
-        $order = Mage::getModel('sales/order')->load($orderId);
-        Mage::helper('full/order')->updateOrder($order, $status, $description);
+        $order = Mage::getModel('sales/order')->load($notification->id);
+        $helper->updateOrder($order, $notification->status, $notification->description);
     }
 }
     

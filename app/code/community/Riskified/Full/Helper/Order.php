@@ -5,6 +5,8 @@ use Riskified\Common\Riskified;
 use Riskified\Common\Signature;
 use Riskified\OrderWebhook\Model;
 use Riskified\OrderWebhook\Transport;
+use Riskified\DecisionNotification\Model\Notification as DecisionNotification;
+
 
 class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
@@ -52,6 +54,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     public function getRiskifiedDomain() {
         return Riskified::getHostByEnv();
+    }
+
+    public function parseRequest($request) {
+        $header_name = Signature\HttpDataSignature::HMAC_HEADER_NAME;
+        $headers = array($header_name.':'.$request->getHeader($header_name));
+        $body = $request->getRawBody();
+        return new DecisionNotification(new Signature\HttpDataSignature(), $headers, $body);
     }
 
     private $version;

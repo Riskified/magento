@@ -26,9 +26,11 @@
                       <order_status_sync>
                         <label>Order Status Sync</label>
                         <comment><![CDATA[ Enable/Disable automatic changes to Order status by Riskified's review process.
-                          <br>Requires the <i>Order notification endpoint</i> to be configured correctly in the Riskified Settings page.
+                          <br>Requires the <i>Order notification endpoint</i> to be configured correctly in your Riskified Settings page.
                           <br>Using the following mapping:
-                          <br>'submit' => 'on hold' <br>'approve' => 'processing'<br>'decline' => 'canceled' ]]></comment>
+                          <br>'submit' => 'on hold' <br>'approve' => 'processing'<br>'decline' => 'canceled'
+                          <br><b>Important:</b> Might affect other extensions that are dependent on an Order's status.
+                           ]]></comment>
                         <frontend_type>select</frontend_type>
                         <sort_order>1</sort_order>
                         <show_in_default>1</show_in_default>
@@ -72,7 +74,7 @@
                         <show_in_default>1</show_in_default>
                         <show_in_website>1</show_in_website>
                         <show_in_store>1</show_in_store>
-                        <comment><![CDATA[ Your <i>secret</i> auth token can be found in the Riskified Settings page. ]]></comment>
+                        <comment><![CDATA[ Your <i>secret</i> auth token can be found in your Riskified Settings page. ]]></comment>
                       </key>
                     </fields>
                 </full>
