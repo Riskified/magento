@@ -176,14 +176,14 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 $card_data = $cards_data[0];
                 $avs_result_code = $card_data['cc_avs_result_code']; // getAvsResultCode
                 $cvv_result_code = $card_data['cc_response_code'];  // getCardCodeResponseCode
-                $credit_card_number  = "XXXX-XXXX-".$card_data['cc_last4'];
+                $credit_card_number  = "XXXX-XXXX-XXXX-".$card_data['cc_last4'];
                 $credit_card_company = $card_data['cc_type'];
                 break;
 
             case 'paypal_direct':
                 $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
                 $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
-                $credit_card_number = "XXXX-XXXX-".$payment->getCcLast4();
+                $credit_card_number = "XXXX-XXXX-XXXX-".$payment->getCcLast4();
                 $credit_card_company = $payment->getCcType();
                 break;
 
@@ -191,14 +191,14 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 $sage = $model->getSagepayInfo();
                 $avs_result_code = $sage->getData('address_result');
                 $cvv_result_code = $sage->getData('cv2result');
-                $credit_card_number = "XXXX-XXXX-".$sage->getData('last_four_digits');
+                $credit_card_number = "XXXX-XXXX-XXXX-".$sage->getData('last_four_digits');
                 $credit_card_company = $sage->getData('card_type');
                 break;
 
             default:
                 $avs_result_code = $payment->getCcAvsStatus();
                 $cvv_result_code = $payment->getCcCidStatus();
-                $credit_card_number = "XXXX-XXXX-".$payment->getCcLast4();
+                $credit_card_number = "XXXX-XXXX-XXXX-".$payment->getCcLast4();
                 $credit_card_company = $payment->getCcType();
                 break;
         }
