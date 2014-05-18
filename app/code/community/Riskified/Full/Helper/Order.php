@@ -133,27 +133,18 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         );
 
         if ($customer_id) {
-            $total_spent = 0;
-            $orders_count = 0;
-            $last_order_id = -1;
-
             $customer_details = Mage::getModel('customer/customer')->load($customer_id);
             $customer_props['created_at'] = $this->formatDateAsIso8601($customer_details->getCreatedAt());
             $customer_props['updated_at'] = $this->formatDateAsIso8601($customer_details->getUpdatedAt());
 
-            $customer_order_details = Mage::getModel('sales/order')->getCollection()
-                ->addFieldToFilter('customer_id', array('eq' => $customer_id))
-                ->addFieldToSelect('entity_id')
-                ->addFieldToSelect('base_grand_total');
-            foreach ($customer_order_details as $orders_count => $entity_id){
-                $last_order_id = $entity_id->getData('entity_id');
-                $total_spent = $total_spent+$entity_id->getData('base_grand_total');
-            }
-            $orders_count++;
+            $customer_orders = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('customer_id', $customer_id);
+            $customer_orders_count = $customer_orders->count();
 
-            $customer_props['orders_count'] = $orders_count;
-            $customer_props['last_order_id'] = $last_order_id;
-            $customer_props['total_spent'] = $total_spent;
+            $customer_props['orders_count'] = $customer_orders_count;
+            if ($customer_orders_count) {
+                $customer_props['last_order_id'] = $customer_orders->getLastItem()->getId();
+                $customer_props['total_spent'] = array_sum($customer_orders->getColumnValues('base_grand_total'));
+            }
         }
 
         return new Model\Customer(array_filter($customer_props,'strlen'));
