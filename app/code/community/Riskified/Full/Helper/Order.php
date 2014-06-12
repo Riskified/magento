@@ -26,27 +26,34 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     public function updateOrder($order, $status, $description) {
-        $state = null;
+        $new_state = null;
+        $current_state = $order->getState();
+        Mage::log("order " . $order->getId() . " current state: $current_state, description: $description");
         switch ($status) {
             case 'approved':
-                $state = Mage_Sales_Model_Order::STATE_PROCESSING;
+                if ($current_state == Mage_Sales_Model_Order::STATE_HOLDED) {
+                    $new_state = Mage_Sales_Model_Order::STATE_PROCESSING;
+                }
                 break;
             case 'declined':
-                $state = Mage_Sales_Model_Order::STATE_CANCELED;
+                if ($current_state == Mage_Sales_Model_Order::STATE_HOLDED) {
+                    $new_state = Mage_Sales_Model_Order::STATE_CANCELED;
+                }
                 break;
             case 'submitted':
-                $state = Mage_Sales_Model_Order::STATE_HOLDED;
+                if ($current_state == Mage_Sales_Model_Order::STATE_PROCESSING) {
+                    $new_state = Mage_Sales_Model_Order::STATE_HOLDED;
+                }
                 break;
         }
         if ($status && $description) {
-            $mageStatus = ($state == Mage_Sales_Model_Order::STATE_CANCELED) ? Mage_Sales_Model_Order::STATUS_FRAUD : true;
-            if ($state && Mage::helper('full')->getConfigStatusControlActive()) {
-                $order->setState($state, $mageStatus, $description);
-                Mage::log("Updated order state " . $order->getId() . " state: $state, mageStatus: $mageStatus, description: $description");
+            $mageStatus = ($new_state == Mage_Sales_Model_Order::STATE_CANCELED) ? Mage_Sales_Model_Order::STATUS_FRAUD : true;
+            if ($new_state && Mage::helper('full')->getConfigStatusControlActive()) {
+                $order->setState($new_state, $mageStatus, $description);
+                Mage::log("Updated order state " . $order->getId() . " state: $new_state, mageStatus: $mageStatus, description: $description");
             } else {
                 $order->addStatusHistoryComment($description);
-                Mage::log("Updated order history comment  " . $order->getId() . " state: $state, mageStatus: $mageStatus, description: $description");
-
+                Mage::log("Updated order history comment  " . $order->getId() . " state: $new_state, mageStatus: $mageStatus, description: $description");
             }
             $order->save();
         }
