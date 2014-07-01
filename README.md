@@ -1,37 +1,20 @@
-#magento
-Riskified magento extension
+#Riskified Magento extension
 
-### Deploying for testing from git on the server
-- Login into the server Bitnami server with the magento.pem
-- Clean up magento app and emove our scripts from magento, which is needed before testing instalations (If we add new files we need to modify the script)
- 
-```sh
-  sh clean_up.sh
-``` 
-- Run the deploy_extension script which will clone from github and put all the files in the right places via rsync
-(If we add new root section of code beyond js and app we need to modify the script)
- 
-```sh
-  sh deploy_extension.sh
-```
+##Overview##
+This extension allows for automatic and/or manual submission of purchase orders to Riskified for fraud review and guarantee.
 
-### Synhing up from local to server
-```sh
-rsync -azh app/  bitnami@ec2-50-17-5-41.compute-1.amazonaws.com:/opt/bitnami/apps/magento/htdocs/app/
-```
+If you don't have an existing account, please start by signing up to Riskified [here](www.riskified.com) - it's free and takes just a few minutes.
 
-### Packaging
-in admin:
+##Features##
 
-- System->Magento Connect->Package Extensions
-- "Load Local Package"-> riskified_magento
-- Change the version and write a description
-- Save
-- Download to local disk
+* Automatic/manual submission of orders to review.
+* Order cancellation also excludes it from review.
+* Magento order status reflects Riskified's review decision.
+* Includes a **Sandbox Environment** option for testing and integration.
 
-```sh
-scp bitnami@ec2-50-17-5-41.compute-1.amazonaws.com:/opt/bitnami/apps/magento/htdocs/var/connect/riskified_magento-1.0.0.tgz ~/Downloads/riskified_magento-1.0.0.tgz 
-```
 
-- Install and test on clean store : http://ec2-54-224-59-181.compute-1.amazonaws.com/magento/index.php/admin
-System->Magento Connect->Magento Connect Manager
+##Installation##
+
+Depends on Riskified's [PHP SDK](https://github.com/Riskified/php_sdk). If installing manually (without Magento Connect), you'll need to `git clone` the [Repository](https://github.com/Riskified/php_sdk) into `lib/riskified_php_sdk` under your Magento directory.
+
+The rest of the extension is deployed as usual (into `code` and `design` folders)
