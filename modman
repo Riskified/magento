@@ -1,0 +1,7 @@
+app/code/community/Riskified/Full/				        app/code/community/Riskified/Full/
+app/design/adminhtml/default/default/layout/full.xml    app/design/adminhtml/default/default/layout/full.xml
+app/design/adminhtml/default/default/template/full/     app/design/adminhtml/default/default/template/full/
+app/design/frontend/base/default/layout/full.xml        app/design/adminhtml/default/default/layout/full.xml
+app/design/frontend/base/default/template/full/         app/design/adminhtml/default/default/template/full/
+app/etc/modules/Riskified_Full.xml				        app/etc/modules/Riskified_Full.xml
+skin/adminhtml/default/default/images/riskified/        skin/adminhtml/default/default/images/riskified/
