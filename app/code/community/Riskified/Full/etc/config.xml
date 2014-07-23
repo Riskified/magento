@@ -2,18 +2,96 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </Riskified_Full>
     </modules>
-    <default>
-      <fullsection>
-        <full>
-          <order_status_sync>0</order_status_sync>
-          <env>PROD</env>
-          <beaconurl>beacon.riskified.com</beaconurl>
-        </full>
-      </fullsection>
-    </default>
+
+    <global>
+        <models>
+            <paygate>
+                <rewrite>
+                    <authorizenet>Riskified_Full_Model_Authorizenet</authorizenet>
+                </rewrite>
+            </paygate>
+            <full>
+                <class>Riskified_Full_Model</class>
+            </full>
+        </models>
+        <resources>
+            <riskified_full_setup>
+                <setup>
+                    <module>Riskified_Full</module>
+                </setup>
+            </riskified_full_setup>
+        </resources>
+        <blocks>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_grid>Riskified_Full_Block_Adminhtml_Grid</sales_order_grid>
+                </rewrite>
+            </adminhtml>
+        </blocks>
+        <helpers>
+            <full>
+                <class>Riskified_Full_Helper</class>
+            </full>
+        </helpers>
+        <events>
+            <sales_order_payment_place_start>
+                <observers>
+                    <save_after>
+                        <type>singleton</type>
+                        <class>Riskified_Full_Model_Observer</class>
+                        <method>saveOrderBefore</method>
+                    </save_after>
+                </observers>
+            </sales_order_payment_place_start>
+            <sales_order_payment_place_end>
+                <observers>
+                    <save_after>
+                        <type>singleton</type>
+                        <class>Riskified_Full_Model_Observer</class>
+                        <method>salesOrderPaymentPlaceEnd</method>
+                    </save_after>
+                </observers>
+            </sales_order_payment_place_end>
+            <order_cancel_after>
+                <observers>
+                    <save_after_commit>
+                        <type>singleton</type>
+                        <class>Riskified_Full_Model_Observer</class>
+                        <method>salesOrderCancel</method>
+                    </save_after_commit>
+                </observers>
+            </order_cancel_after>
+            <adminhtml_widget_container_html_before>
+                <observers>
+                    <module>
+                        <type>singleton</type>
+                        <class>Riskified_Full_Model_Observer</class>
+                        <method>blockHtmlBefore</method>
+                    </module>
+                </observers>
+            </adminhtml_widget_container_html_before>
+            <riskified_full_order_update>
+                <observers>
+                    <riskified_full_handle_order_update>
+                        <class>full/observer</class>
+                        <method>updateOrderState</method>
+                    </riskified_full_handle_order_update>
+                </observers>
+            </riskified_full_order_update>
+            <riskified_full_order_update_approved>
+                <observers>
+                    <riskified_full_handle_order_update_approved>
+                        <class>full/observer</class>
+                        <method>autoInvoice</method>
+                    </riskified_full_handle_order_update_approved>
+                </observers>
+            </riskified_full_order_update_approved>
+        </events>
+    </global>
+
     <frontend>
         <routers>
             <full>
@@ -32,124 +110,80 @@
             </updates>
         </layout>
     </frontend>
+
     <admin>
         <routers>
-			<full>
-				<use>admin</use>
-				<args>
-					<module>Riskified_Full</module>
-					<frontName>full</frontName>
-				</args>
-			</full>
+            <full>
+                <use>admin</use>
+                <args>
+                    <module>Riskified_Full</module>
+                    <frontName>full</frontName>
+                </args>
+            </full>
         </routers>
     </admin>
+
     <adminhtml>
-		<acl>
-			<resources>
-				<all>
-					<title>Allow Everything</title>
-				</all>
-				<admin>
-					<children>
-						<Riskified_Full>
-							<title>Full Module</title>
-							<sort_order>10</sort_order>
-						</Riskified_Full>
-						 <system>
+        <acl>
+            <resources>
+                <all>
+                    <title>Allow Everything</title>
+                </all>
+                <admin>
+                    <children>
+                        <Riskified_Full>
+                            <title>Full Module</title>
+                            <sort_order>10</sort_order>
+                        </Riskified_Full>
+                        <system>
                             <children>
                                 <config>
                                     <children>
-	                                     <fullsection translate="title" module="full">  <!-- This is name of the section created by us -->
-	                                         <title>Riskified</title>  <!-- Title as shown in User->Roles->Permissions Window -->
-	                                         <sort_order>99</sort_order>
-	                                     </fullsection>
+                                        <fullsection translate="title"
+                                                     module="full">  <!-- This is name of the section created by us -->
+                                            <title>Riskified</title>
+                                            <!-- Title as shown in User->Roles->Permissions Window -->
+                                            <sort_order>99</sort_order>
+                                        </fullsection>
                                     </children>
                                 </config>
                             </children>
                         </system>
-					</children>
-				</admin>
-			</resources>
-		</acl>
-		<layout>
-			<updates>
-				<full>
-					<file>full.xml</file>
-				</full>
-			</updates>
-		</layout>
-		<events>
-	        <core_block_abstract_prepare_layout_before>
-	            <observers>
-	                <before_grid_prep>
-	                    <type>singleton</type>
-	                    <class>Riskified_Full_Model_Observer</class>
-	                    <method>addMassAction</method>
-	                </before_grid_prep>
-	            </observers>
-	        </core_block_abstract_prepare_layout_before>
-    	</events>
-    </adminhtml>   
-    <global>
-        <models>
-            <paygate>
-                <rewrite>
-                    <authorizenet>Riskified_Full_Model_Authorizenet</authorizenet>
-                </rewrite>
-            </paygate>
-            <full>
-                <class>Riskified_Full_Model</class>
-            </full>
-        </models>
-       <blocks>
-           <adminhtml>
-                <rewrite>
-                    <sales_order_grid>Riskified_Full_Block_Adminhtml_Grid</sales_order_grid>
-                </rewrite>
-            </adminhtml>
-        </blocks>
-        <helpers>
-            <full>
-                <class>Riskified_Full_Helper</class>
-            </full>
-        </helpers>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+        <layout>
+            <updates>
+                <full>
+                    <file>full.xml</file>
+                </full>
+            </updates>
+        </layout>
         <events>
-          <sales_order_payment_place_start> 
-              <observers>
-                  <save_after> 
-                      <type>singleton</type>
-                      <class>Riskified_Full_Model_Observer</class> 
-                      <method>saveOrderBefore</method> 
-                  </save_after>
-              </observers>
-          </sales_order_payment_place_start>    
-          <sales_order_payment_place_end> 
-              <observers>
-                  <save_after>
-                      <type>singleton</type>
-                      <class>Riskified_Full_Model_Observer</class> 
-                      <method>salesOrderPaymentPlaceEnd</method>
-                  </save_after>
-              </observers>
-          </sales_order_payment_place_end>
-          <order_cancel_after>
-              <observers>
-                  <save_after_commit>
-                      <type>singleton</type>
-                      <class>Riskified_Full_Model_Observer</class>
-                      <method>salesOrderCancel</method>
-                  </save_after_commit>
-              </observers>
-          </order_cancel_after>
-          <adminhtml_widget_container_html_before>
-              <observers>
-                  <module>
-                      <type>singleton</type>
-                      <class>Riskified_Full_Model_Observer</class>
-                      <method>blockHtmlBefore</method>
-                  </module>
-              </observers>
-          </adminhtml_widget_container_html_before>
-		</events>
-    </global>
+            <core_block_abstract_prepare_layout_before>
+                <observers>
+                    <before_grid_prep>
+                        <type>singleton</type>
+                        <class>Riskified_Full_Model_Observer</class>
+                        <method>addMassAction</method>
+                    </before_grid_prep>
+                </observers>
+            </core_block_abstract_prepare_layout_before>
+        </events>
+    </adminhtml>
+
+    <default>
+        <fullsection>
+            <full>
+                <order_status_sync>0</order_status_sync>
+                <env>PROD</env>
+                <beaconurl>beacon.riskified.com</beaconurl>
+            </full>
+            <auto_invoice>
+                <enabled>0</enabled>
+                <capture_case>online</capture_case>
+            </auto_invoice>
+        </fullsection>
+    </default>
 </config>

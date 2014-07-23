@@ -1,6 +1,6 @@
 <?php
 
-class Riskified_Full_Model_Observer{
+class Riskified_Full_Model_Observer {
 
     public function saveOrderBefore($evt) {
         $payment = $evt->getPayment();
@@ -10,7 +10,7 @@ class Riskified_Full_Model_Observer{
     }
 
     public function salesOrderPaymentPlaceEnd($evt) {
-        Mage::log("salesOrderPaymentPlaceEnd");
+	    Mage::helper('full/log')->log("salesOrderPaymentPlaceEnd");
         $order = $evt->getPayment()->getOrder();
         $this->postOrder($order);
     }
@@ -55,7 +55,7 @@ class Riskified_Full_Model_Observer{
         try {
             $helper = Mage::helper('full/order');
             $response = $helper->postOrder($order, $submit_now);
-            Mage::log("Riskified response, data: :" . PHP_EOL . json_encode($response));
+	        Mage::helper('full/log')->log("Riskified response, data: :" . PHP_EOL . json_encode($response));
 
             if (isset($response->order)) {
                 $orderId = $response->order->id;
@@ -78,4 +78,125 @@ class Riskified_Full_Model_Observer{
         }
     }
 
+	/**
+	 * Update the order state and status when it's been updated
+	 *
+	 * @param Varien_Event_Observer $observer
+	 */
+	public function updateOrderState(Varien_Event_Observer $observer)
+	{
+		$riskifiedOrderStatusHelper = Mage::helper('full/order_status');
+		$order = $observer->getOrder();
+		$status = (string) $observer->getStatus();
+		$description = (string) $observer->getDescription();
+		$newState = $newStatus = null;
+		$currentState = $order->getState();
+		$currentStatus = $order->getStatus();
+
+		Mage::helper('full/log')->log("Updating order " . $order->getId() . " current state: $currentState, description: $description");
+
+		switch ($status) {
+			case 'approved':
+				if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
+				    && $currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()) {
+					$newState = Mage_Sales_Model_Order::STATE_PROCESSING;
+					$newStatus = TRUE;
+				}
+
+				break;
+			case 'declined':
+				if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
+				    && $currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()) {
+					$newState = Mage_Sales_Model_Order::STATE_CANCELED;
+					$newStatus = Mage_Sales_Model_Order::STATUS_FRAUD;
+				}
+
+				break;
+			case 'submitted':
+				if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING) {
+					$newState = Mage_Sales_Model_Order::STATE_HOLDED;
+					$newStatus = $riskifiedOrderStatusHelper->getOnHoldStatusCode();
+				}
+
+				break;
+		}
+
+		if ($status) {
+			if ($newState && Mage::helper('full')->getConfigStatusControlActive()) {
+				$order->setState($newState, $newStatus, $description);
+				Mage::helper('full/log')->log("Updating order state " . $order->getId() . " state: $newState, status: $newStatus, description: $description");
+			} elseif ($description) {
+				$order->addStatusHistoryComment($description);
+				Mage::helper('full/log')->log("Updating order history comment " . $order->getId() . " state: $newState, status: $newStatus, description: $description");
+			}
+
+			try {
+				$order->save();
+			} catch (Exception $e) {
+				Mage::helper('full/log')->log("Error saving order: " . $e->getMessage());
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Create an invoice when the order is approved
+	 *
+	 * @param Varien_Event_Observer $observer
+	 */
+	public function autoInvoice(Varien_Event_Observer $observer)
+	{
+		$riskifiedInvoiceHelper = Mage::helper('full/order_invoice');
+
+		if (!$riskifiedInvoiceHelper->isAutoInvoiceEnabled()) {
+			return;
+		}
+
+		$order = $observer->getOrder();
+
+		// Sanity check
+		if (!$order || !$order->getId()) {
+			return;
+		}
+
+		Mage::helper('full/log')->log("Auto-invoicing  order " . $order->getId());
+
+		if (!$order->canInvoice()) {
+			Mage::helper('full/log')->log("Order cannot be invoiced");
+			return;
+		}
+
+		$invoice = Mage::getModel('sales/service_order', $order)->prepareInvoice();
+
+		if (!$invoice->getTotalQty()) {
+			Mage::helper('full/log')->log("Cannot create an invoice without products");
+			return;
+		}
+
+		try {
+			$invoice
+				->setRequestedCaptureCase($riskifiedInvoiceHelper->getCaptureCase())
+				->addComment(
+					'Invoice automatically created by Riskified when order was approved',
+					false,
+					false
+				)
+				->register();
+		} catch (Exception $e) {
+			Mage::helper('full/log')->log("Error creating invoice: " . $e->getMessage());
+			return;
+		}
+
+		try {
+			Mage::getModel('core/resource_transaction')
+			    ->addObject($invoice)
+			    ->addObject($order)
+			    ->save();
+		} catch (Exception $e) {
+			Mage::helper('full/log')->log("Error creating transaction: " . $e->getMessage());
+			return;
+		}
+
+		Mage::helper('full/log')->log("Transaction saved");
+	}
 }

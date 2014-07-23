@@ -19,44 +19,52 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $order = $this->getOrder($model);
         $headers = $this->getHeaders();
 
-        Mage::log('postOrder ' . serialize($headers) . ' - ' . $submit);
+	    Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $submit);
 
         return ($submit) ? $transport->submitOrder($order, $headers)
                          : $transport->createOrUpdateOrder($order, $headers);
     }
 
-    public function updateOrder($order, $status, $description) {
-        $new_state = null;
-        $current_state = $order->getState();
-        Mage::log("order " . $order->getId() . " current state: $current_state, description: $description");
-        switch ($status) {
-            case 'approved':
-                if ($current_state == Mage_Sales_Model_Order::STATE_HOLDED) {
-                    $new_state = Mage_Sales_Model_Order::STATE_PROCESSING;
-                }
-                break;
-            case 'declined':
-                if ($current_state == Mage_Sales_Model_Order::STATE_HOLDED) {
-                    $new_state = Mage_Sales_Model_Order::STATE_CANCELED;
-                }
-                break;
-            case 'submitted':
-                if ($current_state == Mage_Sales_Model_Order::STATE_PROCESSING) {
-                    $new_state = Mage_Sales_Model_Order::STATE_HOLDED;
-                }
-                break;
-        }
-        if ($status && $description) {
-            $mageStatus = ($new_state == Mage_Sales_Model_Order::STATE_CANCELED) ? Mage_Sales_Model_Order::STATUS_FRAUD : true;
-            if ($new_state && Mage::helper('full')->getConfigStatusControlActive()) {
-                $order->setState($new_state, $mageStatus, $description);
-                Mage::log("Updated order state " . $order->getId() . " state: $new_state, mageStatus: $mageStatus, description: $description");
-            } else {
-                $order->addStatusHistoryComment($description);
-                Mage::log("Updated order history comment  " . $order->getId() . " state: $new_state, mageStatus: $mageStatus, description: $description");
-            }
-            $order->save();
-        }
+	/**
+	 * Dispatch events for order update handling
+	 *
+	 * Possible events are:
+	 *      - riskified_order_update
+	 *      - riskified_order_update_approved
+	 *      - riskified_order_update_declined
+	 *      - riskified_order_update_submitted
+	 *      - riskified_order_update_captured
+	 *      - riskified_order_update_?
+	 *
+	 * @param Mage_Sales_Model_Order $order
+	 * @param string $status
+	 * @param string $description
+	 * @return void
+	 */
+	public function updateOrder($order, $status, $description) {
+		Mage::helper('full/log')->log('Dispatching event for order ' . $order->getId() . ' with status "' . $status . '" and description "' . $description . '"');
+
+		$eventData = array(
+			'order' => $order,
+			'status' => $status,
+			'description' => $description
+		);
+
+		// A generic event for all updates
+		Mage::dispatchEvent(
+			'riskified_full_order_update',
+			$eventData
+		);
+
+		// A status-specific event
+		$eventIdentifier = preg_replace("/[^a-z]/", '_', strtolower($status));
+
+		Mage::dispatchEvent(
+			'riskified_full_order_update_' . $eventIdentifier,
+			$eventData
+		);
+
+		return;
     }
 
     public function getRiskifiedDomain() {
@@ -79,7 +87,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $shopDomain = $helper->getShopDomain();
         $this->version = $helper->getExtensionVersion();
 
-        Mage::log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken");
+	    Mage::helper('full/log')->log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken");
         Riskified::init($shopDomain, $authToken, $env, true);
     }
 
@@ -124,7 +132,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $order->shipping_lines = $this->getShippingLines($model);
         $order->client_details = $this->getClientDetails($model);
 
-        Mage::log("getOrder(): ".PHP_EOL.json_encode(json_decode($order->toJson())));
+	    Mage::helper('full/log')->log("getOrder(): ".PHP_EOL.json_encode(json_decode($order->toJson())));
 
         return $order;
     }
