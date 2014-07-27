@@ -4,5 +4,8 @@ app/design/adminhtml/default/default/template/full/     app/design/adminhtml/def
 app/design/frontend/base/default/layout/full.xml        app/design/adminhtml/default/default/layout/full.xml
 app/design/frontend/base/default/template/full/         app/design/adminhtml/default/default/template/full/
 app/etc/modules/Riskified_Full.xml				        app/etc/modules/Riskified_Full.xml
+<<<<<<< HEAD
 lib/riskified_php_sdk/                                  lib/riskified_php_sdk/
+=======
+>>>>>>> 6d201586fee5a67a65c8655de1fd32ba14c8ced8
 skin/adminhtml/default/default/images/riskified/        skin/adminhtml/default/default/images/riskified/
