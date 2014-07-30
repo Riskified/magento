@@ -15,7 +15,7 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
     public function riskimassAction()
     {
         $order_ids = $this->getRequest()->getParam('order_ids');
-        $call = Mage::getModel('Riskified_Full_Model_Observer');
+        $call = Mage::getModel('full/observer');
         $call->postOrderIds($order_ids);
         Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/index"));
     }
