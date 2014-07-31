@@ -236,6 +236,7 @@ document.observe("dom:loaded", function() {
      
      var activationstatus = $$("#fullsection_full_activationstatus")[0].value;
      var section = $$("#fullsection_full")[0];
+     var auto_invoice_section = $$("#fullsection_auto_invoice")[0];
 
      if (activationstatus === 'ACTIVE') {
        rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" src="<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"></span>';
@@ -243,6 +244,7 @@ document.observe("dom:loaded", function() {
        rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="//<?php echo Mage::helper('full/order')->getRiskifiedDomain()?>" target="_blank">Go to Riskified App</a>';
      }else{
      	section.style.display = "none";
+        auto_invoice_section.style.display = "none";
        $$(".entry-edit-head.collapseable")[0].style.display = "none";
      }
      htmlBody = rhtml;
