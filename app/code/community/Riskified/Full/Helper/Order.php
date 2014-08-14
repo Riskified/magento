@@ -189,8 +189,22 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 break;
             case 'paypal_express':
             case 'paypaluk_express':
+                $payer_email = $payment->getAdditionalInformation('paypal_payer_email');
+                $payer_status = $payment->getAdditionalInformation('paypal_payer_status');
+                $payer_address_status = $payment->getAdditionalInformation('paypal_address_status');
                 $protection_eligibility = $payment->getAdditionalInformation('paypal_protection_eligibility');
-                // continue the same way like next paypal
+                $payment_status = $payment->getAdditionalInformation('paypal_payment_status');
+                $pending_reason = $payment->getAdditionalInformation('paypal_pending_reason');
+
+                return new Model\PaymentDetails(array_filter(array(
+                    'payer_email' => $payer_email,
+                    'payer_status' => $payer_status,
+                    'payer_address_status' => $payer_address_status,
+                    'protection_eligibility' => $protection_eligibility,
+                    'payment_status' => $payment_status,
+                    'pending_reason' => $pending_reason
+                ),'strlen'));
+
             case 'paypal_direct':
                 $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
                 $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
@@ -222,7 +236,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'credit_card_number' => $credit_card_number,
             'credit_card_company' => $credit_card_company,
             'credit_card_bin' => $credit_card_bin,
-            'protection_eligibility' => $protection_eligibility,
         ),'strlen'));
     }
 
