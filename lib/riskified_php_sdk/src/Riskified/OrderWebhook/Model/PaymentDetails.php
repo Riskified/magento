@@ -28,6 +28,11 @@ class PaymentDetails extends AbstractModel {
         'credit_card_number' => 'string',
         'credit_card_company' => 'string',
 
-        'protection_eligibility' => 'string optional'
+        'payer_email' => 'string optional',
+        'payer_status' => 'string optional',
+        'payer_address_status' => 'string optional',
+        'protection_eligibility' => 'string optional',
+        'payment_status' => 'string optional',
+        'pending_reason' => 'string optional'
     );
 }
