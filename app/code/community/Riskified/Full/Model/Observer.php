@@ -12,19 +12,19 @@ class Riskified_Full_Model_Observer {
     public function salesOrderPaymentPlaceEnd($evt) {
 	    Mage::helper('full/log')->log("salesOrderPaymentPlaceEnd");
         $order = $evt->getPayment()->getOrder();
-        $this->postOrder($order);
+        $this->postOrder($order,'create');
     }
 
     public function postOrderIds($order_ids) {
         foreach ($order_ids as $order_id) {
             $order = Mage::getModel('sales/order')->load($order_id);
-            $this->postOrder($order, true);
+            $this->postOrder($order, 'submit');
         }
     }
 
     public function salesOrderCancel($evt) {
         $order = $evt->getOrder();
-        $this->postOrder($order);
+        $this->postOrder($order,'cancel');
     }
 
     public function addMassAction($observer) {
@@ -51,10 +51,10 @@ class Riskified_Full_Model_Observer {
         }
     }
 
-    private function postOrder($order, $submit_now=false) {
+    private function postOrder($order, $eventType) {
         try {
             $helper = Mage::helper('full/order');
-            $response = $helper->postOrder($order, $submit_now);
+            $response = $helper->postOrder($order, $eventType);
 	        Mage::helper('full/log')->log("Riskified response, data: :" . PHP_EOL . json_encode($response));
 
             if (isset($response->order)) {
