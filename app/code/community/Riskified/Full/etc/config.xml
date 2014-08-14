@@ -89,6 +89,14 @@
                     </riskified_full_handle_order_update_approved>
                 </observers>
             </riskified_full_order_update_approved>
+            <riskified_full_order_update_captured>
+                <observers>
+                    <riskified_full_handle_order_update_captured>
+                        <class>full/observer</class>
+                        <method>autoInvoice</method>
+                    </riskified_full_handle_order_update_captured>
+                </observers>
+            </riskified_full_order_update_captured>
         </events>
     </global>
 

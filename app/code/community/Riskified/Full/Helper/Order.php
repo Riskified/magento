@@ -176,6 +176,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     private function getPaymentDetails($model) {
         $payment = $model->getPayment();
 
+        $protection_eligibility = "";
+
         switch ($payment->getMethod()) {
             case 'authorizenet':
                 $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
@@ -185,7 +187,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 $credit_card_number  = "XXXX-XXXX-XXXX-".$card_data['cc_last4'];
                 $credit_card_company = $card_data['cc_type'];
                 break;
-
+            case 'paypal_express':
+            case 'paypaluk_express':
+                $protection_eligibility = $payment->getAdditionalInformation('paypal_protection_eligibility');
+                // continue the same way like next paypal
             case 'paypal_direct':
                 $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
                 $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
@@ -217,6 +222,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'credit_card_number' => $credit_card_number,
             'credit_card_company' => $credit_card_company,
             'credit_card_bin' => $credit_card_bin,
+            'protection_eligibility' => $protection_eligibility,
         ),'strlen'));
     }
 
