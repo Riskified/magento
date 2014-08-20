@@ -166,17 +166,20 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     private function getShippingAddress($model) {
-        return new Model\Address($this->getAddressArray($model->getShippingAddress()));
+        $mageAddr = $model->getShippingAddress();
+        return $this->getAddress($mageAddr);
     }
 
     private function getBillingAddress($model) {
-        return new Model\Address($this->getAddressArray($model->getBillingAddress()));
+        $mageAddr = $model->getBillingAddress();
+        return $this->getAddress($mageAddr);
     }
 
     private function getPaymentDetails($model) {
         $payment = $model->getPayment();
-
-        $protection_eligibility = "";
+        if(!$payment) {
+            return null;
+        }
 
         switch ($payment->getMethod()) {
             case 'authorizenet':
@@ -271,12 +274,16 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         ),'strlen'));
     }
 
-    private function getAddressArray($address) {
+    private function getAddress($address) {
+        if(!$address) {
+            return null;
+        }
+
         $street = $address->getStreet();
         $address_1 = (!is_null($street) && array_key_exists('0', $street)) ? $street['0'] : null;
         $address_2 = (!is_null($street) && array_key_exists('1', $street)) ? $street['1'] : null;
 
-        return array_filter(array(
+        $addrArray =  array_filter(array(
             'first_name' => $address->getFirstname(),
             'last_name' => $address->getLastname(),
             'name' => $address->getFirstname() . " " . $address->getLastname(),
@@ -290,6 +297,11 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'zip' => $address->getPostcode(),
             'phone' => $address->getTelephone(),
         ), 'strlen');
+
+        if(!$addrArray) {
+            return null;
+        }
+        return new Model\Address($addrArray);
     }
 
     private function getDiscountCodes($model) {
