@@ -15,16 +15,35 @@ class Riskified_Full_Model_Observer {
         $this->postOrder($order,'create');
     }
 
+    public function salesOrderPaymentVoid($evt) {
+        Mage::helper('full/log')->log("salesOrderPaymentVoid");
+        //$order = $evt->getPayment()->getOrder();
+        //$this->postOrder($order,'cancel');
+    }
+
+    public function salesOrderPaymentRefund($evt) {
+        Mage::helper('full/log')->log("salesOrderPaymentRefund");
+        //$order = $evt->getPayment()->getOrder();
+        //$this->postOrder($order,'cancel');
+    }
+
+    public function salesOrderPaymentCancel($evt) {
+        Mage::helper('full/log')->log("salesOrderPaymentCancel");
+        //$order = $evt->getPayment()->getOrder();
+        //$this->postOrder($order,'cancel');
+    }
+
+    public function salesOrderCancel($evt) {
+        Mage::helper('full/log')->log("salesOrderCancel");
+        $order = $evt->getOrder();
+        $this->postOrder($order,'cancel');
+    }
+
     public function postOrderIds($order_ids) {
         foreach ($order_ids as $order_id) {
             $order = Mage::getModel('sales/order')->load($order_id);
             $this->postOrder($order, 'submit');
         }
-    }
-
-    public function salesOrderCancel($evt) {
-        $order = $evt->getOrder();
-        $this->postOrder($order,'cancel');
     }
 
     public function addMassAction($observer) {

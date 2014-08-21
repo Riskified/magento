@@ -33,11 +33,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         }
     }
 
-    public function postOrderCancel($orderCancellation) {
-
-
-    }
-
 	/**
 	 * Dispatch events for order update handling
 	 *
@@ -88,7 +83,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $header_name = Signature\HttpDataSignature::HMAC_HEADER_NAME;
         $headers = array($header_name.':'.$request->getHeader($header_name));
         $body = $request->getRawBody();
-        return new DecisionNotification(new Signature\HttpDataSignature(), $headers, $body);
+        Mage::helper('full/log')->log("Received new notification request. trying to parse body: $body");
+        return new
+        DecisionNotification(new Signature\HttpDataSignature(), $headers, $body);
     }
 
     private $version;
@@ -117,8 +114,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     private function getOrderCancellation($model) {
         $orderCancellation = new Model\OrderCancellation(array_filter(array(
             'id' => $model->getId(),
-
+            'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model)),
+            'cancel_reason' => 'Cancelled by merchant'
         )));
+
+        Mage::helper('full/log')->log("getOrderCancellation(): ".PHP_EOL.json_encode(json_decode($orderCancellation->toJson())));
+
+        return $orderCancellation;
     }
 
     private function getOrder($model) {
@@ -126,9 +128,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'id' => $model->getId(),
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
-            'total_spent' => $model->getGrandTotal(),
             'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),
-            'currency' => $model->getBaseCurrencyCode(),
+            'currency' => $model->getOrderCurrencyCode(),  // was getBaseCurrencyCode() before by mistake
             'updated_at' => $this->formatDateAsIso8601($model->getUpdatedAt()),
             'gateway' => $model->getPayment()->getMethod(),
             'browser_ip' => $model->getRemoteIp(),
@@ -186,15 +187,20 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     private function getShippingAddress($model) {
-        return new Model\Address($this->getAddressArray($model->getShippingAddress()));
+        $mageAddr = $model->getShippingAddress();
+        return $this->getAddress($mageAddr);
     }
 
     private function getBillingAddress($model) {
-        return new Model\Address($this->getAddressArray($model->getBillingAddress()));
+        $mageAddr = $model->getBillingAddress();
+        return $this->getAddress($mageAddr);
     }
 
     private function getPaymentDetails($model) {
         $payment = $model->getPayment();
+        if(!$payment) {
+            return null;
+        }
 
         switch ($payment->getMethod()) {
             case 'authorizenet':
@@ -222,7 +228,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     'payment_status' => $payment_status,
                     'pending_reason' => $pending_reason
                 ),'strlen'));
-                break;
+
             case 'paypal_direct':
                 $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
                 $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
@@ -291,12 +297,16 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         ),'strlen'));
     }
 
-    private function getAddressArray($address) {
+    private function getAddress($address) {
+        if(!$address) {
+            return null;
+        }
+
         $street = $address->getStreet();
         $address_1 = (!is_null($street) && array_key_exists('0', $street)) ? $street['0'] : null;
         $address_2 = (!is_null($street) && array_key_exists('1', $street)) ? $street['1'] : null;
 
-        return array_filter(array(
+        $addrArray =  array_filter(array(
             'first_name' => $address->getFirstname(),
             'last_name' => $address->getLastname(),
             'name' => $address->getFirstname() . " " . $address->getLastname(),
@@ -310,6 +320,11 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'zip' => $address->getPostcode(),
             'phone' => $address->getTelephone(),
         ), 'strlen');
+
+        if(!$addrArray) {
+            return null;
+        }
+        return new Model\Address($addrArray);
     }
 
     private function getDiscountCodes($model) {

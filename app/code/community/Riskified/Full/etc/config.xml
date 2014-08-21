@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.1</version>
+            <version>1.0.1.2</version>
         </Riskified_Full>
     </modules>
 
@@ -55,6 +55,33 @@
                     </save_after>
                 </observers>
             </sales_order_payment_place_end>
+            <sales_order_payment_void>
+                <observers>
+                    <save_after_commit>
+                        <type>singleton</type>
+                        <class>Riskified_Full_Model_Observer</class>
+                        <method>salesOrderPaymentVoid</method>
+                    </save_after_commit>
+                </observers>
+            </sales_order_payment_void>
+            <sales_order_payment_refund>
+                <observers>
+                    <save_after_commit>
+                        <type>singleton</type>
+                        <class>Riskified_Full_Model_Observer</class>
+                        <method>salesOrderPaymentRefund</method>
+                    </save_after_commit>
+                </observers>
+            </sales_order_payment_refund>
+            <sales_order_payment_cancel>
+                <observers>
+                    <save_after_commit>
+                        <type>singleton</type>
+                        <class>Riskified_Full_Model_Observer</class>
+                        <method>salesOrderPaymentCancel</method>
+                    </save_after_commit>
+                </observers>
+            </sales_order_payment_cancel>
             <order_cancel_after>
                 <observers>
                     <save_after_commit>
