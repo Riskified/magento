@@ -106,9 +106,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'id' => $model->getId(),
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
-            'total_spent' => $model->getGrandTotal(),
             'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),
-            'currency' => $model->getBaseCurrencyCode(),
+            'currency' => $model->getOrderCurrencyCode(),  // was getBaseCurrencyCode() before by mistake
             'updated_at' => $this->formatDateAsIso8601($model->getUpdatedAt()),
             'gateway' => $model->getPayment()->getMethod(),
             'browser_ip' => $model->getRemoteIp(),
