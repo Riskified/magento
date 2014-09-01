@@ -96,8 +96,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $env = constant($helper->getConfigEnv());
         $shopDomain = $helper->getShopDomain();
         $this->version = $helper->getExtensionVersion();
+        $sdkVersion = Riskified::VERSION;
 
-	    Mage::helper('full/log')->log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken");
+	    Mage::helper('full/log')->log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken, extension_version: $this->version, sdk_version: $sdkVersion");
         Riskified::init($shopDomain, $authToken, $env, true);
     }
 
