@@ -84,7 +84,7 @@ abstract class AbstractTransport {
      * @throws \Riskified\Common\Exception\BaseException on any issue
      */
     public function updateOrder($order) {
-        if ($order->validate())
+        if ($order->validate(false))
             return $this->send_json_request($order, 'update');
         return null;
     }
@@ -96,8 +96,20 @@ abstract class AbstractTransport {
      * @throws \Riskified\Common\Exception\BaseException on any issue
      */
     public function cancelOrder($order) {
-        if ($order->validate())
+        if ($order->validate(false))
             return $this->send_json_request($order, 'cancel');
+        return null;
+    }
+
+    /**
+     * Partially refunds an existing order
+     * @param $order object Order with id and refunds object
+     * @return object Response object
+     * @throws \Riskified\Common\Exception\BaseException on any issue
+     */
+    public function refundOrder($order) {
+        if ($order->validate(false))
+            return $this->send_json_request($order, 'refund');
         return null;
     }
 
@@ -123,7 +135,6 @@ abstract class AbstractTransport {
             $signature::SHOP_DOMAIN_HEADER_NAME.':'.Riskified::$domain,
             $signature::HMAC_HEADER_NAME.':'.$this->signature->calc_hmac($data_string),
             'Accept: application/vnd.riskified.com; version='.Riskified::API_VERSION
-
         );
     }
 }
