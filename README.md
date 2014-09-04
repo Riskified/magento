@@ -1,3 +1,4 @@
+
 #Riskified Magento extension
 
 ##Overview##
@@ -15,6 +16,8 @@ If you don't have an existing account, please start by signing up to Riskified [
 
 ##Installation##
 
-Depends on Riskified's [PHP SDK](https://github.com/Riskified/php_sdk). If installing manually (without Magento Connect), you'll need to `git clone` the [Repository](https://github.com/Riskified/php_sdk) into `lib/riskified_php_sdk` under your Magento directory.
+Available options:
 
-The rest of the extension is deployed as usual (into `code` and `design` folders)
+* via the Magento Connect system
+* directly from github - download the latest release from the release section
+* using Modman with the modman file in the repository
