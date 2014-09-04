@@ -23,13 +23,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         switch($eventType) {
             case 'create':
                 $order = $this->getOrder($model);
-                return $transport->createOrder($order, $headers);
+                return $transport->createOrder($order);//, $headers);
             case 'submit':
                 $order = $this->getOrder($model);
-                return $transport->submitOrder($order, $headers);
+                return $transport->submitOrder($order);//, $headers);
             case 'cancel':
                 $order = $this->getOrderCancellation($model);
-                return $transport->cancelOrder($order, $headers);
+                return $transport->cancelOrder($order);//, $headers);
         }
     }
 
@@ -81,9 +81,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     public function parseRequest($request) {
         $header_name = Signature\HttpDataSignature::HMAC_HEADER_NAME;
-        $headers = array($header_name.':'.$request->getHeader($header_name));
+        $headers = array($header_name => $request->getHeader($header_name));
         $body = $request->getRawBody();
-        Mage::helper('full/log')->log("Received new notification request. trying to parse body: $body");
+        Mage::helper('full/log')->log("Received new notification request with headers: " . json_encode($headers) . " and body: $body. Trying to parse.");
         return new
         DecisionNotification(new Signature\HttpDataSignature(), $headers, $body);
     }

@@ -122,6 +122,8 @@ abstract class AbstractModel {
      * @return array All property validation issues or empty array if no issues found
      */
     protected function validation_exceptions($enforce_required_keys=true) {
+        if (!$enforce_required_keys)
+            return null;
         $exceptions = array();
         foreach ($this->_fields as $key => $value) {
             $types = explode(' ', $value);

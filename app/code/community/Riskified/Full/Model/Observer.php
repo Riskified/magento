@@ -140,22 +140,26 @@ class Riskified_Full_Model_Observer {
 		switch ($status) {
 			case 'approved':
 				if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
-				    && $currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()) {
+				    && ($currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
+                        || $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
 					$newState = Mage_Sales_Model_Order::STATE_PROCESSING;
 					$newStatus = TRUE;
 				}
 
 				break;
 			case 'declined':
-				if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
-				    && $currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()) {
+                if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
+                    && ($currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
+                        || $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
 					$newState = Mage_Sales_Model_Order::STATE_CANCELED;
 					$newStatus = Mage_Sales_Model_Order::STATUS_FRAUD;
 				}
 
 				break;
 			case 'submitted':
-				if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING) {
+				if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
+                    || ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
+                        && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
 					$newState = Mage_Sales_Model_Order::STATE_HOLDED;
 					$newStatus = $riskifiedOrderStatusHelper->getOnHoldStatusCode();
 				}
