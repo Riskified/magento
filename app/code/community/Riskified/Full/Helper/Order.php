@@ -133,7 +133,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'currency' => $model->getOrderCurrencyCode(),  // was getBaseCurrencyCode() before by mistake
             'updated_at' => $this->formatDateAsIso8601($model->getUpdatedAt()),
             'gateway' => $model->getPayment()->getMethod(),
-            'browser_ip' => $model->getRemoteIp(),
+            'browser_ip' => $this->getRemoteIp($model),
             'cart_token' => Mage::helper('full')->getSessionId(),
             'note' => $model->getCustomerNote(),
             'total_price' => $model->getGrandTotal(),
@@ -143,7 +143,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'taxes_included' => true,
             'total_tax' => $model->getBaseTaxAmount(),
             'total_weight' => $model->getWeight(),
-            'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model))
+            'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model)),
+            'financial_status' => $model->getState()
         ),'strlen'));
 
         $order->customer = $this->getCustomer($model);
@@ -293,7 +294,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     private function getClientDetails($model) {
         return new Model\ClientDetails(array_filter(array(
             'accept_language' => Mage::app()->getLocale()->getLocaleCode(),
-            'browser_ip' => $model->getRemoteIp(),
+            'browser_ip' => $this->getRemoteIp($model),
             'user_agent' => Mage::helper('core/http')->getHttpUserAgent()
         ),'strlen'));
     }
@@ -351,5 +352,22 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     private function formatDateAsIso8601($dateStr) {
         return ($dateStr==NULL) ? NULL : date('c',strtotime($dateStr));
+    }
+
+    private function getRemoteIp($model) {
+        Mage::helper('full/log')->log("remote ip: " . $model->getRemoteIp() . ", x-forwarded-ip: " . $model->getXForwardedFor());
+
+        $forwardedIp = $model->getXForwardedFor();
+        $forwardeds = preg_split("/,/",$forwardedIp, -1, PREG_SPLIT_NO_EMPTY);
+        if (!empty($forwardeds)) {
+            return trim($forwardeds[0]);
+        }
+        $remoteIp = $model->getRemoteIp();
+        $remotes = preg_split("/,/",$remoteIp, -1, PREG_SPLIT_NO_EMPTY);
+        if (!empty($remotes)) {
+            return trim($remotes[0]);
+        }
+
+        return $remoteIp;
     }
 }

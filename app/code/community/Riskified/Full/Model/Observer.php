@@ -33,6 +33,22 @@ class Riskified_Full_Model_Observer {
         //$this->postOrder($order,'cancel');
     }
 
+    public function salesOrderPlaceBefore($evt) {
+        Mage::helper('full/log')->log("salesOrderPlaceBefore");
+    }
+
+    public function salesOrderPlaceAfter($evt) {
+        Mage::helper('full/log')->log("salesOrderPlaceAfter");
+    }
+
+    public function salesOrderSaveBefore($evt) {
+        Mage::helper('full/log')->log("salesOrderSaveBefore");
+    }
+
+    public function salesOrderSaveAfter($evt) {
+        Mage::helper('full/log')->log("salesOrderSaveAfter");
+    }
+
     public function salesOrderCancel($evt) {
         Mage::helper('full/log')->log("salesOrderCancel");
         $order = $evt->getOrder();
@@ -91,9 +107,15 @@ class Riskified_Full_Model_Observer {
             } else {
                 Mage::getSingleton('adminhtml/session')->addError(Mage::helper('adminhtml')->__("Malformed response from Riskified"));
             }
-        } catch (Exception $e) {
+        } catch(\Riskified\OrderWebhook\Exception\CurlException $curlException) {
+            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
+            Mage::helper('full/log')->logException($curlException);
+            $helper->updateOrder($order, 'error', 'Error transfering order data to Riskified');
+        }
+        catch (Exception $e) {
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
             Mage::logException($e);
+            Mage::helper('full/log')->logException($e);
         }
     }
 
@@ -102,9 +124,10 @@ class Riskified_Full_Model_Observer {
 	 *
 	 * @param Varien_Event_Observer $observer
 	 */
-	public function updateOrderState(Varien_Event_Observer $observer)
+    public function updateOrderState(Varien_Event_Observer $observer)
 	{
 		$riskifiedOrderStatusHelper = Mage::helper('full/order_status');
+        $riskifiedInvoiceHelper = Mage::helper('full/order_invoice');
 		$order = $observer->getOrder();
 		$status = (string) $observer->getStatus();
 		$description = (string) $observer->getDescription();
@@ -138,6 +161,12 @@ class Riskified_Full_Model_Observer {
 				}
 
 				break;
+            case 'error':
+                if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
+                    && $riskifiedInvoiceHelper->isAutoInvoiceEnabled()) {
+                    $newState = Mage_Sales_Model_Order::STATE_HOLDED;
+                    $newStatus = $riskifiedOrderStatusHelper->getTransportErrorStatusCode();
+                }
 		}
 
 		if ($status) {

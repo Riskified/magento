@@ -3,7 +3,7 @@
 class Riskified_Full_Helper_Order_Status extends Mage_Core_Helper_Abstract
 {
 	/**
-	 * Get Riskified's custom on hold order status code
+	 * Get Riskified's custom "on hold for review" status code
 	 *
 	 * @return string
 	 */
@@ -13,7 +13,7 @@ class Riskified_Full_Helper_Order_Status extends Mage_Core_Helper_Abstract
 	}
 
 	/**
-	 * Get Riskified's custom on hold order status label
+	 * Get Riskified's custom "on hold for review" status label
 	 *
 	 * @return string
 	 */
@@ -21,4 +21,24 @@ class Riskified_Full_Helper_Order_Status extends Mage_Core_Helper_Abstract
 	{
 		return 'On Hold (Riskified)';
 	}
+
+    /**
+     * Get Riskified's custom "on hold due to transport error" status code
+     *
+     * @return string
+     */
+    public function getTransportErrorStatusCode()
+    {
+        return 'riskified_trans_error';
+    }
+
+    /**
+     * Get Riskified's custom "on hold due to transport error" status label
+     *
+     * @return string
+     */
+    public function getTransportErrorStatusLabel()
+    {
+        return 'On Hold (Riskified Transport Error)';
+    }
 }

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.2.0</version>
+            <version>1.0.2.1</version>
         </Riskified_Full>
     </modules>
 
@@ -39,63 +39,99 @@
         <events>
             <sales_order_payment_place_start>
                 <observers>
-                    <save_after>
+                    <riskified_full>
                         <type>singleton</type>
-                        <class>Riskified_Full_Model_Observer</class>
+                        <class>full/observer</class>
                         <method>saveOrderBefore</method>
-                    </save_after>
+                    </riskified_full>
                 </observers>
             </sales_order_payment_place_start>
             <sales_order_payment_place_end>
                 <observers>
-                    <save_after>
+                    <riskified_full>
                         <type>singleton</type>
-                        <class>Riskified_Full_Model_Observer</class>
+                        <class>full/observer</class>
                         <method>salesOrderPaymentPlaceEnd</method>
-                    </save_after>
+                    </riskified_full>
                 </observers>
             </sales_order_payment_place_end>
             <sales_order_payment_void>
                 <observers>
-                    <save_after_commit>
+                    <riskified_full>
                         <type>singleton</type>
-                        <class>Riskified_Full_Model_Observer</class>
+                        <class>full/observer</class>
                         <method>salesOrderPaymentVoid</method>
-                    </save_after_commit>
+                    </riskified_full>
                 </observers>
             </sales_order_payment_void>
             <sales_order_payment_refund>
                 <observers>
-                    <save_after_commit>
+                    <riskified_full>
                         <type>singleton</type>
-                        <class>Riskified_Full_Model_Observer</class>
+                        <class>full/observer</class>
                         <method>salesOrderPaymentRefund</method>
-                    </save_after_commit>
+                    </riskified_full>
                 </observers>
             </sales_order_payment_refund>
             <sales_order_payment_cancel>
                 <observers>
-                    <save_after_commit>
+                    <riskified_full>
                         <type>singleton</type>
-                        <class>Riskified_Full_Model_Observer</class>
+                        <class>full/observer</class>
                         <method>salesOrderPaymentCancel</method>
-                    </save_after_commit>
+                    </riskified_full>
                 </observers>
             </sales_order_payment_cancel>
+            <sales_order_place_before>
+                <observers>
+                    <riskified_full>
+                        <type>singleton</type>
+                        <class>full/observer</class>
+                        <method>salesOrderPlaceBefore</method>
+                    </riskified_full>
+                </observers>
+            </sales_order_place_before>
+            <sales_order_place_after>
+                <observers>
+                    <riskified_full>
+                        <type>singleton</type>
+                        <class>full/observer</class>
+                        <method>salesOrderPlaceAfter</method>
+                    </riskified_full>
+                </observers>
+            </sales_order_place_after>
+            <sales_order_save_before>
+                <observers>
+                    <riskified_full>
+                        <type>singleton</type>
+                        <class>full/observer</class>
+                        <method>salesOrderSaveBefore</method>
+                    </riskified_full>
+                </observers>
+            </sales_order_save_before>
+            <sales_order_save_after>
+                <observers>
+                    <riskified_full>
+                        <type>singleton</type>
+                        <class>full/observer</class>
+                        <method>salesOrderSaveAfter</method>
+                    </riskified_full>
+                </observers>
+            </sales_order_save_after>
             <order_cancel_after>
                 <observers>
-                    <save_after_commit>
+                    <riskified_full>
                         <type>singleton</type>
-                        <class>Riskified_Full_Model_Observer</class>
+                        <class>full/observer</class>
                         <method>salesOrderCancel</method>
-                    </save_after_commit>
+                    </riskified_full>
                 </observers>
             </order_cancel_after>
             <adminhtml_widget_container_html_before>
                 <observers>
                     <module>
                         <type>singleton</type>
-                        <class>Riskified_Full_Model_Observer</class>
+                        <class>full/observer</class>
                         <method>blockHtmlBefore</method>
                     </module>
                 </observers>
