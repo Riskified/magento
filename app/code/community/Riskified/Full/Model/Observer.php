@@ -47,6 +47,49 @@ class Riskified_Full_Model_Observer {
 
     public function salesOrderSaveAfter($evt) {
         Mage::helper('full/log')->log("salesOrderSaveAfter");
+
+        $order = $evt->getOrder();
+        if(!$order) {
+            return;
+        }
+
+        $orderFlagKey = 'order_in_save_'.$order->getId();
+        if (Mage::registry($orderFlagKey)) {
+            Mage::unregister($orderFlagKey);
+            return;
+        }
+
+        $newState = $order->getState();
+
+        if ($order->dataHasChangedFor('state')) {
+//            switch ($order->getState()) {
+//                case 'processing':
+//                    $this->postOrder($order,'update');
+//                    break;
+//                case 'holded':
+//                    break;
+//                case 'new': // by default - this is pending status
+//                    $this->postOrder($order,'update');
+//                    break;
+//                case 'canceled':
+//                    $this->postOrder($order,'cancel');
+//                    break;
+//                case 'pending_payment':
+//                    break;
+//                case 'payment_review':
+//                    break;
+//                case 'complete':
+//                    break;
+//                case 'closed':
+//                    break;
+//            }
+            Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
+            Mage::register($orderFlagKey, true);
+            $this->postOrder($order,'update');
+        }
+        else {
+            Mage::helper('full/log')->log("Order: '" . $order->getId() . "' state didn't change on save - not posting again: " . $newState);
+        }
     }
 
     public function salesOrderCancel($evt) {
