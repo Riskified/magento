@@ -62,27 +62,6 @@ class Riskified_Full_Model_Observer {
         $newState = $order->getState();
 
         if ($order->dataHasChangedFor('state')) {
-//            switch ($order->getState()) {
-//                case 'processing':
-//                    $this->postOrder($order,'update');
-//                    break;
-//                case 'holded':
-//                    break;
-//                case 'new': // by default - this is pending status
-//                    $this->postOrder($order,'update');
-//                    break;
-//                case 'canceled':
-//                    $this->postOrder($order,'cancel');
-//                    break;
-//                case 'pending_payment':
-//                    break;
-//                case 'payment_review':
-//                    break;
-//                case 'complete':
-//                    break;
-//                case 'closed':
-//                    break;
-//            }
             Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
             Mage::register($orderFlagKey, true);
             $this->postOrder($order,'update');
@@ -216,7 +195,8 @@ class Riskified_Full_Model_Observer {
                 }
 		}
 
-		if ($status) {
+		if ($status &&
+            ($newState != $currentState || $newStatus != $currentStatus)) {
 			if ($newState && Mage::helper('full')->getConfigStatusControlActive()) {
 				$order->setState($newState, $newStatus, $description);
 				Mage::helper('full/log')->log("Updating order state " . $order->getId() . " state: $newState, status: $newStatus, description: $description");
