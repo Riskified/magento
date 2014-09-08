@@ -110,7 +110,7 @@ class Riskified_Full_Model_Observer {
         try {
             $helper = Mage::helper('full/order');
             $response = $helper->postOrder($order, $eventType);
-	        Mage::helper('full/log')->log("Riskified response, data: :" . PHP_EOL . json_encode($response));
+	        Mage::helper('full/log')->log("Riskified response, data: " . PHP_EOL . json_encode($response));
 
             if (isset($response->order)) {
                 $orderId = $response->order->id;
@@ -155,7 +155,7 @@ class Riskified_Full_Model_Observer {
 		$currentState = $order->getState();
 		$currentStatus = $order->getStatus();
 
-		Mage::helper('full/log')->log("Updating order " . $order->getId() . " current state: $currentState, description: $description");
+		Mage::helper('full/log')->log("Checking if should update order '" . $order->getId() . "' from state: '$currentState' and status: '$currentStatus'");
 
 		switch ($status) {
 			case 'approved':
@@ -200,7 +200,7 @@ class Riskified_Full_Model_Observer {
             && ($newState != $currentState || $newStatus != $currentStatus)
 			 && Mage::helper('full')->getConfigStatusControlActive()) {
             $order->setState($newState, $newStatus, $description);
-            Mage::helper('full/log')->log("Updating order state " . $order->getId() . " state: $newState, status: $newStatus, description: $description");
+            Mage::helper('full/log')->log("Updating order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
             $changed=true;
 		} elseif ($description) {
             $comments = $order->getStatusHistoryCollection(true);
