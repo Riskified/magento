@@ -53,17 +53,15 @@ class Riskified_Full_Model_Observer {
             return;
         }
 
-        $orderFlagKey = 'order_in_save_'.$order->getId();
-        if (Mage::registry($orderFlagKey)) {
-            Mage::unregister($orderFlagKey);
+        if($order->riskifiedInSave) {
             return;
         }
+        $order->riskifiedInSave = true;
 
         $newState = $order->getState();
 
         if ($order->dataHasChangedFor('state')) {
             Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
-            Mage::register($orderFlagKey, true);
             $this->postOrder($order,'update');
         }
         else {
@@ -195,16 +193,33 @@ class Riskified_Full_Model_Observer {
                 }
 		}
 
-		if ($status &&
-            ($newState != $currentState || $newStatus != $currentStatus)) {
-			if ($newState && Mage::helper('full')->getConfigStatusControlActive()) {
-				$order->setState($newState, $newStatus, $description);
-				Mage::helper('full/log')->log("Updating order state " . $order->getId() . " state: $newState, status: $newStatus, description: $description");
-			} elseif ($description) {
-				$order->addStatusHistoryComment($description);
-				Mage::helper('full/log')->log("Updating order history comment " . $order->getId() . " state: $newState, status: $newStatus, description: $description");
-			}
+        $changed = false;
 
+        // if newState exists and new state/status are different from current and config is set to status-sync
+		if ($newState
+            && ($newState != $currentState || $newStatus != $currentStatus)
+			 && Mage::helper('full')->getConfigStatusControlActive()) {
+            $order->setState($newState, $newStatus, $description);
+            Mage::helper('full/log')->log("Updating order state " . $order->getId() . " state: $newState, status: $newStatus, description: $description");
+            $changed=true;
+		} elseif ($description) {
+            $comments = $order->getStatusHistoryCollection(true);
+            $comment = null;
+            if ($comments && count($comments) > 0) {
+                $index = count($comments) - 1;
+                while(!$comment && index > 0) {
+                    $comment = $comments[$index]['comment'];
+                    $index--;
+                }
+            }
+            if (!$comment || $comment != $description) {
+                $order->addStatusHistoryComment($description);
+                Mage::helper('full/log')->log("Updating order " . $order->getId() . " history comment to: "  . $description);
+                $changed=true;
+            }
+        }
+
+        if ($changed) {
 			try {
 				$order->save();
 			} catch (Exception $e) {
