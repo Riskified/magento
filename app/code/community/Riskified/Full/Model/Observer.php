@@ -203,20 +203,10 @@ class Riskified_Full_Model_Observer {
             Mage::helper('full/log')->log("Updating order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
             $changed=true;
 		} elseif ($description) {
-            $comments = $order->getStatusHistoryCollection(true);
-            $comment = null;
-            if ($comments && count($comments) > 0) {
-                $index = count($comments) - 1;
-                while(!$comment && index > 0) {
-                    $comment = $comments[$index]['comment'];
-                    $index--;
-                }
-            }
-            if (!$comment || $comment != $description) {
-                $order->addStatusHistoryComment($description);
-                Mage::helper('full/log')->log("Updating order " . $order->getId() . " history comment to: "  . $description);
-                $changed=true;
-            }
+            Mage::helper('full/log')->log("Updating order " . $order->getId() . " history comment to: "  . $description);
+            //$order->addStatusHistoryComment($description);
+            $order->setState($currentState, $currentStatus, $description);
+            $changed=true;
         }
 
         if ($changed) {

@@ -17,7 +17,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
 		    Mage::helper('full/log')->log("ERROR: Unable to load order (" . $notification->id . ")");
 		    return;
 	    }
-
+        $order->riskifiedInSave = true;
         $helper->updateOrder($order, $notification->status, $notification->description);
     }
 }
