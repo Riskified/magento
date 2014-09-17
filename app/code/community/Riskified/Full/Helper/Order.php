@@ -14,7 +14,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $this->initSdk();
     }
 
-    public function postOrder($model,$eventType) {
+    public function postOrder($model, $eventType) {
         $transport = $this->getTransport();
         $headers = $this->getHeaders();
 
@@ -23,17 +23,27 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         switch($eventType) {
             case 'create':
                 $order = $this->getOrder($model);
-                return $transport->createOrder($order);//, $headers);
+                return $transport->createOrder($order);
             case 'update':
                 $order = $this->getOrder($model);
-                return $transport->updateOrder($order);//, $headers);
+                return $transport->updateOrder($order);
             case 'submit':
                 $order = $this->getOrder($model);
-                return $transport->submitOrder($order);//, $headers);
+                return $transport->submitOrder($order);
             case 'cancel':
                 $order = $this->getOrderCancellation($model);
-                return $transport->cancelOrder($order);//, $headers);
+                return $transport->cancelOrder($order);
         }
+    }
+
+    public function postHistoricalOrders($models) {
+        $orders = [];
+        foreach ($models as $model) {
+            $orders[] = $this->getOrder($model);
+        }
+
+        $msgs = $this->getTransport()->sendHistoricalOrders($orders);
+        return "Successfully uploaded ".count($msgs)." orders.".PHP_EOL;
     }
 
 	/**
