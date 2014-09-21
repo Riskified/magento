@@ -250,11 +250,9 @@
                 <order_status_sync>0</order_status_sync>
                 <env>PROD</env>
                 <beaconurl>beacon.riskified.com</beaconurl>
+                <auto_invoice_enabled>0</auto_invoice_enabled>
+                <auto_invoice_capture_case>online</auto_invoice_capture_case>
             </full>
-            <auto_invoice>
-                <enabled>0</enabled>
-                <capture_case>online</capture_case>
-            </auto_invoice>
         </fullsection>
     </default>
 </config>
