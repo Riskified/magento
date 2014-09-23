@@ -217,6 +217,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             return null;
         }
 
+        $transactionId = $payment->getTransactionId();
+
         switch ($payment->getMethod()) {
             case 'authorizenet':
                 $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
@@ -236,6 +238,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 $pending_reason = $payment->getAdditionalInformation('paypal_pending_reason');
 
                 return new Model\PaymentDetails(array_filter(array(
+                    'authorization_id' => $transactionId,
                     'payer_email' => $payer_email,
                     'payer_status' => $payer_status,
                     'payer_address_status' => $payer_address_status,
@@ -272,6 +275,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
 
         return new Model\PaymentDetails(array_filter(array(
+            'authorization_id' => $transactionId,
             'avs_result_code' => $avs_result_code,
             'cvv_result_code' => $cvv_result_code,
             'credit_card_number' => $credit_card_number,
