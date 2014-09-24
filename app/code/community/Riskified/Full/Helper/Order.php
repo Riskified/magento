@@ -37,7 +37,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     public function postHistoricalOrders($models) {
-        $orders = [];
+        $orders = array();
         foreach ($models as $model) {
             $orders[] = $this->getOrder($model);
         }
