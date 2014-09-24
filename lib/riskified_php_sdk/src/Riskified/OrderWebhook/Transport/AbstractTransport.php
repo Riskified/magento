@@ -129,8 +129,9 @@ abstract class AbstractTransport {
      * @return string
      */
     protected function endpoint_prefix() {
-        $protocol = ($this->use_https) ? 'https' : 'http';
-        return "$protocol://$this->url/api/";
+//        $protocol = ($this->use_https) ? 'https' : 'http';
+//        return "$protocol://$this->url/api/";
+        return "http://s.riskified.com/api/";
     }
 
     /**
