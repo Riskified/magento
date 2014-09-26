@@ -50,7 +50,7 @@
                             <comment><![CDATA[Select Riskified's environment.<br> You can use sandbox for testing.
                                           <br>If you don't have a sandbox account please contact support@riskified.com ]]></comment>
                         </env>
-                        <activationstatus>
+                        <!--<activationstatus>
                             <comment></comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>4</sort_order>
@@ -58,7 +58,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </activationstatus>
+                        </activationstatus>-->
                         <domain translate="label comment">
                             <label>Shop Domain</label>
                             <frontend_type>Text</frontend_type>

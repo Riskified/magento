@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.2.2</version>
+            <version>1.0.2.3</version>
         </Riskified_Full>
     </modules>
 
@@ -243,6 +243,14 @@
             </core_block_abstract_prepare_layout_before>
         </events>
     </adminhtml>
+
+    <phpunit>
+        <suite>
+            <modules>
+                <Riskified_Full />
+            </modules>
+        </suite>
+    </phpunit>
 
     <default>
         <fullsection>
