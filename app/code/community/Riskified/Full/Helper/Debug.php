@@ -2,7 +2,7 @@
 
 class Riskified_Full_Helper_Debug extends Mage_Core_Helper_Abstract
 {
-    const ALERT_EMAIL = 'dan@ablecanyon.com';
+    const ALERT_EMAIL = 'assaf@riskified.com';
     const CONFIG_SECTION = 'fullsection';
 
     /**
