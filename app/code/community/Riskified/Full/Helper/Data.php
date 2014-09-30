@@ -1,5 +1,7 @@
 <?php
 
+require_once(Mage::getBaseDir('lib') . DIRECTORY_SEPARATOR . 'riskified_php_sdk' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Riskified' . DIRECTORY_SEPARATOR . 'autoloader.php');
+
 class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
 
     public function getAdminUrl(){
@@ -41,4 +43,19 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
         return $visitorData['session_id'];
     }
 
+    /**
+     * @return string
+     */
+    public function getSdkVersion()
+    {
+        return Riskified\Common\Riskified::VERSION;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSdkApiVersion()
+    {
+        return Riskified\Common\Riskified::API_VERSION;
+    }
 }

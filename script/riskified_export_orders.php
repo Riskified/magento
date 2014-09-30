@@ -7,7 +7,6 @@ if (file_exists($compilerConfig)) {
     include $compilerConfig;
 }
 $mageFilename = MAGENTO_ROOT . '/app/Mage.php';
-$maintenanceFile = 'maintenance.flag';
 
 if (!file_exists($mageFilename)) {
     if (is_dir('downloader')) {
@@ -17,19 +16,17 @@ if (!file_exists($mageFilename)) {
     }
     exit;
 }
-if (file_exists($maintenanceFile)) {
-    include_once dirname(__FILE__) . '/errors/503.php';
-    exit;
-}
 
 require_once $mageFilename;
 ini_set('display_errors', 1);
 umask(0);
 
 Mage::init('admin');
-Mage::getSingleton('core/session', array('name'=>'adminhtml'));
-$admin_session = Mage::getSingleton('admin/session');
-if (!$admin_session->isLoggedIn()) {
+
+$core_session = Mage::getSingleton('core/session', array('name'=>'adminhtml'));
+$uid = Mage::helper('adminhtml')->getCurrentUserId();
+$logged_in = Mage::getSingleton('admin/session')->isLoggedIn();
+if (!($uid || $logged_in)) {
     header('HTTP/1.1 401 Unauthorized', true, 401);
     echo '401 Unauthorized'.PHP_EOL;
     exit(401);

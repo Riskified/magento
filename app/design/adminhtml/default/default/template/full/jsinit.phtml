@@ -162,7 +162,7 @@ function riskifiedOnSave(event){
 
 function riskifiedActivation(riskifiedPassword,riskifiedShopDomain,generatedKey){
   var keys = "<?php echo $allkeys ?>";
-  var activateURL = ('https:' == document.location.protocol ? 'https://' : 'http://') +  '<?php echo Mage::helper("full/order")->getRiskifiedDomain()?>/magento/activate';
+  var activateURL = 'https://' + '<?php echo Mage::helper("full/order")->getRiskifiedDomain()?>/magento/activate';
 
   new Ajax.Request(activateURL, {
     method: 'POST',
