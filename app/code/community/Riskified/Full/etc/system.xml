@@ -50,7 +50,7 @@
                             <comment><![CDATA[Select Riskified's environment.<br> You can use sandbox for testing.
                                           <br>If you don't have a sandbox account please contact support@riskified.com ]]></comment>
                         </env>
-                        <activationstatus>
+                        <!--<activationstatus>
                             <comment></comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>4</sort_order>
@@ -58,7 +58,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </activationstatus>
+                        </activationstatus>-->
                         <domain translate="label comment">
                             <label>Shop Domain</label>
                             <frontend_type>Text</frontend_type>
@@ -77,37 +77,35 @@
                             <show_in_store>1</show_in_store>
                             <comment><![CDATA[ Your <i>secret</i> auth token can be found in your Riskified Settings page. ]]></comment>
                         </key>
-                    </fields>
-                </full>
-                <auto_invoice translate="label">
-                    <label>Automatic Invoice Creation</label>
-                    <sort_order>20</sort_order>
-                    <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>0</show_in_store>
-                    <fields>
-                        <enabled translate="label comment">
-                            <label>Enabled</label>
+
+                        <auto_invoice_enabled translate="label comment">
+                            <label>Enable Auto-Invoice</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>10</sort_order>
+                            <sort_order>110</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                             <comment><![CDATA[Should an invoice automatically be created when Riskified approves this order?]]></comment>
-                        </enabled>
-                        <capture_case translate="label comment">
-                            <label>Capture Case</label>
+                            <depends>
+                                <order_status_sync>1</order_status_sync>
+                            </depends>
+                        </auto_invoice_enabled>
+                        <auto_invoice_capture_case translate="label comment">
+                            <label>Auto-Invoice Capture Case</label>
                             <frontend_type>select</frontend_type>
                             <source_model>full/system_config_source_captureCase</source_model>
-                            <sort_order>20</sort_order>
+                            <sort_order>120</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                             <comment><![CDATA[Should this invoice be captured online or offline?]]></comment>
-                        </capture_case>
+                            <depends>
+                                <order_status_sync>1</order_status_sync>
+                            </depends>
+                        </auto_invoice_capture_case>
                     </fields>
-                </auto_invoice>
+                </full>
             </groups>
         </fullsection>
     </sections>
