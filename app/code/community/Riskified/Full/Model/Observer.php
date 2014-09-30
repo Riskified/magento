@@ -11,8 +11,8 @@ class Riskified_Full_Model_Observer {
 
     public function salesOrderPaymentPlaceEnd($evt) {
 	    Mage::helper('full/log')->log("salesOrderPaymentPlaceEnd");
-        $order = $evt->getPayment()->getOrder();
-        $this->postOrder($order,'create');
+        //$order = $evt->getPayment()->getOrder();
+        //$this->postOrder($order,'create');
     }
 
     public function salesOrderPaymentVoid($evt) {
@@ -39,6 +39,14 @@ class Riskified_Full_Model_Observer {
 
     public function salesOrderPlaceAfter($evt) {
         Mage::helper('full/log')->log("salesOrderPlaceAfter");
+        $order = $evt->getOrder();
+        $this->postOrder($order,'create');
+    }
+
+    public function checkoutOnepageControllerSuccessAction($evt) {
+        Mage::helper('full/log')->log("checkoutOnepageControllerSuccessAction");
+        //$order_id = $observer->getData('order_ids');
+        //$order = Mage::getModel('sales/order')->load($order_id);
     }
 
     public function salesOrderSaveBefore($evt) {
@@ -52,11 +60,6 @@ class Riskified_Full_Model_Observer {
         if(!$order) {
             return;
         }
-
-        if($order->riskifiedInSave) {
-            return;
-        }
-        $order->riskifiedInSave = true;
 
         $newState = $order->getState();
 
@@ -201,12 +204,15 @@ class Riskified_Full_Model_Observer {
 			 && Mage::helper('full')->getConfigStatusControlActive()) {
             $order->setState($newState, $newStatus, $description);
             Mage::helper('full/log')->log("Updating order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
-            $changed=true;
-		} elseif ($description) {
+            $order->riskifiedStatus = $status;
+            $changed = true;
+		} elseif ($description && $order->riskifiedStatus != $status) {
             Mage::helper('full/log')->log("Updating order " . $order->getId() . " history comment to: "  . $description);
             //$order->addStatusHistoryComment($description);
             $order->setState($currentState, $currentStatus, $description);
-            $changed=true;
+            // next line is only here for failsafe - not really needed because AfterSave gets here only if state was changed so it should never happen twice
+            $order->riskifiedStatus = $status;
+            $changed = true;
         }
 
         if ($changed) {

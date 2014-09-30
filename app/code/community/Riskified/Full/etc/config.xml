@@ -55,6 +55,15 @@
                     </riskified_full>
                 </observers>
             </sales_order_payment_place_end>
+            <checkout_onepage_controller_success_action>
+                <observers>
+                    <riskified_full>
+                        <type>singleton</type>
+                        <class>full/observer</class>
+                        <method>checkoutOnepageControllerSuccessAction</method>
+                    </riskified_full>
+                </observers>
+            </checkout_onepage_controller_success_action>
             <sales_order_payment_void>
                 <observers>
                     <riskified_full>
