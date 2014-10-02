@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.4</version>
+            <version>1.0.5.0</version>
         </Riskified_Full>
     </modules>
 
@@ -15,7 +15,16 @@
             </paygate>
             <full>
                 <class>Riskified_Full_Model</class>
+                <resourceModel>riskified_full_resource</resourceModel>
             </full>
+            <riskified_full_resource>
+                <class>Riskified_Full_Model_Resource</class>
+                <entities>
+                    <retry>
+                        <table>riskified_full_retry</table>
+                    </retry>
+                </entities>
+            </riskified_full_resource>
         </models>
         <resources>
             <riskified_full_setup>
@@ -160,6 +169,14 @@
                     </riskified_full_handle_order_update_captured>
                 </observers>
             </riskified_full_order_update_captured>
+            <riskified_full_post_order_success>
+                <observers>
+                    <riskified_full_clear_retries>
+                        <class>full/observer</class>
+                        <method>clearRetriesForOrder</method>
+                    </riskified_full_clear_retries>
+                </observers>
+            </riskified_full_post_order_success>
         </events>
     </global>
 
@@ -243,6 +260,19 @@
             </core_block_abstract_prepare_layout_before>
         </events>
     </adminhtml>
+
+    <crontab>
+        <jobs>
+            <riskified_full_retry_submission>
+                <schedule>
+                    <cron_expr>*/5 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>full/cron::retrySubmissions</model>
+                </run>
+            </riskified_full_retry_submission>
+        </jobs>
+    </crontab>
 
     <phpunit>
         <suite>

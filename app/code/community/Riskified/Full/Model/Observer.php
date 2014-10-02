@@ -12,7 +12,7 @@ class Riskified_Full_Model_Observer {
     public function salesOrderPaymentPlaceEnd($evt) {
 	    Mage::helper('full/log')->log("salesOrderPaymentPlaceEnd");
         $order = $evt->getPayment()->getOrder();
-        $this->postOrder($order,'create');
+        $this->postOrder($order, Riskified_Full_Helper_Order::ACTION_CREATE);
     }
 
     public function salesOrderPaymentVoid($evt) {
@@ -62,7 +62,7 @@ class Riskified_Full_Model_Observer {
 
         if ($order->dataHasChangedFor('state')) {
             Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
-            $this->postOrder($order,'update');
+            $this->postOrder($order, Riskified_Full_Helper_Order::ACTION_UPDATE);
         }
         else {
             Mage::helper('full/log')->log("Order: '" . $order->getId() . "' state didn't change on save - not posting again: " . $newState);
@@ -72,13 +72,13 @@ class Riskified_Full_Model_Observer {
     public function salesOrderCancel($evt) {
         Mage::helper('full/log')->log("salesOrderCancel");
         $order = $evt->getOrder();
-        $this->postOrder($order,'cancel');
+        $this->postOrder($order, Riskified_Full_Helper_Order::ACTION_CANCEL);
     }
 
     public function postOrderIds($order_ids) {
         foreach ($order_ids as $order_id) {
             $order = Mage::getModel('sales/order')->load($order_id);
-            $this->postOrder($order, 'submit');
+            $this->postOrder($order, Riskified_Full_Helper_Order::ACTION_SUBMIT);
         }
     }
 
@@ -110,6 +110,7 @@ class Riskified_Full_Model_Observer {
         try {
             $helper = Mage::helper('full/order');
             $response = $helper->postOrder($order, $eventType);
+
 	        Mage::helper('full/log')->log("Riskified response, data: " . PHP_EOL . json_encode($response));
 
             if (isset($response->order)) {
@@ -129,11 +130,15 @@ class Riskified_Full_Model_Observer {
             }
         } catch(\Riskified\OrderWebhook\Exception\CurlException $curlException) {
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
+
             Mage::helper('full/log')->logException($curlException);
-            $helper->updateOrder($order, 'error', 'Error transfering order data to Riskified');
+
+            $helper->updateOrder($order, 'error', 'Error transferring order data to Riskified');
+            $helper->scheduleSubmissionRetry($order, $eventType);
         }
         catch (Exception $e) {
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
+
             Mage::logException($e);
             Mage::helper('full/log')->logException($e);
         }
@@ -279,4 +284,26 @@ class Riskified_Full_Model_Observer {
 
 		Mage::helper('full/log')->log("Transaction saved");
 	}
+
+    /**
+     * Clear all submission retries for an order.  This event observer is only called after a successful submission.
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function clearRetriesForOrder(Varien_Event_Observer $observer)
+    {
+        $order = $observer->getOrder();
+
+        // Sanity check
+        if (!$order || !$order->getId()) {
+            return;
+        }
+
+        $retries = Mage::getModel('full/retry')->getCollection()
+            ->addfieldtofilter('order_id', $order->getId());
+
+        foreach($retries as $retry) {
+            $retry->delete();
+        }
+    }
 }

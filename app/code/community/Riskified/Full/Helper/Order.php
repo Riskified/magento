@@ -9,31 +9,70 @@ use Riskified\DecisionNotification\Model\Notification as DecisionNotification;
 
 
 class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
+    const ACTION_CREATE = 'create';
+    const ACTION_UPDATE = 'update';
+    const ACTION_SUBMIT = 'submit';
+    const ACTION_CANCEL = 'cancel';
 
     public function __construct()  {
         $this->initSdk();
     }
 
+    /**
+     * @param Mage_Sales_Model_Order $model
+     * @param string $eventType
+     * @return object
+     * @throws Exception
+     */
     public function postOrder($model, $eventType) {
         $transport = $this->getTransport();
         $headers = $this->getHeaders();
 
 	    Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $eventType);
 
-        switch($eventType) {
-            case 'create':
-                $order = $this->getOrder($model);
-                return $transport->createOrder($order);
-            case 'update':
-                $order = $this->getOrder($model);
-                return $transport->updateOrder($order);
-            case 'submit':
-                $order = $this->getOrder($model);
-                return $transport->submitOrder($order);
-            case 'cancel':
-                $order = $this->getOrderCancellation($model);
-                return $transport->cancelOrder($order);
+        $eventData = array(
+            'order' => $model,
+            'eventType' => $eventType
+        );
+
+        try {
+            switch ($eventType) {
+                case self::ACTION_CREATE:
+                    $order = $this->getOrder($model);
+                    $response = $transport->createOrder($order);
+
+                    break;
+                case self::ACTION_UPDATE:
+                    $order = $this->getOrder($model);
+                    $response = $transport->updateOrder($order);
+
+                    break;
+                case self::ACTION_SUBMIT:
+                    $order = $this->getOrder($model);
+                    $response = $transport->submitOrder($order);
+
+                    break;
+                case self::ACTION_CANCEL:
+                    $order = $this->getOrderCancellation($model);
+                    $response = $transport->cancelOrder($order);
+
+                    break;
+            }
+
+            Mage::dispatchEvent(
+                'riskified_full_post_order_success',
+                $eventData
+            );
+        } catch (Exception $e) {
+            Mage::dispatchEvent(
+                'riskified_full_post_order_error',
+                $eventData
+            );
+
+            throw $e;
         }
+
+        return $response;
     }
 
     public function postHistoricalOrders($models) {
@@ -55,6 +94,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 	 *      - riskified_order_update_declined
 	 *      - riskified_order_update_submitted
 	 *      - riskified_order_update_captured
+     *      - riskified_order_update_error
 	 *      - riskified_order_update_?
 	 *
 	 * @param Mage_Sales_Model_Order $order
@@ -386,5 +426,31 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         }
 
         return $remoteIp;
+    }
+
+    /**
+     * Schedule an attempt to retry this order submission.  This should be called any time a submission attempt fails.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param string $action - one of self::ACTION_*
+     * @return void
+     */
+    public function scheduleSubmissionRetry(Mage_Sales_Model_Order $order, $action)
+    {
+        Mage::helper('full/log')->log("Scheduling submission retry for order " . $order->getId());
+
+        try {
+            Mage::getModel('full/retry')
+                ->addData(array(
+                    'order_id' => $order->getId(),
+                    'action' => $action,
+                    'updated_at' => Mage::getSingleton('core/date')->gmtDate()
+                ))
+                ->save();
+
+            Mage::helper('full/log')->log("Retry scheduled successfully");
+        } catch (Exception $e) {
+            Mage::helper('full/log')->logException($e);
+        }
     }
 }

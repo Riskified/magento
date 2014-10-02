@@ -1,5 +1,6 @@
 <?php
-class Riskified_Full_Model_Env
+
+class Riskified_Full_Model_System_Config_Source_Env
 {     
     public function toOptionArray()
     {
