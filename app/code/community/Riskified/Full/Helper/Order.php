@@ -19,51 +19,72 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     /**
-     * @param Mage_Sales_Model_Order $model
-     * @param string $eventType
-     * @return object
+     * Submit an order to Riskified.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param string $action - one of self::ACTION_*
+     * @return stdClass
      * @throws Exception
      */
-    public function postOrder($model, $eventType) {
+    public function postOrder($order, $action) {
         $transport = $this->getTransport();
         $headers = $this->getHeaders();
 
-	    Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $eventType);
+	    Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $action);
 
         $eventData = array(
-            'order' => $model,
-            'eventType' => $eventType
+            'order' => $order,
+            'action' => $action
         );
 
         try {
-            switch ($eventType) {
+            switch ($action) {
                 case self::ACTION_CREATE:
-                    $order = $this->getOrder($model);
-                    $response = $transport->createOrder($order);
+                    $orderForTransport = $this->getOrder($order);
+                    $response = $transport->createOrder($orderForTransport);
 
                     break;
                 case self::ACTION_UPDATE:
-                    $order = $this->getOrder($model);
-                    $response = $transport->updateOrder($order);
+                    $orderForTransport = $this->getOrder($order);
+                    $response = $transport->updateOrder($orderForTransport);
 
                     break;
                 case self::ACTION_SUBMIT:
-                    $order = $this->getOrder($model);
-                    $response = $transport->submitOrder($order);
+                    $orderForTransport = $this->getOrder($order);
+                    $response = $transport->submitOrder($orderForTransport);
 
                     break;
                 case self::ACTION_CANCEL:
-                    $order = $this->getOrderCancellation($model);
-                    $response = $transport->cancelOrder($order);
+                    $orderForTransport = $this->getOrderCancellation($order);
+                    $response = $transport->cancelOrder($orderForTransport);
 
                     break;
             }
+
+            $eventData['response'] = $response;
 
             Mage::dispatchEvent(
                 'riskified_full_post_order_success',
                 $eventData
             );
-        } catch (Exception $e) {
+        } catch(\Riskified\OrderWebhook\Exception\CurlException $curlException) {
+            Mage::helper('full/log')->logException($curlException);
+            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
+
+            $this->updateOrder($order, 'error', 'Error transferring order data to Riskified');
+            $this->scheduleSubmissionRetry($order, $action);
+
+            Mage::dispatchEvent(
+                'riskified_full_post_order_error',
+                $eventData
+            );
+
+            throw $curlException;
+        }
+        catch (Exception $e) {
+            Mage::helper('full/log')->logException($e);
+            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
+
             Mage::dispatchEvent(
                 'riskified_full_post_order_error',
                 $eventData
@@ -440,15 +461,24 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         Mage::helper('full/log')->log("Scheduling submission retry for order " . $order->getId());
 
         try {
-            Mage::getModel('full/retry')
-                ->addData(array(
-                    'order_id' => $order->getId(),
-                    'action' => $action,
-                    'updated_at' => Mage::getSingleton('core/date')->gmtDate()
-                ))
-                ->save();
+            $existingRetries = Mage::getModel('full/retry')->getCollection()
+                ->addfieldtofilter('order_id', $order->getId())
+                ->addfieldtofilter('action', $action);
 
-            Mage::helper('full/log')->log("Retry scheduled successfully");
+            // Only schedule a retry if one doesn't exist for this order/action combination.
+            // If one already exists it will be updated in Riskified_Full_Model_Cron::retrySubmissions() so
+            // there is no need to do anything here (eg update the existing retry).
+            if ($existingRetries->count() == 0) {
+                Mage::getModel('full/retry')
+                    ->addData(array(
+                        'order_id' => $order->getId(),
+                        'action' => $action,
+                        'updated_at' => Mage::getSingleton('core/date')->gmtDate()
+                    ))
+                    ->save();
+
+                Mage::helper('full/log')->log("New retry scheduled successfully");
+            }
         } catch (Exception $e) {
             Mage::helper('full/log')->logException($e);
         }

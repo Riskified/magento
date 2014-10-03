@@ -2,8 +2,20 @@
 
 class Riskified_Full_Model_Cron
 {
+    /**
+     * Maximum number of times we'll attempt to resubmit an order
+     */
     const MAX_ATTEMPTS = 7;
+
+    /**
+     * The base for calculating the exponential backoff
+     */
     const INTERVAL_BASE = 3;
+
+    /**
+     * The maximum number of orders to try per cron run
+     */
+    const BATCH_SIZE = 10;
 
     /**
      * Attempt to retry order submissions
@@ -25,8 +37,7 @@ class Riskified_Full_Model_Cron
                 array(
                     array('lt' => self::MAX_ATTEMPTS)
                 )
-            )
-            ->setOrder('retry_id','ASC');
+            );
 
         $select = $retries->getSelect();
         $adapter = $select->getAdapter();
@@ -35,7 +46,10 @@ class Riskified_Full_Model_Cron
                 "TIMESTAMPDIFF(MINUTE, `updated_at`, %s) - POW(%s, attempts) > 0"
                 , $adapter->quote(Mage::getSingleton('core/date')->gmtDate())
                 , $adapter->quote(self::INTERVAL_BASE)
-            ));
+            ))
+            ->order('updated_at ASC')
+            ->limit(self::BATCH_SIZE)
+            ;
 
         foreach($retries as $retry) {
             Mage::helper('full/log')->log("Retrying order " . $retry->getOrderId());

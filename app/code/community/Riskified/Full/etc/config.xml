@@ -175,6 +175,10 @@
                         <class>full/observer</class>
                         <method>clearRetriesForOrder</method>
                     </riskified_full_clear_retries>
+                    <riskified_full_process_successful_post>
+                        <class>full/observer</class>
+                        <method>processSuccessfulPost</method>
+                    </riskified_full_process_successful_post>
                 </observers>
             </riskified_full_post_order_success>
         </events>
