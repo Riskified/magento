@@ -15,7 +15,13 @@ class Riskified_Full_Model_Observer {
 	    Mage::helper('full/log')->log("salesOrderPaymentPlaceEnd");
 
         $order = $evt->getPayment()->getOrder();
-        Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CREATE);
+
+        try {
+            Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CREATE);
+        } catch (Exception $e) {
+            // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+            // We catch this exception so that the order is still saved in Magento.
+        }
     }
 
     public function salesOrderPaymentVoid($evt) {
@@ -66,7 +72,12 @@ class Riskified_Full_Model_Observer {
         if ($order->dataHasChangedFor('state')) {
             Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
 
-            Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_UPDATE);
+            try {
+                Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_UPDATE);
+            } catch (Exception $e) {
+                // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+                // We catch this exception so that the order is still saved in Magento.
+            }
         }
         else {
             Mage::helper('full/log')->log("Order: '" . $order->getId() . "' state didn't change on save - not posting again: " . $newState);
@@ -77,13 +88,25 @@ class Riskified_Full_Model_Observer {
         Mage::helper('full/log')->log("salesOrderCancel");
 
         $order = $evt->getOrder();
-        Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CANCEL);
+
+        try {
+            Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CANCEL);
+        } catch (Exception $e) {
+            // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+            // We catch this exception so that the order is still saved in Magento.
+        }
     }
 
     public function postOrderIds($order_ids) {
         foreach ($order_ids as $order_id) {
             $order = Mage::getModel('sales/order')->load($order_id);
-            Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_SUBMIT);
+
+            try {
+                Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_SUBMIT);
+            } catch (Exception $e) {
+                // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+                // We catch this exception so that the order is still saved in Magento.
+            }
         }
     }
 
