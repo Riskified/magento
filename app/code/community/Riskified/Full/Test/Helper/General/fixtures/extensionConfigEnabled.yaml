@@ -1,0 +1,7 @@
+config:
+  default/fullsection/full/order_status_sync: 1
+  default/fullsection/full/env: DEV
+  default/fullsection/full/domain: dev.riskified.com
+  default/fullsection/full/key: 123456789
+  default/fullsection/full/auto_invoice_enabled: 1
+  default/fullsection/full/auto_invoice_capture_case: offline

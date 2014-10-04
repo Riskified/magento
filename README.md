@@ -4,7 +4,7 @@
 ##Overview##
 This extension allows for automatic and/or manual submission of purchase orders to Riskified for fraud review and guarantee.
 
-If you don't have an existing account, please start by signing up to Riskified [here](www.riskified.com) - it's free and takes just a few minutes.
+If you don't have an existing account, please start by signing up to Riskified [here](http://www.riskified.com) - it's free and takes just a few minutes.
 
 ##Features##
 
