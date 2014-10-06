@@ -3,6 +3,8 @@
 class Riskified_Full_Model_Observer {
 
     public function saveOrderBefore($evt) {
+        Mage::helper('full/log')->log("saveOrderBefore");
+
         $payment = $evt->getPayment();
         $cc_bin = substr($payment->getCcNumber(),0,6);
 
@@ -14,14 +16,14 @@ class Riskified_Full_Model_Observer {
     public function salesOrderPaymentPlaceEnd($evt) {
 	    Mage::helper('full/log')->log("salesOrderPaymentPlaceEnd");
 
-        $order = $evt->getPayment()->getOrder();
+        //$order = $evt->getPayment()->getOrder();
 
-        try {
-            Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CREATE);
-        } catch (Exception $e) {
+        //try {
+            // Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CREATE);
+        //} catch (Exception $e) {
             // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
             // We catch this exception so that the order is still saved in Magento.
-        }
+        //}
     }
 
     public function salesOrderPaymentVoid($evt) {
@@ -62,15 +64,18 @@ class Riskified_Full_Model_Observer {
             return;
         }
 
-        if($order->riskifiedInSave) {
-            return;
-        }
-        $order->riskifiedInSave = true;
-
         $newState = $order->getState();
 
         if ($order->dataHasChangedFor('state')) {
             Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
+
+            // if we posted we should not re post
+            if($order->riskifiedInSave) {
+                Mage::helper('full/log')->log("Order : " . $order->getId() . " is already riskifiedInSave");
+                return;
+            }
+            // Flag order to indicate that we are posting
+            $order->riskifiedInSave = true;
 
             try {
                 Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_UPDATE);
@@ -78,8 +83,7 @@ class Riskified_Full_Model_Observer {
                 // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
                 // We catch this exception so that the order is still saved in Magento.
             }
-        }
-        else {
+        } else {
             Mage::helper('full/log')->log("Order: '" . $order->getId() . "' state didn't change on save - not posting again: " . $newState);
         }
     }
@@ -199,8 +203,7 @@ class Riskified_Full_Model_Observer {
             $changed=true;
 		} elseif ($description) {
             Mage::helper('full/log')->log("Updating order " . $order->getId() . " history comment to: "  . $description);
-            //$order->addStatusHistoryComment($description);
-            $order->setState($currentState, $currentStatus, $description);
+            $order->addStatusHistoryComment($description);
             $changed=true;
         }
 
