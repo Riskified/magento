@@ -280,7 +280,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
         $transactionId = $payment->getTransactionId();
 
-        switch ($payment->getMethod()) {
+        $gateway_name = $payment->getMethod();
+        switch ($gateway_name) {
             case 'authorizenet':
                 $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
                 $card_data = $cards_data[0];
@@ -324,15 +325,26 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 break;
 
             default:
-                $avs_result_code = $payment->getCcAvsStatus();
-                $cvv_result_code = $payment->getCcCidStatus();
-                $credit_card_number = $payment->getCcLast4();
-                $credit_card_company = $payment->getCcType();
+                Mage::helper('full/log')->log("unknown gateway:". $gateway_name);
                 break;
         }
 
-        if($credit_card_number)
-            $credit_card_number = "XXXX-XXXX-XXXX-".$credit_card_number;
+        if (!$cvv_result_code) {
+            $cvv_result_code = $payment->getCcCidStatus();
+        }
+        if (!$credit_card_number) {
+            $credit_card_number = $payment->getCcLast4();
+        }
+        if (!$credit_card_company) {
+            $credit_card_company = $payment->getCcType();
+        }
+        if (!$avs_result_code) {
+            $avs_result_code = $payment->getCcAvsStatus();
+        }
+
+        if($credit_card_number) {
+            $credit_card_number = "XXXX-XXXX-XXXX-" . $credit_card_number;
+        }
         $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
 
         return new Model\PaymentDetails(array_filter(array(
