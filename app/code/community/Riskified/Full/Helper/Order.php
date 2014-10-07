@@ -310,6 +310,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 ),'strlen'));
 
             case 'paypal_direct':
+            case 'paypaluk_direct':
                 $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
                 $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
                 $credit_card_number = $payment->getCcLast4();
