@@ -33,13 +33,6 @@
                 </setup>
             </riskified_full_setup>
         </resources>
-        <blocks>
-            <adminhtml>
-                <rewrite>
-                    <sales_order_grid>Riskified_Full_Block_Adminhtml_Grid</sales_order_grid>
-                </rewrite>
-            </adminhtml>
-        </blocks>
         <helpers>
             <full>
                 <class>Riskified_Full_Helper</class>

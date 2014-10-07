@@ -10,8 +10,6 @@ class Riskified_Full_Test_Config_General extends EcomDev_PHPUnit_Test_Case_Confi
      */
     public function testRewrites()
     {
-        $this->assertBlockAlias('adminhtml/sales_order_grid', 'Riskified_Full_Block_Adminhtml_Grid');
-
         $this->assertModelAlias('paygate/authorizenet', 'Riskified_Full_Model_Authorizenet');
     }
 
