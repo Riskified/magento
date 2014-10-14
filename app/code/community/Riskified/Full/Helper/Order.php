@@ -9,31 +9,91 @@ use Riskified\DecisionNotification\Model\Notification as DecisionNotification;
 
 
 class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
+    const ACTION_CREATE = 'create';
+    const ACTION_UPDATE = 'update';
+    const ACTION_SUBMIT = 'submit';
+    const ACTION_CANCEL = 'cancel';
 
     public function __construct()  {
         $this->initSdk();
     }
 
-    public function postOrder($model, $eventType) {
+    /**
+     * Submit an order to Riskified.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param string $action - one of self::ACTION_*
+     * @return stdClass
+     * @throws Exception
+     */
+    public function postOrder($order, $action) {
         $transport = $this->getTransport();
         $headers = $this->getHeaders();
 
-	    Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $eventType);
+	    Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $action);
 
-        switch($eventType) {
-            case 'create':
-                $order = $this->getOrder($model);
-                return $transport->createOrder($order);
-            case 'update':
-                $order = $this->getOrder($model);
-                return $transport->updateOrder($order);
-            case 'submit':
-                $order = $this->getOrder($model);
-                return $transport->submitOrder($order);
-            case 'cancel':
-                $order = $this->getOrderCancellation($model);
-                return $transport->cancelOrder($order);
+        $eventData = array(
+            'order' => $order,
+            'action' => $action
+        );
+
+        try {
+            switch ($action) {
+                case self::ACTION_CREATE:
+                    $orderForTransport = $this->getOrder($order);
+                    $response = $transport->createOrder($orderForTransport);
+
+                    break;
+                case self::ACTION_UPDATE:
+                    $orderForTransport = $this->getOrder($order);
+                    $response = $transport->updateOrder($orderForTransport);
+
+                    break;
+                case self::ACTION_SUBMIT:
+                    $orderForTransport = $this->getOrder($order);
+                    $response = $transport->submitOrder($orderForTransport);
+
+                    break;
+                case self::ACTION_CANCEL:
+                    $orderForTransport = $this->getOrderCancellation($order);
+                    $response = $transport->cancelOrder($orderForTransport);
+
+                    break;
+            }
+
+            $eventData['response'] = $response;
+
+            Mage::dispatchEvent(
+                'riskified_full_post_order_success',
+                $eventData
+            );
+        } catch(\Riskified\OrderWebhook\Exception\CurlException $curlException) {
+            Mage::helper('full/log')->logException($curlException);
+            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
+
+            $this->updateOrder($order, 'error', 'Error transferring order data to Riskified');
+            $this->scheduleSubmissionRetry($order, $action);
+
+            Mage::dispatchEvent(
+                'riskified_full_post_order_error',
+                $eventData
+            );
+
+            throw $curlException;
         }
+        catch (Exception $e) {
+            Mage::helper('full/log')->logException($e);
+            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
+
+            Mage::dispatchEvent(
+                'riskified_full_post_order_error',
+                $eventData
+            );
+
+            throw $e;
+        }
+
+        return $response;
     }
 
     public function postHistoricalOrders($models) {
@@ -55,6 +115,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 	 *      - riskified_order_update_declined
 	 *      - riskified_order_update_submitted
 	 *      - riskified_order_update_captured
+     *      - riskified_order_update_error
 	 *      - riskified_order_update_?
 	 *
 	 * @param Mage_Sales_Model_Order $order
@@ -219,7 +280,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
         $transactionId = $payment->getTransactionId();
 
-        switch ($payment->getMethod()) {
+        $gateway_name = $payment->getMethod();
+        switch ($gateway_name) {
             case 'authorizenet':
                 $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
                 $card_data = $cards_data[0];
@@ -248,6 +310,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 ),'strlen'));
 
             case 'paypal_direct':
+            case 'paypaluk_direct':
                 $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
                 $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
                 $credit_card_number = $payment->getCcLast4();
@@ -263,15 +326,26 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 break;
 
             default:
-                $avs_result_code = $payment->getCcAvsStatus();
-                $cvv_result_code = $payment->getCcCidStatus();
-                $credit_card_number = $payment->getCcLast4();
-                $credit_card_company = $payment->getCcType();
+                Mage::helper('full/log')->log("unknown gateway:". $gateway_name);
                 break;
         }
 
-        if($credit_card_number)
-            $credit_card_number = "XXXX-XXXX-XXXX-".$credit_card_number;
+        if (!$cvv_result_code) {
+            $cvv_result_code = $payment->getCcCidStatus();
+        }
+        if (!$credit_card_number) {
+            $credit_card_number = $payment->getCcLast4();
+        }
+        if (!$credit_card_company) {
+            $credit_card_company = $payment->getCcType();
+        }
+        if (!$avs_result_code) {
+            $avs_result_code = $payment->getCcAvsStatus();
+        }
+
+        if($credit_card_number) {
+            $credit_card_number = "XXXX-XXXX-XXXX-" . $credit_card_number;
+        }
         $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
 
         return new Model\PaymentDetails(array_filter(array(
@@ -386,5 +460,40 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         }
 
         return $remoteIp;
+    }
+
+    /**
+     * Schedule an attempt to retry this order submission.  This should be called any time a submission attempt fails.
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @param string $action - one of self::ACTION_*
+     * @return void
+     */
+    public function scheduleSubmissionRetry(Mage_Sales_Model_Order $order, $action)
+    {
+        Mage::helper('full/log')->log("Scheduling submission retry for order " . $order->getId());
+
+        try {
+            $existingRetries = Mage::getModel('full/retry')->getCollection()
+                ->addfieldtofilter('order_id', $order->getId())
+                ->addfieldtofilter('action', $action);
+
+            // Only schedule a retry if one doesn't exist for this order/action combination.
+            // If one already exists it will be updated in Riskified_Full_Model_Cron::retrySubmissions() so
+            // there is no need to do anything here (eg update the existing retry).
+            if ($existingRetries->count() == 0) {
+                Mage::getModel('full/retry')
+                    ->addData(array(
+                        'order_id' => $order->getId(),
+                        'action' => $action,
+                        'updated_at' => Mage::getSingleton('core/date')->gmtDate()
+                    ))
+                    ->save();
+
+                Mage::helper('full/log')->log("New retry scheduled successfully");
+            }
+        } catch (Exception $e) {
+            Mage::helper('full/log')->logException($e);
+        }
     }
 }

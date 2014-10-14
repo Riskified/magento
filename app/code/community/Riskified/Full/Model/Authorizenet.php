@@ -40,9 +40,8 @@ class Riskified_Full_Model_Authorizenet extends Mage_Paygate_Model_Authorizenet
         $card=parent::_registercard($response,$payment);
         $card->setCcAvsResultCode($response->getAvsResultCode());
         $card->setCcResponseCode($response->getCardCodeResponseCode());
-        //mage::log( $response->debug() );
-        //mage::log( $card->debug() );
-        //mage::log( "exiting inherited _registercard." );
+        $payment->setCcAvsStatus($response->getAvsResultCode());
+        $payment->setCcCidStatus($response->getCardCodeResponseCode());
         return $card;
     }
 }

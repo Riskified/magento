@@ -3,34 +3,45 @@
 class Riskified_Full_Model_Observer {
 
     public function saveOrderBefore($evt) {
+        Mage::helper('full/log')->log("saveOrderBefore");
+
         $payment = $evt->getPayment();
         $cc_bin = substr($payment->getCcNumber(),0,6);
-        if ($cc_bin)
+
+        if ($cc_bin) {
             $payment->setAdditionalInformation('riskified_cc_bin', $cc_bin);
+        }
     }
 
     public function salesOrderPaymentPlaceEnd($evt) {
 	    Mage::helper('full/log')->log("salesOrderPaymentPlaceEnd");
+
         //$order = $evt->getPayment()->getOrder();
-        //$this->postOrder($order,'create');
+
+        //try {
+            // Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CREATE);
+        //} catch (Exception $e) {
+            // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+            // We catch this exception so that the order is still saved in Magento.
+        //}
     }
 
     public function salesOrderPaymentVoid($evt) {
         Mage::helper('full/log')->log("salesOrderPaymentVoid");
         //$order = $evt->getPayment()->getOrder();
-        //$this->postOrder($order,'cancel');
+        //Mage::helper('full/order')->postOrder($order,'cancel');
     }
 
     public function salesOrderPaymentRefund($evt) {
         Mage::helper('full/log')->log("salesOrderPaymentRefund");
         //$order = $evt->getPayment()->getOrder();
-        //$this->postOrder($order,'cancel');
+        //Mage::helper('full/order')->postOrder($order,'cancel');
     }
 
     public function salesOrderPaymentCancel($evt) {
         Mage::helper('full/log')->log("salesOrderPaymentCancel");
         //$order = $evt->getPayment()->getOrder();
-        //$this->postOrder($order,'cancel');
+        //Mage::helper('full/order')->postOrder($order,'cancel');
     }
 
     public function salesOrderPlaceBefore($evt) {
@@ -39,14 +50,6 @@ class Riskified_Full_Model_Observer {
 
     public function salesOrderPlaceAfter($evt) {
         Mage::helper('full/log')->log("salesOrderPlaceAfter");
-        $order = $evt->getOrder();
-        $this->postOrder($order,'create');
-    }
-
-    public function checkoutOnepageControllerSuccessAction($evt) {
-        Mage::helper('full/log')->log("checkoutOnepageControllerSuccessAction");
-        //$order_id = $observer->getData('order_ids');
-        //$order = Mage::getModel('sales/order')->load($order_id);
     }
 
     public function salesOrderSaveBefore($evt) {
@@ -65,23 +68,51 @@ class Riskified_Full_Model_Observer {
 
         if ($order->dataHasChangedFor('state')) {
             Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
-            $this->postOrder($order,'update');
-        }
-        else {
+
+            // if we posted we should not re post
+            if($order->riskifiedInSave) {
+                Mage::helper('full/log')->log("Order : " . $order->getId() . " is already riskifiedInSave");
+                return;
+            }
+            // Flag order to indicate that we are posting
+            $order->riskifiedInSave = true;
+
+            try {
+                Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_UPDATE);
+            } catch (Exception $e) {
+                // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+                // We catch this exception so that the order is still saved in Magento.
+            }
+        } else {
             Mage::helper('full/log')->log("Order: '" . $order->getId() . "' state didn't change on save - not posting again: " . $newState);
         }
     }
 
     public function salesOrderCancel($evt) {
         Mage::helper('full/log')->log("salesOrderCancel");
+
         $order = $evt->getOrder();
-        $this->postOrder($order,'cancel');
+        
+        // TODO not sure if this is still required - saveAfter should be enough
+
+        try {
+            Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CANCEL);
+        } catch (Exception $e) {
+            // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+            // We catch this exception so that the order is still saved in Magento.
+        }
     }
 
     public function postOrderIds($order_ids) {
         foreach ($order_ids as $order_id) {
             $order = Mage::getModel('sales/order')->load($order_id);
-            $this->postOrder($order, 'submit');
+
+            try {
+                Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_SUBMIT);
+            } catch (Exception $e) {
+                // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+                // We catch this exception so that the order is still saved in Magento.
+            }
         }
     }
 
@@ -106,39 +137,6 @@ class Riskified_Full_Model_Observer {
                 'label'     => Mage::helper('sales')->__('Submit to Riskified'),
                 'onclick'   => "deleteConfirm('$message', '$url')",
             ));
-        }
-    }
-
-    private function postOrder($order, $eventType) {
-        try {
-            $helper = Mage::helper('full/order');
-            $response = $helper->postOrder($order, $eventType);
-	        Mage::helper('full/log')->log("Riskified response, data: " . PHP_EOL . json_encode($response));
-
-            if (isset($response->order)) {
-                $orderId = $response->order->id;
-                $status = $response->order->status;
-                $description = $response->order->description;
-                if (!$description)
-                    $description = "Riskified Status: $status";
-
-                if ($orderId && $status) {
-                    $helper->updateOrder($order, $status, $description);
-                }
-                $origId = $order->getId();
-                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__("Order #$origId was successfully updated at Riskified"));
-            } else {
-                Mage::getSingleton('adminhtml/session')->addError(Mage::helper('adminhtml')->__("Malformed response from Riskified"));
-            }
-        } catch(\Riskified\OrderWebhook\Exception\CurlException $curlException) {
-            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
-            Mage::helper('full/log')->logException($curlException);
-            $helper->updateOrder($order, 'error', 'Error transfering order data to Riskified');
-        }
-        catch (Exception $e) {
-            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
-            Mage::logException($e);
-            Mage::helper('full/log')->logException($e);
         }
     }
 
@@ -204,15 +202,11 @@ class Riskified_Full_Model_Observer {
 			 && Mage::helper('full')->getConfigStatusControlActive()) {
             $order->setState($newState, $newStatus, $description);
             Mage::helper('full/log')->log("Updating order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
-            $order->riskifiedStatus = $status;
-            $changed = true;
-		} elseif ($description && $order->riskifiedStatus != $status) {
+            $changed=true;
+		} elseif ($description) {
             Mage::helper('full/log')->log("Updating order " . $order->getId() . " history comment to: "  . $description);
-            //$order->addStatusHistoryComment($description);
-            $order->setState($currentState, $currentStatus, $description);
-            // next line is only here for failsafe - not really needed because AfterSave gets here only if state was changed so it should never happen twice
-            $order->riskifiedStatus = $status;
-            $changed = true;
+            $order->addStatusHistoryComment($description);
+            $changed=true;
         }
 
         if ($changed) {
@@ -285,4 +279,62 @@ class Riskified_Full_Model_Observer {
 
 		Mage::helper('full/log')->log("Transaction saved");
 	}
+
+    /**
+     * Clear all submission retries for an order that have the same action.
+     * This event observer is only called after a successful submission.
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function clearRetriesForOrder(Varien_Event_Observer $observer)
+    {
+        $order = $observer->getOrder();
+
+        // Sanity check
+        if (!$order || !$order->getId()) {
+            return;
+        }
+
+        $retries = Mage::getModel('full/retry')->getCollection()
+            ->addfieldtofilter('order_id', $order->getId())
+            ->addFieldToFilter('action', $observer->getAction());
+
+        foreach($retries as $retry) {
+            $retry->delete();
+        }
+    }
+
+    /**
+     * Process the response from a successful post to Riskified.
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function processSuccessfulPost(Varien_Event_Observer $observer)
+    {
+        /* @var Mage_Sales_Model_Order $order */
+        $order = $observer->getOrder();
+
+        /* @var stdClass $response */
+        $response = $observer->getResponse();
+
+        if (isset($response->order)) {
+            $orderId = $response->order->id;
+            $status = $response->order->status;
+            $description = $response->order->description;
+
+            if (!$description) {
+                $description = "Riskified Status: $status";
+            }
+
+            if ($orderId && $status) {
+                Mage::helper('full/order')->updateOrder($order, $status, $description);
+            }
+
+            $origId = $order->getId();
+
+            Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__("Order #$origId was successfully updated at Riskified"));
+        } else {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('adminhtml')->__("Malformed response from Riskified"));
+        }
+    }
 }
