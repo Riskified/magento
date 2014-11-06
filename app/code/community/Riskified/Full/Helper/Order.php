@@ -118,7 +118,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
      *      - riskified_order_update_error
 	 *      - riskified_order_update_?
 	 *
-	 * @esam Mage_Sales_Model_Order $order
+	 * @param Mage_Sales_Model_Order $order
 	 * @param string $status
 	 * @param string $description
 	 * @return void
