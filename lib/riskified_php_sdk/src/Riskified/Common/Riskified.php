@@ -20,7 +20,7 @@
  * @package Riskified\Common
  */
 class Riskified {
-    const VERSION = '1.0.8';
+    const VERSION = '1.1.0';
     const API_VERSION = '2';
 
     /**
@@ -36,9 +36,9 @@ class Riskified {
      */
     public static $env;
     /**
-     * @var boolean indicates validation should ignore missing key errors
+     * @var string validation mode [SKIP, IGNORE_MISSING, ALL]
      */
-    public static $ignore_missing_keys;
+    public static $validations;
 
 
     /**
@@ -46,13 +46,21 @@ class Riskified {
      * @param $domain string Riskified Shop Domain
      * @param $auth_token string Riskified Auth_Token
      * @param $env string Riskified environment
-     * @param $ignore_missing_keys boolean ignores missing keys when true
+     * @param $validations string SDK validation mode
      */
-    public static function init($domain, $auth_token, $env = Env::SANDBOX, $ignore_missing_keys = false) {
+    public static function init($domain, $auth_token, $env = Env::SANDBOX, $validations = Validations::ALL) {
         self::$domain = $domain;
         self::$auth_token = $auth_token;
         self::$env = $env;
-        self::$ignore_missing_keys = $ignore_missing_keys;
+
+        // for backward compatibility (versions 1.0.*)
+        if (is_bool($validations))
+            $validations = ($validations) ? Validations::SKIP : Validations::ALL;
+
+        self::$validations = $validations;
+
+        // suppress timezone warnings:
+        date_default_timezone_set(@date_default_timezone_get());
     }
 
     public static function getHostByEnv(){
