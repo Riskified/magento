@@ -173,7 +173,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $sdkVersion = Riskified::VERSION;
 
 	    Mage::helper('full/log')->log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken, extension_version: $this->version, sdk_version: $sdkVersion");
-        Riskified::init($shopDomain, $authToken, $env, Validations::SKIP);
+        Riskified::init($shopDomain, $authToken, $env, \Riskified\Common\Validations::SKIP);
     }
 
     private function getHeaders() {
