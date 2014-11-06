@@ -1,5 +1,5 @@
 <_>
-   <form_key>JM24HZzgOgVnUl8f</form_key>
+   <form_key>zThHfzDwoobl49Xy</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,9 +10,9 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.5.3</version>
+   <version>1.0.5.4</version>
    <stability>stable</stability>
-   <notes>* weaker validations on avs and cvv result codes to support wider variety of gateways
+   <notes>* validations fix to support shopgate
 </notes>
    <authors>
       <name>
@@ -42,7 +42,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                       </files>
+            <files>                                        </files>
          </files>
       </package>
       <extension>
