@@ -218,7 +218,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'total_tax' => $model->getBaseTaxAmount(),
             'total_weight' => $model->getWeight(),
             'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model)),
-            'financial_status' => $model->getState()
+            'financial_status' => $model->getState(),
+            'fulfillment_status' => $model->getStatus()
         ),'strlen'));
 
         $order->customer = $this->getCustomer($model);
