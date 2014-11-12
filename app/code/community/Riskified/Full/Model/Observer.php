@@ -92,6 +92,8 @@ class Riskified_Full_Model_Observer {
         Mage::helper('full/log')->log("salesOrderCancel");
 
         $order = $evt->getOrder();
+        
+        // TODO not sure if this is still required - saveAfter should be enough
 
         try {
             Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_CANCEL);
