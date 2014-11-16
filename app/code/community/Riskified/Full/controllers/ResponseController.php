@@ -24,7 +24,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
                 $statusCode = 400;
                 $msg = 'Could not find order to update.';
             } else {
-                $helper->updateOrder($order, $notification->status, $notification->description);
+                $helper->updateOrder($order, $notification->status,$notification->oldStatus, $notification->description);
                 $statusCode = 200;
                 $msg = 'Order-Update event triggered.';
             }

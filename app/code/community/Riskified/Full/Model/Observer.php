@@ -150,15 +150,17 @@ class Riskified_Full_Model_Observer {
 		$riskifiedOrderStatusHelper = Mage::helper('full/order_status');
         $riskifiedInvoiceHelper = Mage::helper('full/order_invoice');
 		$order = $observer->getOrder();
-		$status = (string) $observer->getStatus();
+		$riskifiedStatus = (string) $observer->getStatus();
+        $riskifiedOldStatus = (string) $observer->getOldStatus();
 		$description = (string) $observer->getDescription();
 		$newState = $newStatus = null;
 		$currentState = $order->getState();
 		$currentStatus = $order->getStatus();
 
 		Mage::helper('full/log')->log("Checking if should update order '" . $order->getId() . "' from state: '$currentState' and status: '$currentStatus'");
+        Mage::helper('full/log')->log("Data received from riskified: status: " . $riskifiedStatus . ", old_status: "  . $riskifiedOldStatus . ", description: " . $description);
 
-		switch ($status) {
+		switch ($riskifiedStatus) {
 			case 'approved':
 				if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
 				    && ($currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
@@ -203,11 +205,14 @@ class Riskified_Full_Model_Observer {
             $order->setState($newState, $newStatus, $description);
             Mage::helper('full/log')->log("Updating order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
             $changed=true;
-		} elseif ($description) {
+		} elseif ($description && $riskifiedStatus != $riskifiedOldStatus) {
             Mage::helper('full/log')->log("Updating order " . $order->getId() . " history comment to: "  . $description);
             $order->addStatusHistoryComment($description);
             $changed=true;
+        } else {
+            Mage::helper('full/log')->log("No update to state,status,comments is required for " . $order->getId());
         }
+
 
         if ($changed) {
 			try {
@@ -320,6 +325,7 @@ class Riskified_Full_Model_Observer {
         if (isset($response->order)) {
             $orderId = $response->order->id;
             $status = $response->order->status;
+            $oldStatus = $response->order->old_status;
             $description = $response->order->description;
 
             if (!$description) {
@@ -327,7 +333,7 @@ class Riskified_Full_Model_Observer {
             }
 
             if ($orderId && $status) {
-                Mage::helper('full/order')->updateOrder($order, $status, $description);
+                Mage::helper('full/order')->updateOrder($order, $status, $oldStatus, $description);
             }
 
             $origId = $order->getId();

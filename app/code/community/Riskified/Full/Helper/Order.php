@@ -71,7 +71,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             Mage::helper('full/log')->logException($curlException);
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
 
-            $this->updateOrder($order, 'error', 'Error transferring order data to Riskified');
+            $this->updateOrder($order, 'error',nil, 'Error transferring order data to Riskified');
             $this->scheduleSubmissionRetry($order, $action);
 
             Mage::dispatchEvent(
@@ -120,15 +120,18 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 	 *
 	 * @param Mage_Sales_Model_Order $order
 	 * @param string $status
+     * @param string $oldStatus
 	 * @param string $description
 	 * @return void
 	 */
-	public function updateOrder($order, $status, $description) {
-		Mage::helper('full/log')->log('Dispatching event for order ' . $order->getId() . ' with status "' . $status . '" and description "' . $description . '"');
+	public function updateOrder($order, $status, $oldStatus, $description) {
+		Mage::helper('full/log')->log('Dispatching event for order ' . $order->getId() . ' with status "' . $status .
+            '" old status "' . $oldStatus . '" and description "' . $description . '"');
 
 		$eventData = array(
 			'order' => $order,
 			'status' => $status,
+            'old_status' => $oldStatus,
 			'description' => $description
 		);
 
