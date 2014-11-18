@@ -37,6 +37,14 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
     public function getExtensionVersion(){
         return (string) Mage::getConfig()->getNode()->modules->Riskified_Full->version;
     }
+
+    public function getDeclinedState() {
+        return Mage::getStoreConfig('fullsection/full/declined_state');
+    }
+
+    public function getApprovedState() {
+        return Mage::getStoreConfig('fullsection/full/approved_state');
+    }
     
     public function getSessionId(){
         $visitorData = Mage::getSingleton('core/session')->getVisitorData();

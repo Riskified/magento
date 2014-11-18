@@ -24,60 +24,88 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
                     <fields>
+                        <env translate="label comment">
+                            <label>Riskified environment</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>full/system_config_source_env</source_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[Select Riskified's environment.<br> You can use sandbox for testing.
+                                          <br>If you don't have a sandbox account please contact support@riskified.com ]]></comment>
+                        </env>
+                        <domain translate="label comment">
+                            <label>Shop Domain</label>
+                            <frontend_type>Text</frontend_type>
+                            <sort_order>2</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[This is your Riskified's account username]]></comment>
+                        </domain>
+                        <key translate="label comment">
+                            <label>Auth token</label>
+                            <frontend_type>Text</frontend_type>
+                            <sort_order>3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[ Your <i>secret</i> auth token can be found in your Riskified Settings page. ]]></comment>
+                        </key>
                         <order_status_sync translate="label comment">
                             <label>Order Status Sync</label>
                             <comment><![CDATA[ Enable/Disable automatic changes to Order status by Riskified's review process.
                           <br>Requires the <i>Order notification endpoint</i> to be configured correctly in your Riskified Settings page.
                           <br>Using the following mapping:
-                          <br>'submit' => 'on hold' <br>'approve' => 'processing'<br>'decline' => 'canceled'
+                          <br>'submit' => state: 'On Hold', status: 'On Hold (Riskified)'
+                          <br>'approve' => state: [defined bellow by 'Approved State' value], status: 'Approved by Riskified'
+                          <br>'decline' => state: [defined bellow by 'Declined State' value], status: 'Declined by Riskified'
+                          <br> in case of transfer error  => state: 'On Hold, status: 'On Hold (Riskified Transport Error)'
                           <br><b>Important:</b> Might affect other extensions that are dependent on an Order's status.
                            ]]></comment>
                             <frontend_type>select</frontend_type>
-                            <sort_order>1</sort_order>
+                            <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                             <source_model>adminhtml/system_config_source_enabledisable</source_model>
                         </order_status_sync>
-                        <env translate="label comment">
-                            <label>Riskified environment</label>
+                        <approved_state translate="label comment">
+                            <label>Approved State</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>full/system_config_source_env</source_model>
-                            <sort_order>2</sort_order>
+                            <sort_order>11</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment><![CDATA[Select Riskified's environment.<br> You can use sandbox for testing.
-                                          <br>If you don't have a sandbox account please contact support@riskified.com ]]></comment>
-                        </env>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[The Magento state to move to when an order is approved]]></comment>
+                            <source_model>full/system_config_source_approvedState</source_model>
+                            <depends>
+                                <order_status_sync>1</order_status_sync>
+                            </depends>
+                        </approved_state>
+                        <declined_state translate="label comment">
+                            <label>Declined State</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[The Magento state to move to when an order is declined]]></comment>
+                            <source_model>full/system_config_source_declinedState</source_model>
+                            <depends>
+                                <order_status_sync>1</order_status_sync>
+                            </depends>
+                        </declined_state>
                         <!--<activationstatus>
                             <comment></comment>
                             <frontend_type>text</frontend_type>
                             <sort_order>4</sort_order>
                             <class>riskified_activationstatus</class>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
                         </activationstatus>-->
-                        <domain translate="label comment">
-                            <label>Shop Domain</label>
-                            <frontend_type>Text</frontend_type>
-                            <sort_order>5</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment><![CDATA[This is your Riskified's account username]]></comment>
-                        </domain>
-                        <key translate="label comment">
-                            <label>Auth token</label>
-                            <frontend_type>Text</frontend_type>
-                            <sort_order>6</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <comment><![CDATA[ Your <i>secret</i> auth token can be found in your Riskified Settings page. ]]></comment>
-                        </key>
-
                         <auto_invoice_enabled translate="label comment">
                             <label>Enable Auto-Invoice</label>
                             <frontend_type>select</frontend_type>
