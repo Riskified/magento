@@ -165,8 +165,12 @@ class Riskified_Full_Model_Observer {
 				if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
 				    && ($currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
                         || $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
-					$newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
-					$newStatus = $riskifiedOrderStatusHelper->getRiskifiedApprovedStatusCode();
+                    $newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
+                    if ($newState == Mage_Sales_Model_Order::STATE_PROCESSING){
+                      $newStatus = TRUE;
+                    }else {
+                      $newStatus = $riskifiedOrderStatusHelper->getRiskifiedApprovedStatusCode();
+                    }
 				}
 
 				break;
