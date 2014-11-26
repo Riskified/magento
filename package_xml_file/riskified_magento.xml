@@ -1,5 +1,5 @@
 <_>
-   <form_key>9JnJqh0349kfdLlC</form_key>
+   <form_key>so7uDcLhQcPUar9W</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,9 +10,9 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.5.5</version>
+   <version>1.0.6.1</version>
    <stability>stable</stability>
-   <notes>* added status to order data for filters and submission rules
+   <notes>* flow tweak - move to status processing when in state processing
 </notes>
    <authors>
       <name>
@@ -42,7 +42,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                           </files>
+            <files>                                            </files>
          </files>
       </package>
       <extension>
