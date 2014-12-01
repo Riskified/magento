@@ -47,8 +47,7 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
     }
     
     public function getSessionId(){
-        $visitorData = Mage::getSingleton('core/session')->getVisitorData();
-        return $visitorData['session_id'];
+    	return Mage::getModel('core/cookie')->get('rCookie');
     }
 
     /**

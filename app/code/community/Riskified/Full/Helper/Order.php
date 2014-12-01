@@ -202,7 +202,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     private function getOrder($model) {
-        $order = new Model\Order(array_filter(array(
+        $order_array = array(
             'id' => $model->getId(),
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
@@ -223,7 +223,14 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model)),
             'financial_status' => $model->getState(),
             'fulfillment_status' => $model->getStatus()
-        ),'strlen'));
+        );
+
+        if (Mage::getSingleton('admin/session')->isLoggedIn()) {
+            unset($order_array['browser_ip']);
+            unset($order_array['cart_token']);
+        }
+
+        $order = new Model\Order(array_filter($order_array,'strlen'));
 
         $order->customer = $this->getCustomer($model);
         $order->shipping_address = $this->getShippingAddress($model);
@@ -231,7 +238,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $order->payment_details = $this->getPaymentDetails($model);
         $order->line_items = $this->getLineItems($model);
         $order->shipping_lines = $this->getShippingLines($model);
-        $order->client_details = $this->getClientDetails($model);
+
+        if (!Mage::getSingleton('admin/session')->isLoggedIn()) {
+            $order->client_details = $this->getClientDetails($model);
+        }
 
 	    Mage::helper('full/log')->log("getOrder(): ".PHP_EOL.json_encode(json_decode($order->toJson())));
 
@@ -285,69 +295,75 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $transactionId = $payment->getTransactionId();
 
         $gateway_name = $payment->getMethod();
-        switch ($gateway_name) {
-            case 'authorizenet':
-                $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
-                $card_data = $cards_data[0];
-                $avs_result_code = $card_data['cc_avs_result_code']; // getAvsResultCode
-                $cvv_result_code = $card_data['cc_response_code'];  // getCardCodeResponseCode
-                $credit_card_number  = $card_data['cc_last4'];
-                $credit_card_company = $card_data['cc_type'];
-                break;
-            case 'paypal_express':
-            case 'paypaluk_express':
-                $payer_email = $payment->getAdditionalInformation('paypal_payer_email');
-                $payer_status = $payment->getAdditionalInformation('paypal_payer_status');
-                $payer_address_status = $payment->getAdditionalInformation('paypal_address_status');
-                $protection_eligibility = $payment->getAdditionalInformation('paypal_protection_eligibility');
-                $payment_status = $payment->getAdditionalInformation('paypal_payment_status');
-                $pending_reason = $payment->getAdditionalInformation('paypal_pending_reason');
 
-                return new Model\PaymentDetails(array_filter(array(
-                    'authorization_id' => $transactionId,
-                    'payer_email' => $payer_email,
-                    'payer_status' => $payer_status,
-                    'payer_address_status' => $payer_address_status,
-                    'protection_eligibility' => $protection_eligibility,
-                    'payment_status' => $payment_status,
-                    'pending_reason' => $pending_reason
-                ),'strlen'));
+        try {
+            switch ($gateway_name) {
+                case 'authorizenet':
+                    $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
+                    $card_data = $cards_data[0];
+                    $avs_result_code = $card_data['cc_avs_result_code']; // getAvsResultCode
+                    $cvv_result_code = $card_data['cc_response_code'];  // getCardCodeResponseCode
+                    $credit_card_number = $card_data['cc_last4'];
+                    $credit_card_company = $card_data['cc_type'];
+                    break;
+                case 'paypal_express':
+                case 'paypaluk_express':
+                    $payer_email = $payment->getAdditionalInformation('paypal_payer_email');
+                    $payer_status = $payment->getAdditionalInformation('paypal_payer_status');
+                    $payer_address_status = $payment->getAdditionalInformation('paypal_address_status');
+                    $protection_eligibility = $payment->getAdditionalInformation('paypal_protection_eligibility');
+                    $payment_status = $payment->getAdditionalInformation('paypal_payment_status');
+                    $pending_reason = $payment->getAdditionalInformation('paypal_pending_reason');
 
-            case 'paypal_direct':
-            case 'paypaluk_direct':
-                $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
-                $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
-                $credit_card_number = $payment->getCcLast4();
-                $credit_card_company = $payment->getCcType();
-                break;
+                    return new Model\PaymentDetails(array_filter(array(
+                        'authorization_id' => $transactionId,
+                        'payer_email' => $payer_email,
+                        'payer_status' => $payer_status,
+                        'payer_address_status' => $payer_address_status,
+                        'protection_eligibility' => $protection_eligibility,
+                        'payment_status' => $payment_status,
+                        'pending_reason' => $pending_reason
+                    ), 'strlen'));
 
-            case 'sagepaydirectpro':
-                $sage = $model->getSagepayInfo();
-                $avs_result_code = $sage->getData('address_result');
-                $cvv_result_code = $sage->getData('cv2result');
-                $credit_card_number = $sage->getData('last_four_digits');
-                $credit_card_company = $sage->getData('card_type');
-                break;
+                case 'paypal_direct':
+                case 'paypaluk_direct':
+                    $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
+                    $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
+                    $credit_card_number = $payment->getCcLast4();
+                    $credit_card_company = $payment->getCcType();
+                    break;
 
-            default:
-                Mage::helper('full/log')->log("unknown gateway:". $gateway_name);
-                break;
+                case 'sagepaydirectpro':
+                    $sage = $model->getSagepayInfo();
+                    $avs_result_code = $sage->getData('address_result');
+                    $cvv_result_code = $sage->getData('cv2result');
+                    $credit_card_number = $sage->getData('last_four_digits');
+                    $credit_card_company = $sage->getData('card_type');
+                    break;
+
+                default:
+                    Mage::helper('full/log')->log("unknown gateway:" . $gateway_name);
+                    break;
+            }
+        } catch (Exception $e) {
+            Mage::helper('full/log')->logException($e);
+            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
         }
 
-        if (!$cvv_result_code) {
+        if (!isset($cvv_result_code)) {
             $cvv_result_code = $payment->getCcCidStatus();
         }
-        if (!$credit_card_number) {
+        if (!isset($credit_card_number)) {
             $credit_card_number = $payment->getCcLast4();
         }
-        if (!$credit_card_company) {
+        if (!isset($credit_card_company)) {
             $credit_card_company = $payment->getCcType();
         }
-        if (!$avs_result_code) {
+        if (!isset($avs_result_code)) {
             $avs_result_code = $payment->getCcAvsStatus();
         }
 
-        if($credit_card_number) {
+        if (!isset($credit_card_number)) {
             $credit_card_number = "XXXX-XXXX-XXXX-" . $credit_card_number;
         }
         $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
@@ -364,7 +380,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     private function getLineItems($model) {
         $line_items = array();
-        //foreach ($model->getItemsCollection() as $key => $val) {
         foreach ($model->getAllVisibleItems() as $key => $val) {
             $line_items[] = new Model\LineItem(array_filter(array(
                 'price' => $val->getPrice(),
