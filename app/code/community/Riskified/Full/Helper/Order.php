@@ -156,6 +156,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         return Riskified::getHostByEnv();
     }
 
+    public function getRiskifiedApp() {
+        return str_replace("wh", "app", $this->getRiskifiedDomain());
+    }
+
     public function parseRequest($request) {
         $header_name = Signature\HttpDataSignature::HMAC_HEADER_NAME;
         $headers = array($header_name => $request->getHeader($header_name));
@@ -222,7 +226,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'total_weight' => $model->getWeight(),
             'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model)),
             'financial_status' => $model->getState(),
-            'fulfillment_status' => $model->getStatus()
+            'fulfillment_status' => $model->getStatus(),
+            'vendor' => $model->getStoreName()
         );
 
         if (Mage::getSingleton('admin/session')->isLoggedIn()) {
@@ -256,6 +261,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'first_name' => $model->getCustomerFirstname(),
             'last_name' => $model->getCustomerLastname(),
             'note' => $model->getCustomerNote(),
+            'group_name' => $model->getCustomerGroupId()
         );
 
         if ($customer_id) {
@@ -387,8 +393,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 'title' => $val->getName(),
                 'sku' => $val->getSku(),
                 'product_id' => $val->getItemId(),
-                'grams' => $val->getWeight(),
-                'vendor' => $model->getStoreName()
+                'grams' => $val->getWeight()
             ),'strlen'));
         }
         return $line_items;
