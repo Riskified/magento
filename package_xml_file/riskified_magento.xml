@@ -1,5 +1,5 @@
 <_>
-   <form_key>AOlrCmbvOPxcUetn</form_key>
+   <form_key>wrxuQVDVAV397uY9</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,12 +10,11 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.6.2</version>
+   <version>1.0.6.3</version>
    <stability>stable</stability>
-   <notes>* fix issue with authorize.net that affected some installations.
-* fix issue with bad/duplicate session identifiers.
-
-</notes>
+   <notes>* fix &quot;Go to Riskified App&quot; link in production
+* move vendor field up to order
+* add group_name to customer</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -44,7 +43,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                             </files>
+            <files>                                              </files>
          </files>
       </package>
       <extension>
