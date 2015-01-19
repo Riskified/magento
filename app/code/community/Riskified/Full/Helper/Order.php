@@ -269,13 +269,21 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             $customer_props['created_at'] = $this->formatDateAsIso8601($customer_details->getCreatedAt());
             $customer_props['updated_at'] = $this->formatDateAsIso8601($customer_details->getUpdatedAt());
 
-            $customer_orders = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('customer_id', $customer_id);
-            $customer_orders_count = $customer_orders->count();
+            try {
+                $customer_orders = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('customer_id', $customer_id);
+                $customer_orders_count = $customer_orders->getSize();
 
-            $customer_props['orders_count'] = $customer_orders_count;
-            if ($customer_orders_count) {
-                $customer_props['last_order_id'] = $customer_orders->getLastItem()->getId();
-                $customer_props['total_spent'] = array_sum($customer_orders->getColumnValues('base_grand_total'));
+                $customer_props['orders_count'] = $customer_orders_count;
+                if ($customer_orders_count) {
+                    $customer_props['last_order_id'] = $customer_orders->getLastItem()->getId();
+                    $total_spent = $customer_orders
+                        ->addExpressionFieldToSelect('sum_total', 'SUM(base_grand_total)', 'base_grand_total')
+                        ->fetchItem()->getSumTotal();
+                    $customer_props['total_spent'] = $total_spent;
+                }
+            } catch (Exception $e) {
+                Mage::helper('full/log')->logException($e);
+                Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
             }
         }
 
