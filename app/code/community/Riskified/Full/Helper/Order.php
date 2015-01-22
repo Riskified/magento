@@ -355,6 +355,11 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     $credit_card_company = $sage->getData('card_type');
                     break;
 
+                case 'transarmor':
+                    $avs_result_code = $payment->getAdditionalInformation('avs_response');
+                    Mage::helper('full/log')->log("transarmor payment additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
+                    break;
+
                 default:
                     Mage::helper('full/log')->log("unknown gateway:" . $gateway_name);
                     break;
