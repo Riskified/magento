@@ -15,14 +15,9 @@
      */
 
 /**
- * Class Refund
- * data model of an exisiting order's refund details
+ * Class Checkout
+ * pre-order checkout data model, includes nested models
  * @package Riskified\OrderWebhook\Model
  */
-class Refund extends AbstractModel {
-
-    protected $_fields = array(
-        'id' => 'string',
-        'refunds' => 'array object \RefundDetails'
-    );
+class Checkout extends Order {
 }

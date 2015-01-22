@@ -1,6 +1,6 @@
 <?php namespace Riskified\OrderWebhook\Model;
 /**
- * Copyright 2013-2014 Riskified.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2013-2015 Riskified.com, Inc. or its affiliates. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License").
  * You may not use this file except in compliance with the License.
@@ -40,11 +40,14 @@ class LineItem extends AbstractModel {
         'requires_shipping' => 'boolean optional',
         'taxable' => 'boolean optional',
         'product_exists' => 'boolean optional',
-        'properties' =>'array object \Attribute optional',
-        'tax_lines' => 'array object \TaxLine optional',
         'event_sub_category_name' => 'string optional',
         'event_name' => 'string optional',
         'event_section_name' => 'string optional',
-        'event_date' => 'date optional'
+        'event_date' => 'date optional',
+        'condition' => 'string optional',
+
+        'properties' =>'array object \Attribute optional',
+        'tax_lines' => 'array object \TaxLine optional',
+        'seller' => 'object \Seller optional'
     );
 }

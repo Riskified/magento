@@ -15,14 +15,17 @@
      */
 
 /**
- * Class Refund
- * data model of an exisiting order's refund details
+ * Class Seller
+ * data model of seller in a marketplace
  * @package Riskified\OrderWebhook\Model
  */
-class Refund extends AbstractModel {
+class Seller extends AbstractModel {
 
     protected $_fields = array(
-        'id' => 'string',
-        'refunds' => 'array object \RefundDetails'
+        'customer' => 'object \Customer',
+        'correspondence' => 'number optional',
+        'price_negotiated' => 'boolean optional',
+        'starting_price' => 'float optional'
     );
+
 }

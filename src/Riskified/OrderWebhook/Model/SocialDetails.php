@@ -15,14 +15,23 @@
      */
 
 /**
- * Class Refund
- * data model of an exisiting order's refund details
+ * Class SocialDetails
+ * data model of shipping line costs
  * @package Riskified\OrderWebhook\Model
  */
-class Refund extends AbstractModel {
+class SocialDetails extends AbstractModel {
 
     protected $_fields = array(
-        'id' => 'string',
-        'refunds' => 'array object \RefundDetails'
+        'network' => 'string',
+        'public_username' => 'string',
+        'community_score' => 'number optional',
+        'profile_picture' => 'string optional',
+        'email' => 'string optional',
+        'bio' => 'string optional',
+        'account_url' => 'string optional',
+        'following' => 'integer optional',
+        'followed' => 'integer optional',
+        'posts' => 'integer optional'
     );
+
 }

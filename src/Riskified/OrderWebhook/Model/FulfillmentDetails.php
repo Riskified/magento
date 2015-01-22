@@ -15,17 +15,23 @@
  */
 
 /**
- * Class ClientDetails
- * data model of client details of customer placing order
+ * Class FulfillmentDetails
+ * data model of fulfillment
  * @package Riskified\OrderWebhook\Model
  */
-class ClientDetails extends AbstractModel {
+class FulfillmentDetails extends AbstractModel {
 
     protected $_fields = array(
-        'accept_language' => 'string',
-        'browser_ip' => 'string /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/',
-        'user_agent' => 'string',
+        'created_at' => 'date',
+        'fulfillment_id' => 'string',
+        'status' => 'string',
 
-        'session_hash' => 'string optional'
+        'tracking_company' => 'string optional',
+        'tracking_numbers' => 'string optional',
+        'tracking_urls' => 'string optional',
+        'message' => 'string optional',
+        'receipt' => 'string',
+
+        'line_items' => 'array object \LineItem optional'
     );
 }
