@@ -15,14 +15,16 @@
      */
 
 /**
- * Class Refund
- * data model of an exisiting order's refund details
+ * Class AuthorizationError
+ * failed result of an authorization attempt by a payment gateway.
  * @package Riskified\OrderWebhook\Model
  */
-class Refund extends AbstractModel {
+class AuthorizationError extends Order {
 
     protected $_fields = array(
-        'id' => 'string',
-        'refunds' => 'array object \RefundDetails'
+        'created_at' => 'date',
+        'error_code' => 'string',
+        'message' => 'string optional'
     );
+
 }
