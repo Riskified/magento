@@ -11,7 +11,7 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.6.3</version>
+   <version>1.0.6.4</version>
    <stability>stable</stability>
    <notes>* fix &quot;Go to Riskified App&quot; link in production
 * move vendor field up to order

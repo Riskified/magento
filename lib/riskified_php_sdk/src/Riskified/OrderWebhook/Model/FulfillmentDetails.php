@@ -1,4 +1,4 @@
-<?php namespace Riskified\OrderWebhook\Exception;
+<?php namespace Riskified\OrderWebhook\Model;
 /**
  * Copyright 2013-2015 Riskified.com, Inc. or its affiliates. All Rights Reserved.
  *
@@ -15,8 +15,23 @@
  */
 
 /**
- * Class TypeMismatchPropertyException
- * thrown for a value of the wrong type
- * @package Riskified\OrderWebhook\Exception
+ * Class FulfillmentDetails
+ * data model of fulfillment
+ * @package Riskified\OrderWebhook\Model
  */
-class TypeMismatchPropertyException extends PropertyException {}
+class FulfillmentDetails extends AbstractModel {
+
+    protected $_fields = array(
+        'created_at' => 'date',
+        'fulfillment_id' => 'string',
+        'status' => 'string',
+
+        'tracking_company' => 'string optional',
+        'tracking_numbers' => 'string optional',
+        'tracking_urls' => 'string optional',
+        'message' => 'string optional',
+        'receipt' => 'string',
+
+        'line_items' => 'array object \LineItem optional'
+    );
+}
