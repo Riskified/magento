@@ -3,6 +3,7 @@
 require_once(Mage::getBaseDir('lib') . DIRECTORY_SEPARATOR . 'riskified_php_sdk' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Riskified' . DIRECTORY_SEPARATOR . 'autoloader.php');
 use Riskified\Common\Riskified;
 use Riskified\Common\Signature;
+use Riskified\Common\Validations;
 use Riskified\OrderWebhook\Model;
 use Riskified\OrderWebhook\Transport;
 use Riskified\DecisionNotification\Model\Notification as DecisionNotification;
@@ -180,7 +181,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $sdkVersion = Riskified::VERSION;
 
 	    Mage::helper('full/log')->log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken, extension_version: $this->version, sdk_version: $sdkVersion");
-        Riskified::init($shopDomain, $authToken, $env, \Riskified\Common\Validations::SKIP);
+        Riskified::init($shopDomain, $authToken, $env, Validations::SKIP);
     }
 
     private function getHeaders() {
@@ -227,7 +228,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model)),
             'financial_status' => $model->getState(),
             'fulfillment_status' => $model->getStatus(),
-            'vendor' => $model->getStoreName()
+            'vendor_id' => $model->getStoreId(),
+            'vendor_name' => $model->getStoreName()
         );
 
         if (Mage::getSingleton('admin/session')->isLoggedIn()) {

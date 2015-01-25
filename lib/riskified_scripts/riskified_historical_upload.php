@@ -20,11 +20,12 @@ echo "*********** \n";
 include __DIR__ . 'lib/riskified_php_sdk/src/Riskified/autoloader.php';
 use Riskified\Common\Riskified;
 use Riskified\Common\Env;
+use Riskified\Common\Validations;
 use Riskified\Common\Signature;
 use Riskified\OrderWebhook\Model;
 use Riskified\OrderWebhook\Transport;
 
-Riskified::init($domain, $authToken, $env);
+Riskified::init($domain, $authToken, $env, Validations::SKIP);
 // add your own code below:
 $batch_size = 10;
 $page = 1;
