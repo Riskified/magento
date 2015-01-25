@@ -381,7 +381,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         if (!isset($avs_result_code)) {
             $avs_result_code = $payment->getCcAvsStatus();
         }
-
         if (!isset($credit_card_number)) {
             $credit_card_number = "XXXX-XXXX-XXXX-" . $credit_card_number;
         }

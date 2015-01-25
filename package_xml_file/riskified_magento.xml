@@ -1,5 +1,5 @@
 <_>
-   <form_key>wrxuQVDVAV397uY9</form_key>
+   <form_key>ZLMIY7zjSE3J6KAU</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,11 +10,9 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.6.4</version>
+   <version>1.0.6.3.5</version>
    <stability>stable</stability>
-   <notes>* fix &quot;Go to Riskified App&quot; link in production
-* move vendor field up to order
-* add group_name to customer</notes>
+   <notes>* Support for AVS for FirstData ParadoxLabs gateway extension</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -43,7 +41,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                              </files>
+            <files>                                                </files>
          </files>
       </package>
       <extension>
