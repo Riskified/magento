@@ -1,5 +1,6 @@
 <_>
-   <form_key>wrxuQVDVAV397uY9</form_key>
+   <form_key>wTWQRZV576wuCsg2</form_key>
+   <_create/>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -43,7 +44,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                              </files>
+            <files>                                               </files>
          </files>
       </package>
       <extension>
@@ -69,6 +70,7 @@ transactions you would otherwise decline.</description>
          <target>magedesign</target>
          <target>mageskin</target>
          <target>magelib</target>
+         <target>magelib</target>
       </target>
       <path>
          <path/>
@@ -80,6 +82,7 @@ transactions you would otherwise decline.</description>
          <path>frontend/base/default/template/full/riskified.phtml</path>
          <path>adminhtml/default/default/images/riskified/logo.jpg</path>
          <path>riskified_php_sdk/</path>
+         <path>riskified_scripts/</path>
       </path>
       <type>
          <type>file</type>
@@ -90,6 +93,7 @@ transactions you would otherwise decline.</description>
          <type>file</type>
          <type>file</type>
          <type>file</type>
+         <type>dir</type>
          <type>dir</type>
       </type>
       <include>
@@ -102,8 +106,10 @@ transactions you would otherwise decline.</description>
          <include/>
          <include/>
          <include/>
+         <include/>
       </include>
       <ignore>
+         <ignore/>
          <ignore/>
          <ignore/>
          <ignore/>

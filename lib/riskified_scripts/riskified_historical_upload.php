@@ -3,7 +3,7 @@
 //chdir('../magento/');
  
 set_include_path(dirname(__FILE__) . PATH_SEPARATOR . get_include_path());
-require 'app/Mage.php';
+require '../../app/Mage.php';
 
 umask (0);
 Mage::app(); // can set the run code/type, just like in the Mage::run() call
@@ -17,7 +17,7 @@ echo "Riskified auth token: $authToken \n";
 echo "Riskified shop domain: $domain \n";
 echo "Riskified target environment: $env \n";
 echo "*********** \n";
-include __DIR__ . 'lib/riskified_php_sdk/src/Riskified/autoloader.php';
+include __DIR__ . '../riskified_php_sdk/src/Riskified/autoloader.php';
 use Riskified\Common\Riskified;
 use Riskified\Common\Env;
 use Riskified\Common\Signature;
