@@ -28,8 +28,11 @@ use Riskified\OrderWebhook\Transport;
 Riskified::init($domain, $authToken, $env, Validations::SKIP);
 // add your own code below:
 $batch_size = 10;
-$page = 1;
-
+$options = getopt("p::");
+$page = intval($options["p"]);
+if (!$page) {
+    $page = 1;
+}
 $orders = Mage::getModel('sales/order')->getCollection();
 
 $total_count = $orders->getSize();
