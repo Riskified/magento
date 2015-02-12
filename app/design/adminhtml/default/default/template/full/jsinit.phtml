@@ -158,11 +158,13 @@ function riskifiedOnSave(event){
 
 function riskifiedActivation(riskifiedPassword,riskifiedShopDomain,generatedKey){
   var keys = "<?php echo $allkeys ?>";
+  var extensionVersion = '<?php echo Mage::helper('full')->getExtensionVersion()?>'
   var activateURL = 'https://' + '<?php echo Mage::helper("full/order")->getRiskifiedDomain()?>/magento/activate';
+  var shopHostUrl = "<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB)?>";
 
   new Ajax.Request(activateURL, {
     method: 'POST',
-    parameters: "shop_url="+riskifiedShopDomain+"&password="+riskifiedPassword+"&auth_token="+generatedKey+"&gws="+keys ,
+    parameters: "shop_url="+riskifiedShopDomain+"&password="+riskifiedPassword+"&auth_token="+generatedKey+"&gws="+keys+"&host_url="+shopHostUrl+"&extension_version="+extensionVersion,
     onSuccess:
       function(response) {
         hideRiskifiedNotice("#magento-notice");
