@@ -24,7 +24,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
 
                 Mage::helper('full/log')->log("Notification received: ", serialize($notification));
 
-                $order = Mage::getModel('sales/order')->load($id);
+                $order = $this->loadOrderByOrigId($id);
                 if (!$order || !$order->getId()) {
                     $logger->log("ERROR: Unable to load order (" . $id . ")");
                     $statusCode = 400;
@@ -45,6 +45,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
             $msg = "JSON Parsing Error.";
         } catch (Exception $e) {
             $logger->log("ERROR: while processing notification for order $id");
+            $logger->logException($e);
             $statusCode = 500;
             $msg = "Internal Error";
         }
@@ -52,6 +53,23 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
         $response->setHttpResponseCode($statusCode);
         $response->setHeader('Content-Type', 'application/json');
         $response->setBody('{ "order" : { "id" : "' . $id . '", "description" : "' . $msg .'" } }');
+    }
 
+    private function loadOrderByOrigId($full_orig_id) {
+        if(!$full_orig_id) {
+            return null;
+        }
+
+        $magento_ids = explode("_",$full_orig_id);
+        $order_id = $magento_ids[0];
+        $increment_id = $magento_ids[1];
+
+        if ($order_id && $increment_id) {
+            return Mage::getModel('sales/order')->getCollection()
+                ->addFieldToFilter('entity_id', $order_id)
+                ->addFieldToFilter('increment_id',$increment_id)
+                ->getFirstItem();
+        }
+        return Mage::getModel('sales/order')->load($order_id);
     }
 }

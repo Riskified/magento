@@ -168,25 +168,14 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $headers = array($header_name => $request->getHeader($header_name));
         $body = $request->getRawBody();
         Mage::helper('full/log')->log("Received new notification request with headers: " . json_encode($headers) . " and body: $body. Trying to parse.");
-        return new
-        DecisionNotification(new Signature\HttpDataSignature(), $headers, $body);
+        return new DecisionNotification(new Signature\HttpDataSignature(), $headers, $body);
     }
 
-    public function loadOrderByOrigId($full_orig_id) {
-        if(!$full_orig_id) {
+    public function getOrderOrigId($order) {
+        if(!$order) {
             return null;
         }
-
-        $magento_ids = explode("_",$full_orig_id);
-        $order_id = $magento_ids[0];
-        $increment_id = $magento_ids[1];
-
-        if ($order_id && $increment_id) {
-            return Mage::getModel('sales/order')->getCollection()
-                ->addFieldToFilter('id', $order_id)
-                ->addFieldToFilter('increment_id',$increment_id);
-        }
-        return Mage::getModel('sales/order')->load($order_id);
+        return $order->getId() . '_' . $order->getIncrementId();
     }
 
     private $version;
@@ -215,7 +204,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     private function getOrderCancellation($model) {
         $orderCancellation = new Model\OrderCancellation(array_filter(array(
-            'id' => $model->getId(),
+            'id' => $this->getOrderOrigId($model),
             'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model)),
             'cancel_reason' => 'Cancelled by merchant'
         )));
@@ -227,7 +216,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     private function getOrder($model) {
         $order_array = array(
-            'id' => $model->getStoreId() . '_' . $model->getId(),
+            'id' => $this->getOrderOrigId($model),
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
             'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),

@@ -206,11 +206,15 @@ class Riskified_Full_Model_Observer {
 		if ($newState
             && ($newState != $currentState || $newStatus != $currentStatus)
 			 && Mage::helper('full')->getConfigStatusControlActive()) {
+            if ($newState == Mage_Sales_Model_Order::STATE_CANCELED) {
+                Mage::helper('full/log')->log("Order '" . $order->getId() . "' should be canceled - calling cancel method");
+                $order->cancel();
+            }
             $order->setState($newState, $newStatus, $description);
-            Mage::helper('full/log')->log("Updating order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
+            Mage::helper('full/log')->log("Updated order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
             $changed=true;
 		} elseif ($description && $riskifiedStatus != $riskifiedOldStatus) {
-            Mage::helper('full/log')->log("Updating order " . $order->getId() . " history comment to: "  . $description);
+            Mage::helper('full/log')->log("Updated order " . $order->getId() . " history comment to: "  . $description);
             $order->addStatusHistoryComment($description);
             $changed=true;
         } else {
@@ -340,9 +344,9 @@ class Riskified_Full_Model_Observer {
                 Mage::helper('full/order')->updateOrder($order, $status, $oldStatus, $description);
             }
 
-            $origId = $order->getId();
+            $name = $order->getIncrementId();
 
-            Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__("Order #$origId was successfully updated at Riskified"));
+            Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__("Order #$name was successfully updated at Riskified"));
         } else {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('adminhtml')->__("Malformed response from Riskified"));
         }
