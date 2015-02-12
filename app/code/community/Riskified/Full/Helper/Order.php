@@ -62,6 +62,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     break;
             }
 
+            Mage::helper('full/log')->log('Order posted successfully - invoking post order event');
+
             $eventData['response'] = $response;
 
             Mage::dispatchEvent(
@@ -170,6 +172,23 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         DecisionNotification(new Signature\HttpDataSignature(), $headers, $body);
     }
 
+    public function loadOrderByOrigId($full_orig_id) {
+        if(!$full_orig_id) {
+            return null;
+        }
+
+        $magento_ids = explode("_",$full_orig_id);
+        $order_id = $magento_ids[0];
+        $increment_id = $magento_ids[1];
+
+        if ($order_id && $increment_id) {
+            return Mage::getModel('sales/order')->getCollection()
+                ->addFieldToFilter('id', $order_id)
+                ->addFieldToFilter('increment_id',$increment_id);
+        }
+        return Mage::getModel('sales/order')->load($order_id);
+    }
+
     private $version;
 
     private function initSdk() {
@@ -208,7 +227,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     private function getOrder($model) {
         $order_array = array(
-            'id' => $model->getId(),
+            'id' => $model->getStoreId() . '_' . $model->getId(),
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
             'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),
@@ -330,7 +349,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     $protection_eligibility = $payment->getAdditionalInformation('paypal_protection_eligibility');
                     $payment_status = $payment->getAdditionalInformation('paypal_payment_status');
                     $pending_reason = $payment->getAdditionalInformation('paypal_pending_reason');
-
                     return new Model\PaymentDetails(array_filter(array(
                         'authorization_id' => $transactionId,
                         'payer_email' => $payer_email,
@@ -340,7 +358,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                         'payment_status' => $payment_status,
                         'pending_reason' => $pending_reason
                     ), 'strlen'));
-
                 case 'paypal_direct':
                 case 'paypaluk_direct':
                     $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
@@ -348,22 +365,32 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     $credit_card_number = $payment->getCcLast4();
                     $credit_card_company = $payment->getCcType();
                     break;
-
                 case 'sagepaydirectpro':
+                case 'sage_pay_form':
+                case 'sagepayserver':
                     $sage = $model->getSagepayInfo();
-                    $avs_result_code = $sage->getData('address_result');
-                    $cvv_result_code = $sage->getData('cv2result');
-                    $credit_card_number = $sage->getData('last_four_digits');
-                    $credit_card_company = $sage->getData('card_type');
+                    if ($sage) {
+                        $avs_result_code = $sage->getData('address_result');
+                        $cvv_result_code = $sage->getData('cv2result');
+                        $credit_card_number = $sage->getData('last_four_digits');
+                        $credit_card_company = $sage->getData('card_type');
+                        //Mage::helper('full/log')->log("sagepay payment (".$gateway_name.") additional info: ".PHP_EOL.var_export($sage->getAdditionalInformation(), 1));
+                        Mage::helper('full/log')->log("sagepay payment (".$gateway_name.") additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
+                    }
+                    else {
+                        Mage::helper('full/log')->log("sagepay payment (".$gateway_name.") - getSagepayInfo returned null object");
+                    }
                     break;
 
                 case 'transarmor':
                     $avs_result_code = $payment->getAdditionalInformation('avs_response');
+                    $cvv_result_code = $payment->getAdditionalInformation('cvv2_response');
                     Mage::helper('full/log')->log("transarmor payment additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
                     break;
 
                 default:
                     Mage::helper('full/log')->log("unknown gateway:" . $gateway_name);
+                    Mage::helper('full/log')->log("Gateway payment (".$gateway_name.") additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
                     break;
             }
         } catch (Exception $e) {
@@ -383,7 +410,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         if (!isset($avs_result_code)) {
             $avs_result_code = $payment->getCcAvsStatus();
         }
-        if (!isset($credit_card_number)) {
+        if (isset($credit_card_number)) {
             $credit_card_number = "XXXX-XXXX-XXXX-" . $credit_card_number;
         }
         $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
