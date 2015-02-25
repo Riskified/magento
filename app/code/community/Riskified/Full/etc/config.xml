@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.6.4</version>
+            <version>1.0.6.4.5</version>
         </Riskified_Full>
     </modules>
 
@@ -164,10 +164,10 @@
             </riskified_full_order_update_captured>
             <riskified_full_post_order_success>
                 <observers>
-                    <riskified_full_clear_retries>
-                        <class>full/observer</class>
-                        <method>clearRetriesForOrder</method>
-                    </riskified_full_clear_retries>
+                    <!--<riskified_full_clear_retries>-->
+                        <!--<class>full/observer</class>-->
+                        <!--<method>clearRetriesForOrder</method>-->
+                    <!--</riskified_full_clear_retries>-->
                     <riskified_full_process_successful_post>
                         <class>full/observer</class>
                         <method>processSuccessfulPost</method>

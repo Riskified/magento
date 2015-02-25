@@ -1,5 +1,5 @@
 <_>
-   <form_key>diqrZMN0YWihCbzs</form_key>
+   <form_key>r4DLWT2GvbmAKZ8T</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,12 +10,10 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.6.4</version>
-   <stability>stable</stability>
-   <notes>* Support for SagePay server gateway
-* Support for Transarmor gateway
-* New integration process support
-* Historical orders script upgraded</notes>
+   <version>1.0.6.4.5</version>
+   <stability>alpha</stability>
+   <notes>* More support for SagePay server gateway
+</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -44,7 +42,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                      </files>
+            <files>                                                       </files>
          </files>
       </package>
       <extension>
@@ -121,8 +119,4 @@ transactions you would otherwise decline.</description>
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
