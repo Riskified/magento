@@ -283,7 +283,7 @@
         <fullsection>
             <full>
                 <order_status_sync>0</order_status_sync>
-                <env>PROD</env>
+                <env>SANDBOX</env>
                 <beaconurl>beacon.riskified.com</beaconurl>
                 <auto_invoice_enabled>0</auto_invoice_enabled>
                 <auto_invoice_capture_case>online</auto_invoice_capture_case>
