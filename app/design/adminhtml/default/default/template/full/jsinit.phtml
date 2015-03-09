@@ -239,7 +239,6 @@ document.observe("dom:loaded", function() {
        rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
        rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="//<?php echo Mage::helper('full/order')->getRiskifiedApp()?>" target="_blank">Go to Riskified App</a>';
      }else{
-     	section.style.display = "none";
        $$(".entry-edit-head.collapseable")[0].style.display = "none";
      }
      htmlBody = rhtml;
