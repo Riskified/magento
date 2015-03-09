@@ -65,9 +65,12 @@ class Riskified_Full_Model_Observer {
         }
 
         $newState = $order->getState();
+        $newStatus = $order->getStatus();
 
-        if ($order->dataHasChangedFor('state')) {
-            Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
+        if ($order->dataHasChangedFor('state') || $order->dataHasChangedFor('status')) {
+            Mage::helper('full/log')->log("Order: " . $order->getId() .
+                " state or status changed from: " . $order->getOrigData('state') . " to: " . $newState .
+                " or status changed from " . $order->getOrigData('status') . " to " . $newStatus);
 
             // if we posted we should not re post
             if($order->riskifiedInSave) {
@@ -84,7 +87,7 @@ class Riskified_Full_Model_Observer {
                 // We catch this exception so that the order is still saved in Magento.
             }
         } else {
-            Mage::helper('full/log')->log("Order: '" . $order->getId() . "' state didn't change on save - not posting again: " . $newState);
+            Mage::helper('full/log')->log("Order: '" . $order->getId() . "' state and status didn't change on save - not posting again: $newState ($newStatus)");
         }
     }
 
@@ -184,9 +187,17 @@ class Riskified_Full_Model_Observer {
 
 				break;
 			case 'submitted':
+                $gateway = '';
+                $payment = $order->getPayment();
+                if($payment) {
+                    $gateway = $payment->getMethod();
+                }
 				if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
                     || ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
-                        && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
+                        && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())
+                    || ($currentState == Mage_Sales_Model_Order::STATE_NEW
+                        && $currentStatus == 'processing'
+                        && $gateway == 'sagepayserver')   ) {
 					$newState = Mage_Sales_Model_Order::STATE_HOLDED;
 					$newStatus = $riskifiedOrderStatusHelper->getOnHoldStatusCode();
 				}
