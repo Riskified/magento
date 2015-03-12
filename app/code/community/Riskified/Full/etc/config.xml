@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.6.5</version>
+            <version>1.0.6.6</version>
         </Riskified_Full>
     </modules>
 
@@ -282,9 +282,13 @@
     <default>
         <fullsection>
             <full>
-                <order_status_sync>0</order_status_sync>
-                <env>SANDBOX</env>
                 <beaconurl>beacon.riskified.com</beaconurl>
+                <env>SANDBOX</env>
+                <!--<domain></domain>-->
+                <!--<key></key>-->
+                <order_status_sync>0</order_status_sync>
+                <!--<approved_state>processing</approved_state>-->
+                <!--<declined_state>canceled</declined_state>-->
                 <auto_invoice_enabled>0</auto_invoice_enabled>
                 <auto_invoice_capture_case>online</auto_invoice_capture_case>
             </full>

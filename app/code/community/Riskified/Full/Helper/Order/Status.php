@@ -89,7 +89,7 @@ class Riskified_Full_Helper_Order_Status extends Mage_Core_Helper_Abstract
      */
     public function getSelectedApprovedState()
     {
-        $state = Mage::getStoreConfig('fullsection/full/approved_state');
+        $state = Mage::helper('full')->getApprovedState();
 
         if (!in_array($state, array(Mage_Sales_Model_Order::STATE_PROCESSING,Mage_Sales_Model_Order::STATE_HOLDED))) {
             $state = Mage_Sales_Model_Order::STATE_PROCESSING;
@@ -99,18 +99,52 @@ class Riskified_Full_Helper_Order_Status extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Get the current declined state from the configuration
+     * Get the current approved status from the configuration
+     *
+     * @return string
+     */
+    public function getSelectedApprovedStatus()
+    {
+        $status = Mage::helper('full')->getApprovedStatus();
+
+        $allowedStatuses = Mage::getSingleton('sales/order_config')->getStateStatuses($this->getSelectedApprovedState());
+        if (!in_array($status, $allowedStatuses)) {
+            $status = $this->getRiskifiedApprovedStatusCode();
+        }
+
+        return $status;
+    }
+
+    /**
+     * Get the current declined status from the configuration
      *
      * @return string
      */
     public function getSelectedDeclinedState()
     {
-        $state = Mage::getStoreConfig('fullsection/full/declined_state');
+        $state = Mage::helper('full')->getDeclinedState();
 
         if (!in_array($state, array(Mage_Sales_Model_Order::STATE_CANCELED,Mage_Sales_Model_Order::STATE_HOLDED))) {
             $state = Mage_Sales_Model_Order::STATE_CANCELED;
         }
 
         return $state;
+    }
+
+    /**
+     * Get the current declined status from the configuration
+     *
+     * @return string
+     */
+    public function getSelectedDeclinedStatus()
+    {
+        $status = Mage::helper('full')->getDeclinedStatus();
+
+        $allowedStatuses = Mage::getSingleton('sales/order_config')->getStateStatuses($this->getSelectedDeclinedState());
+        if (!in_array($status, $allowedStatuses)) {
+            $status = $this->getRiskifiedDeclinedStatusCode();
+        }
+
+        return $status;
     }
 }

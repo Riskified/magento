@@ -84,10 +84,38 @@
                                 <order_status_sync>1</order_status_sync>
                             </depends>
                         </approved_state>
+                        <approved_status_processing translate="label comment">
+                            <label>Approved Status</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[The Magento status to move to when an order is approved]]></comment>
+                            <source_model>full/system_config_source_processingStateStatuses</source_model>
+                            <depends>
+                                <order_status_sync>1</order_status_sync>
+                                <approved_state>processing</approved_state>
+                            </depends>
+                        </approved_status_processing>
+                        <approved_status_holded translate="label comment">
+                            <label>Approved Status</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[The Magento status to move to when an order is approved]]></comment>
+                            <source_model>full/system_config_source_holdedStateStatuses</source_model>
+                            <depends>
+                                <order_status_sync>1</order_status_sync>
+                                <approved_state>holded</approved_state>
+                            </depends>
+                        </approved_status_holded>
                         <declined_state translate="label comment">
                             <label>Declined State</label>
                             <frontend_type>select</frontend_type>
-                            <sort_order>12</sort_order>
+                            <sort_order>13</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -97,15 +125,34 @@
                                 <order_status_sync>1</order_status_sync>
                             </depends>
                         </declined_state>
-                        <!--<activationstatus>
-                            <comment></comment>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>4</sort_order>
-                            <class>riskified_activationstatus</class>
+                        <declined_status_canceled translate="label comment">
+                            <label>Declined Status</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>14</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                        </activationstatus>-->
+                            <comment><![CDATA[The Magento status to move to when an order is declined]]></comment>
+                            <source_model>full/system_config_source_canceledStateStatuses</source_model>
+                            <depends>
+                                <order_status_sync>1</order_status_sync>
+                                <declined_state>canceled</declined_state>
+                            </depends>
+                        </declined_status_canceled>
+                        <declined_status_holded translate="label comment">
+                            <label>Declined Status</label>
+                            <frontend_type>select</frontend_type>
+                            <sort_order>14</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment><![CDATA[The Magento status to move to when an order is declined]]></comment>
+                            <source_model>full/system_config_source_holdedStateStatuses</source_model>
+                            <depends>
+                                <order_status_sync>1</order_status_sync>
+                                <declined_state>holded</declined_state>
+                            </depends>
+                        </declined_status_holded>
                         <auto_invoice_enabled translate="label comment">
                             <label>Enable Auto-Invoice</label>
                             <frontend_type>select</frontend_type>

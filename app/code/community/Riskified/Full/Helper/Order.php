@@ -441,7 +441,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         }
         $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
 
-        $this->logPaymentData($model);
+        // next line should be commented out in order to export more debug info on payment fields to log
+        //$this->logPaymentData($model);
 
         return new Model\PaymentDetails(array_filter(array(
             'authorization_id' => $transactionId,
