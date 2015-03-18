@@ -55,7 +55,11 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
         $state = $this->getApprovedState();
         return Mage::getStoreConfig('fullsection/full/approved_status_'.$state);
     }
-    
+
+    public function isDebugLogsEnabled() {
+        return (bool) Mage::getStoreConfig('fullsection/full/debug_logs');
+    }
+
     public function getSessionId(){
     	return Mage::getModel('core/cookie')->get('rCookie');
     }

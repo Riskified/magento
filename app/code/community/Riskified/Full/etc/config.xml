@@ -291,6 +291,7 @@
                 <!--<declined_state>canceled</declined_state>-->
                 <auto_invoice_enabled>0</auto_invoice_enabled>
                 <auto_invoice_capture_case>online</auto_invoice_capture_case>
+                <debug_logs>0</debug_logs>
             </full>
         </fullsection>
     </default>
