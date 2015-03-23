@@ -215,6 +215,11 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     private function getOrder($model) {
+        $gateway = 'unavailable';
+        if ($model->getPayment()) {
+            $gateway = $model->getPayment()->getMethod();
+        }
+
         $order_array = array(
             'id' => $this->getOrderOrigId($model),
             'name' => $model->getIncrementId(),
@@ -222,7 +227,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),
             'currency' => $model->getOrderCurrencyCode(),  // was getBaseCurrencyCode() before by mistake
             'updated_at' => $this->formatDateAsIso8601($model->getUpdatedAt()),
-            'gateway' => $model->getPayment()->getMethod(),
+            'gateway' => $gateway,
             'browser_ip' => $this->getRemoteIp($model),
             'cart_token' => Mage::helper('full')->getSessionId(),
             'note' => $model->getCustomerNote(),
