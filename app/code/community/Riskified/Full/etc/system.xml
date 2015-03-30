@@ -51,7 +51,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <comment><![CDATA[ Your <i>secret</i> auth token can be found in your Riskified Settings page. ]]></comment>
+                            <comment><![CDATA[ Your <i>secret</i> auth token can be found in your <a href="https://app.riskified.com/main/settings/advanced" target="_blank">Riskified Settings page</a>. ]]></comment>
                         </key>
                         <order_status_sync translate="label comment">
                             <label>Order Status Sync</label>

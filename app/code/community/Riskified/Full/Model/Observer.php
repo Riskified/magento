@@ -22,36 +22,26 @@ class Riskified_Full_Model_Observer {
     public function saveRiskifiedConfig($evt) {
         Mage::helper('full/log')->log("saveRiskifiedConfig");
         $helper = Mage::helper('full');
+        $settings = Mage::getStoreConfig('fullsection/full');
         $riskifiedShopDomain =  $helper->getShopDomain();
-        $StatusControlActive = $helper->getConfigStatusControlActive();
-        $approvedState = $helper->getApprovedState();
-        $declinedState = $helper->getDeclinedState();
-        $autoInvoiceCaptureCase = $helper->getConfigAutoInvoiceCaptureCase();
-        $enableAutoInvoice = $helper->getConfigEnableAutoInvoice();
         $authToken = $helper->getAuthToken();
         $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
-        $allkeys ='';
+        $gateWays ='';
         foreach ($all_active_methods as $key => $value)
         {
-            $allkeys .= $key.",";
+            $gateWays .= $key.",";
         }
         $extensionVersion = Mage::helper('full')->getExtensionVersion();
         $shopHostUrl =  Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
-
         #Riskified::init($riskifiedShopDomain, $authToken, $env, Validations::IGNORE_MISSING);
-        $settings = new Model\MerchantSettings(array(
-            'settings' => array(
-                'gws' => $allkeys,
-                'host_url' => $shopHostUrl,
-                'extension_version' => $extensionVersion,
-                'status_control_active' => $StatusControlActive,
-                'approved_state' => $approvedState,
-                'declined_state' => $declinedState,
-                'auto_invoice_capture_case' => $autoInvoiceCaptureCase,
-                'enable_auto_invoice' => $enableAutoInvoice)
+        $settings['gws'] = $gateWays;
+        $settings['host_url'] = $shopHostUrl;
+        $settings['extension_version'] = $extensionVersion;
+        $settingsModel = new Model\MerchantSettings(array(
+            'settings' => $settings
         ));
         if($authToken && $riskifiedShopDomain) {
-            Mage::helper('full/order')->updateMerchantSettings($settings);
+            Mage::helper('full/order')->updateMerchantSettings($settingsModel);
         }
     }
 
