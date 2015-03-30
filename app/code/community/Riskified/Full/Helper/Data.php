@@ -26,6 +26,14 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
         return 'Riskified\Common\Env::' . Mage::getStoreConfig('fullsection/full/env');
     }
 
+    public function getConfigEnableAutoInvoice(){
+        return Mage::getStoreConfig('fullsection/full/auto_invoice_enabled');
+    }
+
+    public function getConfigAutoInvoiceCaptureCase(){
+        return Mage::getStoreConfig('fullsection/full/auto_invoice_capture_case');
+    }
+
     public function getConfigBeaconUrl(){
         return Mage::getStoreConfig('fullsection/full/beaconurl');
     }

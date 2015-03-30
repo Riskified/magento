@@ -159,7 +159,7 @@ function riskifiedOnSave(event){
 function riskifiedActivation(riskifiedPassword,riskifiedShopDomain,generatedKey){
   var keys = "<?php echo $allkeys ?>";
   var extensionVersion = '<?php echo Mage::helper('full')->getExtensionVersion()?>'
-  var activateURL = 'https://' + '<?php echo Mage::helper("full/order")->getRiskifiedDomain()?>/magento/activate';
+  var activateURL = 'http://' + '<?php echo Mage::helper("full/order")->getRiskifiedDomain()?>/magento/activate';
   var shopHostUrl = "<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB)?>";
 
   new Ajax.Request(activateURL, {
@@ -187,7 +187,7 @@ document.observe("dom:loaded", function() {
   rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;">';
   rhtml += 'The Riskified extension has been installed.<br>To activate the extension please connect it to your Riskified account';
   rhtml += '</div>';
-  rhtml += '<span class="step-wrapper">';
+/*  rhtml += '<span class="step-wrapper">';
   rhtml += '    <div class="step-title"  style="font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #393536; display:inline-block">';
   rhtml += '    1. Create Your Account';
   rhtml += '        <span  style="margin-left: 20px;font-family:Helvetica Neue; font-size: 14px; line-height: 17px; color: #828282; padding: 5px; display:block">';
@@ -199,8 +199,8 @@ document.observe("dom:loaded", function() {
   rhtml += '            <a class="riskified-botton" style="margin-top:13px"  href="http://www.riskified.com/?platform=magento#install-section" target="_blank">Create an account</a>';
   rhtml += '        </span>';
   rhtml += '    </span>';
-  rhtml += '</span>';
-  rhtml += '<span class="step-wrapper">';
+  rhtml += '</span>';*/
+/*  rhtml += '<span class="step-wrapper">';
   rhtml += '    <div class="step-title"  style="font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #393536; display:inline-block">';
   rhtml += '        2. Activate you extension';
   rhtml += '    </div>';
@@ -220,7 +220,7 @@ document.observe("dom:loaded", function() {
   rhtml += '            <span class="done-message" style="display:block; margin-bottom:25; text-align:center; font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #828282;">Saving...</span>';
   rhtml += '        </span>';
   rhtml += '    </span>';
-  rhtml += '</span>';
+  rhtml += '</span>';*/
 
   rhtml += '</span>';
     var keyRow = $$('#row_fullsection_full_key')
@@ -231,6 +231,22 @@ document.observe("dom:loaded", function() {
      }
 
     var authToken = '<?php echo Mage::helper('full')->getAuthToken()?>';
+    var shopDomain = '<?php echo Mage::helper('full')->getShopDomain()?>';
+    if shopDomain {
+         rhtml += '<span class="step-wrapper">';
+         rhtml += '    <div class="step-title"  style="font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #393536; display:inline-block">';
+         rhtml += '    1. Create Your Account';
+         rhtml += '        <span  style="margin-left: 20px;font-family:Helvetica Neue; font-size: 14px; line-height: 17px; color: #828282; padding: 5px; display:block">';
+         rhtml += '            Already have an account? go to step #2';
+         rhtml += '        </span>';
+         rhtml += '    </div>';
+         rhtml += '    <span class="step-inner">';
+         rhtml += '        <span class="step-action">';
+         rhtml += '            <a class="riskified-botton" style="margin-top:13px"  href="http://www.riskified.com/?platform=magento#install-section" target="_blank">Create an account</a>';
+         rhtml += '        </span>';
+         rhtml += '    </span>';
+         rhtml += '</span>';
+    }
 
      var section = $$("#fullsection_full")[0];
 
