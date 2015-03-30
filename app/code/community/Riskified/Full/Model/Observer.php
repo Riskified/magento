@@ -208,11 +208,7 @@ class Riskified_Full_Model_Observer {
 				    && ($currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
                         || $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
                     $newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
-                    if ($newState == Mage_Sales_Model_Order::STATE_PROCESSING){
-                      $newStatus = TRUE;
-                    }else {
-                      $newStatus = $riskifiedOrderStatusHelper->getRiskifiedApprovedStatusCode();
-                    }
+                    $newStatus = $riskifiedOrderStatusHelper->getSelectedApprovedStatus();
 				}
 
 				break;
@@ -221,7 +217,7 @@ class Riskified_Full_Model_Observer {
                     && ($currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
                         || $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
 					$newState = $riskifiedOrderStatusHelper->getSelectedDeclinedState();
-					$newStatus = $riskifiedOrderStatusHelper->getRiskifiedDeclinedStatusCode();
+					$newStatus = $riskifiedOrderStatusHelper->getSelectedDeclinedStatus();
 				}
 
 				break;
