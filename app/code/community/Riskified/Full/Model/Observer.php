@@ -37,6 +37,8 @@ class Riskified_Full_Model_Observer {
         $settings['gws'] = $gateWays;
         $settings['host_url'] = $shopHostUrl;
         $settings['extension_version'] = $extensionVersion;
+        unset($settings['key']);
+        unset($settings['domain']);
         $settingsModel = new Model\MerchantSettings(array(
             'settings' => $settings
         ));

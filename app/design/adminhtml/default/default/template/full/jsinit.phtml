@@ -196,19 +196,20 @@ foreach ($all_active_methods as $key => $value)
         }
 
         var authToken = '<?php echo Mage::helper('full')->getAuthToken()?>';
+        var shopDomain= '<?php echo Mage::helper('full')->getShopDomain()?>';
 
         var section = $$("#fullsection_full")[0];
 
-        if (authToken.trim()) {
+        if (authToken.trim() || shopDomain.trim()) {
             rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" src="<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"></span>';
             rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
             rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="//<?php echo Mage::helper('full/order')->getRiskifiedApp()?>" target="_blank">Go to Riskified App</a>';
         }else{
             rhtml += '<span class="step-wrapper">';
             rhtml += '    <div class="step-title"  style="font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #393536; display:inline-block">';
-            rhtml += '    1. Create Your Account';
+            rhtml += '    Create Your Account';
             rhtml += '        <span  style="margin-left: 20px;font-family:Helvetica Neue; font-size: 14px; line-height: 17px; color: #828282; padding: 5px; display:block">';
-            rhtml += '            Already have an account? go to step #2';
+            rhtml += '             Already have an account? Fill the Shop Domain and Auth Token fields. ';
             rhtml += '        </span>';
             rhtml += '    </div>';
             rhtml += '    <span class="step-inner">';
