@@ -1,4 +1,10 @@
 <?php
+use Riskified\Common\Riskified;
+use Riskified\Common\Env;
+use Riskified\Common\Validations;
+use Riskified\Common\Signature;
+use Riskified\OrderWebhook\Model;
+use Riskified\OrderWebhook\Transport;
 
 class Riskified_Full_Model_Observer {
 
@@ -10,6 +16,34 @@ class Riskified_Full_Model_Observer {
 
         if ($cc_bin) {
             $payment->setAdditionalInformation('riskified_cc_bin', $cc_bin);
+        }
+    }
+
+    public function saveRiskifiedConfig($evt) {
+        Mage::helper('full/log')->log("saveRiskifiedConfig");
+        $helper = Mage::helper('full');
+        $settings = Mage::getStoreConfig('fullsection/full');
+        $riskifiedShopDomain =  $helper->getShopDomain();
+        $authToken = $helper->getAuthToken();
+        $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
+        $gateWays ='';
+        foreach ($all_active_methods as $key => $value)
+        {
+            $gateWays .= $key.",";
+        }
+        $extensionVersion = Mage::helper('full')->getExtensionVersion();
+        $shopHostUrl =  Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);
+        #Riskified::init($riskifiedShopDomain, $authToken, $env, Validations::IGNORE_MISSING);
+        $settings['gws'] = $gateWays;
+        $settings['host_url'] = $shopHostUrl;
+        $settings['extension_version'] = $extensionVersion;
+        unset($settings['key']);
+        unset($settings['domain']);
+        $settingsModel = new Model\MerchantSettings(array(
+            'settings' => $settings
+        ));
+        if($authToken && $riskifiedShopDomain) {
+            Mage::helper('full/order')->updateMerchantSettings($settingsModel);
         }
     }
 

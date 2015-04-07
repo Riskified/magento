@@ -20,6 +20,42 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     }
 
     /**
+     * Update the merchan't settings
+     *
+     * @param settings hash
+     * @return stdClass
+     * @throws Exception
+     */
+    public function updateMerchantSettings($settings) {
+        $transport = $this->getTransport();
+        Mage::helper('full/log')->log('updateMerchantSettings');
+
+        try {
+            $response = $transport->updateMerchantSettings($settings);
+
+            Mage::helper('full/log')->log('Merchant Settings posted successfully');
+        } catch(\Riskified\OrderWebhook\Exception\UnsuccessfulActionException $uae) {
+            if ($uae->statusCode == '401') {
+                Mage::helper('full/log')->logException($uae);
+                Mage::getSingleton('adminhtml/session')->addError('Make sure you have the correct Auth token as it appears in Riskified advanced settings.');
+            }
+            throw $uae;
+        } catch(\Riskified\OrderWebhook\Exception\CurlException $curlException) {
+            Mage::helper('full/log')->logException($curlException);
+            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
+
+            throw $curlException;
+        }
+        catch (Exception $e) {
+            Mage::helper('full/log')->logException($e);
+            Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
+
+            throw $e;
+        }
+        return $response;
+
+    }
+    /**
      * Submit an order to Riskified.
      *
      * @param Mage_Sales_Model_Order $order

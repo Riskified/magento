@@ -39,6 +39,15 @@
             </full>
         </helpers>
         <events>
+            <admin_system_config_changed_section_fullsection>
+                <observers>
+                    <riskified_full>
+                        <type>singleton</type>
+                        <class>full/observer</class>
+                        <method>saveRiskifiedConfig</method>
+                    </riskified_full>
+                </observers>
+            </admin_system_config_changed_section_fullsection>
             <sales_order_payment_place_start>
                 <observers>
                     <riskified_full>
