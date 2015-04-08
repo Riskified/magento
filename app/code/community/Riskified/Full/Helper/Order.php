@@ -401,12 +401,17 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         try {
             switch ($gateway_name) {
                 case 'authorizenet':
-                    $cards_data = array_values($payment->getAdditionalInformation('authorize_cards'));
-                    $card_data = $cards_data[0];
-                    $avs_result_code = $card_data['cc_avs_result_code']; // getAvsResultCode
-                    $cvv_result_code = $card_data['cc_response_code'];  // getCardCodeResponseCode
-                    $credit_card_number = $card_data['cc_last4'];
-                    $credit_card_company = $card_data['cc_type'];
+                    $authorize_data = $payment->getAdditionalInformation('authorize_cards');
+                    if($authorize_data && is_array($authorize_data)) {
+                        $cards_data = array_values($authorize_data);
+                        if ($cards_data && $cards_data[0]) {
+                            $card_data = $cards_data[0];
+                            $avs_result_code = $card_data['cc_avs_result_code']; // getAvsResultCode
+                            $cvv_result_code = $card_data['cc_response_code'];  // getCardCodeResponseCode
+                            $credit_card_number = $card_data['cc_last4'];
+                            $credit_card_company = $card_data['cc_type'];
+                        }
+                    }
                     break;
                 case 'paypal_express':
                 case 'paypaluk_express':
