@@ -21,13 +21,6 @@
 
 <?php
 $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
-$allkeys ='';
-foreach ($all_active_methods as $key => $value)
-{
-    $paymentTitle = Mage::getStoreConfig('payment/'.$key.'/title');
-    $methods[$key] = $paymentTitle;
-    $allkeys .= $key.",";
-}
 ?>
 
 <style type="text/css">
@@ -75,110 +68,12 @@ foreach ($all_active_methods as $key => $value)
         width: 800px;
         clear: both;
     }
-    #activate-form input{
-        display: block;
-        width: 300px;
-        line-height: 30px;
-        font-size: 17px;
-        margin-bottom: 10px;
-        padding-left: 10px  ;
-    }
-
-    .text-notice {
-        font-weight: 300;
-        font-size: 15px;
-        color: #d15a2f;
-        display: none;
-        margin-top: 0px;
-        margin-bottom: 0px;
-        line-height: 0px;
-        text-align: center;
-    }
-
-    #activation-done{
-        display: none;
-    }
 
 </style>
 
 <script type="text/javascript">
     //<![CDATA[
 
-    function showRiskifiedNotice(noticeId){
-        $$(noticeId)[0].style.setProperty("display","block");
-    }
-
-    function hideRiskifiedNotice(noticeId){
-        $$(noticeId)[0].style.setProperty("display","none");
-    }
-
-    function activate(){
-        var riskifiedShopDomain = $$("#riskified-shop-domain")[0].value;
-        if (riskifiedShopDomain == ""){
-            showRiskifiedNotice("#magento-notice");
-            return;
-        }
-        var riskifiedPassword = $$("#riskified-shop-password")[0].value;
-
-        if (riskifiedPassword == ""){
-            showRiskifiedNotice("#magento-notice");
-            return;
-        }
-
-        var generatedKey = "<?php echo sha1(microtime(true).mt_rand(10000,90000)); ?>";
-
-        $$("#fullsection_full_key")[0].value = generatedKey;
-        $$("#fullsection_full_domain")[0].value = riskifiedShopDomain;
-        riskifiedActivation(riskifiedPassword,riskifiedShopDomain,generatedKey)
-    }
-
-    function riskifiedOnSave(event){
-        try
-        {
-            var fullsectionIndex = document.location.href.indexOf('fullsection');
-            if (fullsectionIndex == -1){
-                return;
-            }
-            var riskifiedShopDomain = '<?php echo Mage::helper("full")->getShopDomain()?>'
-            var generatedKey = '<?php echo Mage::helper('full')->getAuthToken()?>';
-
-            var version = "<?php echo Mage::helper('full')->getExtensionVersion() ?>";
-            var extensionConfigSaveEndpoint = ('https:' == document.location.protocol ? 'https://' : 'http://') +  '<?php echo Mage::helper("full/order")->getRiskifiedDomain()?>/magento/config';
-            var admin_url =   '<?php echo Mage::helper("full")->getAdminUrl()?>';
-
-            new Ajax.Request(extensionConfigSaveEndpoint, {
-                method: 'POST',
-                parameters: "shop_url="+riskifiedShopDomain+"&auth_token="+generatedKey+"&admin_url="+admin_url+"&version"+version
-            });
-        }catch(err){
-            console.log("error reporting new config params");
-        }
-        return true;
-    }
-
-    function riskifiedActivation(riskifiedPassword,riskifiedShopDomain,generatedKey){
-        var keys = "<?php echo $allkeys ?>";
-        var extensionVersion = '<?php echo Mage::helper('full')->getExtensionVersion()?>'
-        var activateURL = 'http://' + '<?php echo Mage::helper("full/order")->getRiskifiedDomain()?>/magento/activate';
-        var shopHostUrl = "<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB)?>";
-
-        new Ajax.Request(activateURL, {
-            method: 'POST',
-            parameters: "shop_url="+riskifiedShopDomain+"&password="+riskifiedPassword+"&auth_token="+generatedKey+"&gws="+keys+"&host_url="+shopHostUrl+"&extension_version="+extensionVersion,
-            onSuccess:
-                function(response) {
-                    hideRiskifiedNotice("#magento-notice");
-                    configForm.submit();
-                    $$("#activation-done")[0].style.setProperty("display","block");
-                    $$("#activation-pre")[0].style.setProperty("display","none");
-                    $$("#activate_button")[0].disabled = true;
-                },
-            onFailure:
-                function(response) {
-                    showRiskifiedNotice("#magento-notice");
-                }
-        });
-    }
     document.observe("dom:loaded", function() {
         var rhtml = '';
         rhtml += '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">';
@@ -187,13 +82,6 @@ foreach ($all_active_methods as $key => $value)
         rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;">';
         rhtml += 'The Riskified extension has been installed.<br>To activate the extension please connect it to your Riskified account';
         rhtml += '</div>';
-
-        var keyRow = $$('#row_fullsection_full_key')
-        if (keyRow.size()== 0){
-            return;
-        }else{
-            keyRow = keyRow[0];
-        }
 
         var authToken = '<?php echo Mage::helper('full')->getAuthToken()?>';
         var shopDomain= '<?php echo Mage::helper('full')->getShopDomain()?>';
@@ -218,12 +106,11 @@ foreach ($all_active_methods as $key => $value)
             rhtml += '        </span>';
             rhtml += '    </span>';
             rhtml += '</span>';
-            $$(".entry-edit-head.collapseable")[0].style.display = "none";
+            //$$(".entry-edit-head.collapseable")[0].style.display = "none";
         }
         htmlBody = rhtml;
 
         section.up().insert({top:htmlBody});
-        $$(".save").forEach(function(saveButton){saveButton.observe('click',riskifiedOnSave)})
     });
 
     //]]>
