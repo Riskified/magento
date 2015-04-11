@@ -1,5 +1,5 @@
 <_>
-   <form_key>Lt8pRKYb06WYiXqd</form_key>
+   <form_key>GRbZLfi7BaJKltTa</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,9 +10,10 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.6.8</version>
+   <version>1.0.7.0</version>
    <stability>stable</stability>
-   <notes>* Bugfix for error in remote cases on authorize.net payments</notes>
+   <notes>* Bugfix for error in remote cases on authorize.net payments (missing AVS data)
+* Configuration page changes</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -41,7 +42,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                           </files>
+            <files>                                                            </files>
          </files>
       </package>
       <extension>
