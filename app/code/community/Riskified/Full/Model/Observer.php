@@ -363,7 +363,7 @@ class Riskified_Full_Model_Observer {
         if (isset($response->order)) {
             $orderId = $response->order->id;
             $status = $response->order->status;
-            $oldStatus = $response->order->old_status;
+            $oldStatus = isset($response->order->old_status) ? $response->order->old_status : null;
             $description = $response->order->description;
 
             if (!$description) {

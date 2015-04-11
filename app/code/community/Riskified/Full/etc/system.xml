@@ -59,8 +59,8 @@
                           <br>Requires the <i>Order notification endpoint</i> to be configured correctly in your Riskified Settings page.
                           <br>Using the following mapping:
                           <br>'submit' => state: 'On Hold', status: 'On Hold (Riskified)'
-                          <br>'approve' => state: [defined bellow by 'Approved State' value], status: [defined bellow by 'Approved Status' value]
-                          <br>'decline' => state: [defined bellow by 'Declined State' value], status: [defined bellow by 'Declined Status' value]
+                          <br>'approve' => state: [defined below by 'Approved State' value], status: [defined below by 'Approved Status' value]
+                          <br>'decline' => state: [defined below by 'Declined State' value], status: [defined below by 'Declined Status' value]
                           <br> in case of transfer error  => state: 'On Hold', status: 'On Hold (Riskified Transport Error)'
                           <br><b>Important:</b> Might affect other extensions that are dependent on an Order's status.
                            ]]></comment>
@@ -188,9 +188,6 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                             <comment><![CDATA[Write additional debug logs?]]></comment>
-                            <depends>
-                                <order_status_sync>1</order_status_sync>
-                            </depends>
                         </debug_logs>
                     </fields>
                 </full>
