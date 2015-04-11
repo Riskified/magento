@@ -406,10 +406,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                         $cards_data = array_values($authorize_data);
                         if ($cards_data && $cards_data[0]) {
                             $card_data = $cards_data[0];
-                            $avs_result_code = $card_data['cc_avs_result_code']; // getAvsResultCode
-                            $cvv_result_code = $card_data['cc_response_code'];  // getCardCodeResponseCode
-                            $credit_card_number = $card_data['cc_last4'];
-                            $credit_card_company = $card_data['cc_type'];
+                            if(isset($card_data['cc_last4'])) { $credit_card_number = $card_data['cc_last4']; }
+                            if(isset($card_data['cc_type'])) { $credit_card_company = $card_data['cc_type']; }
+                            if(isset($card_data['cc_avs_result_code'])) { $avs_result_code = $card_data['cc_avs_result_code']; }// getAvsResultCode
+                            if(isset($card_data['cc_response_code'])) { $cvv_result_code = $card_data['cc_response_code']; } // getCardCodeResponseCode
                         }
                     }
                     break;
