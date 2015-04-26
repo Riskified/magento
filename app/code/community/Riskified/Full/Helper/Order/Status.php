@@ -108,8 +108,9 @@ class Riskified_Full_Helper_Order_Status extends Mage_Core_Helper_Abstract
         $status = Mage::helper('full')->getApprovedStatus();
 
         $allowedStatuses = Mage::getSingleton('sales/order_config')->getStateStatuses($this->getSelectedApprovedState());
-        if (!in_array($status, $allowedStatuses)) {
+        if (!in_array($status, array_keys($allowedStatuses))) {
             $status = $this->getRiskifiedApprovedStatusCode();
+            Mage::helper('full/log')->log("approved status: ".$status." not found in: ".var_export($allowedStatuses,1));
         }
 
         return $status;
@@ -141,8 +142,9 @@ class Riskified_Full_Helper_Order_Status extends Mage_Core_Helper_Abstract
         $status = Mage::helper('full')->getDeclinedStatus();
 
         $allowedStatuses = Mage::getSingleton('sales/order_config')->getStateStatuses($this->getSelectedDeclinedState());
-        if (!in_array($status, $allowedStatuses)) {
+        if (!in_array($status, array_keys($allowedStatuses))) {
             $status = $this->getRiskifiedDeclinedStatusCode();
+            Mage::helper('full/log')->log("declined status: ".$status." not found in: ".var_export($allowedStatuses,1));
         }
 
         return $status;
