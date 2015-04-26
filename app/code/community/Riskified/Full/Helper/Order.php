@@ -511,9 +511,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 'sku' => $val->getSku(),
                 'product_id' => $val->getItemId(),
                 'grams' => $val->getWeight(),
-                'product_type' => $val->getTypeId()  //->getProduct()->getTypeId()
+                'product_type' => $val->getProduct()->getTypeId()
             ),'strlen'));
         }
+
         return $line_items;
     }
 
