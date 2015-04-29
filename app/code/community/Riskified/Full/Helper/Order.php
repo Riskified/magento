@@ -504,6 +504,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     private function getLineItems($model) {
         $line_items = array();
         foreach ($model->getAllVisibleItems() as $key => $val) {
+            $prod_type = null;
+            if($val->getProduct()) {
+                $prod_type = $val->getProduct()->getTypeId();
+            }
             $line_items[] = new Model\LineItem(array_filter(array(
                 'price' => $val->getPrice(),
                 'quantity' => intval($val->getQtyOrdered()),
@@ -511,7 +515,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 'sku' => $val->getSku(),
                 'product_id' => $val->getItemId(),
                 'grams' => $val->getWeight(),
-                'product_type' => $val->getProduct()->getTypeId()
+                'product_type' => $prod_type
             ),'strlen'));
         }
 
