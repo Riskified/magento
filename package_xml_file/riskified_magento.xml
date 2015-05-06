@@ -1,5 +1,5 @@
 <_>
-   <form_key>HCBM35654Of5Y24d</form_key>
+   <form_key>vv0nfes5DnoMAiiU</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,7 +10,7 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.7.2</version>
+   <version>1.0.7.4</version>
    <stability>stable</stability>
    <notes>* Approved/Declined status sync bugfix
 * Added product_type field to data
@@ -43,7 +43,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                               </files>
+            <files>                                                                </files>
          </files>
       </package>
       <extension>
@@ -120,8 +120,4 @@ transactions you would otherwise decline.</description>
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
