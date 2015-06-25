@@ -413,6 +413,12 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                         }
                     }
                     break;
+                case 'authnetcim':
+                    $avs_result_code = $payment->getAdditionalInformation('avs_result_code');
+                    $cvv_result_code = $payment->getAdditionalInformation('card_code_response_code');
+                    #$cavv_result_code = $payment->getAdditionalInformation('cavv_response_code');
+                    #$is_fraud = $payment->getAdditionalInformation('is_fraud');
+                    break;
                 case 'paypal_express':
                 case 'paypaluk_express':
                     $payer_email = $payment->getAdditionalInformation('paypal_payer_email');
