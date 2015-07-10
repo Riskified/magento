@@ -110,7 +110,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             Mage::helper('full/log')->logException($curlException);
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
 
-            $this->updateOrder($order, 'error',nil, 'Error transferring order data to Riskified');
+            $this->updateOrder($order, 'error',null, 'Error transferring order data to Riskified');
             $this->scheduleSubmissionRetry($order, $action);
 
             Mage::dispatchEvent(
@@ -383,6 +383,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 Mage::helper('full/log')->log("sagepay->getBankAuthCode: ".$sage->getBankAuthCode());
                 Mage::helper('full/log')->log("sagepay->getPayerStatus: ".$sage->getPayerStatus());
             }
+            $optimalTransaction = $payment->getAdditionalInformation('transaction');
+            if($optimalTransaction) {
+                Mage::helper('full/log')->log("Optimal transaction: ");
+                Mage::helper('full/log')->log("transaction->cvdVerification: ".$optimalTransaction->cvdVerification);
+                Mage::helper('full/log')->log("transaction->houseNumberVerification: ".$optimalTransaction->houseNumberVerification);
+                Mage::helper('full/log')->log("transaction->zipVerification: ".$optimalTransaction->zipVerification);
+            }
         } catch(Exception $e) {
             Mage::helper('full/log')->logException($e);
         }
@@ -392,6 +399,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $payment = $model->getPayment();
         if(!$payment) {
             return null;
+        }
+
+        if(Mage::helper('full')->isDebugLogsEnabled()) {
+            $this->logPaymentData($model);
         }
 
         $transactionId = $payment->getTransactionId();
@@ -418,6 +429,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     $cvv_result_code = $payment->getAdditionalInformation('card_code_response_code');
                     #$cavv_result_code = $payment->getAdditionalInformation('cavv_response_code');
                     #$is_fraud = $payment->getAdditionalInformation('is_fraud');
+                    break;
+                case 'optimal_hosted':
+                    $optimalTransaction = $payment->getAdditionalInformation('transaction');
+                    $cvv_result_code = $optimalTransaction->cvdVerification;
+                    $houseVerification = $optimalTransaction->houseNumberVerification;
+                    $zipVerification = $optimalTransaction->zipVerification;
+                    $avs_result_code = $houseVerification . ',' . $zipVerification;
                     break;
                 case 'paypal_express':
                 case 'paypaluk_express':
@@ -492,10 +510,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             $credit_card_number = "XXXX-XXXX-XXXX-" . $credit_card_number;
         }
         $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
-
-        if(Mage::helper('full')->isDebugLogsEnabled()) {
-            $this->logPaymentData($model);
-        }
 
         return new Model\PaymentDetails(array_filter(array(
             'authorization_id' => $transactionId,
