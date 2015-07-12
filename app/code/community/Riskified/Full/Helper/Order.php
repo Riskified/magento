@@ -383,7 +383,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 Mage::helper('full/log')->log("sagepay->getBankAuthCode: ".$sage->getBankAuthCode());
                 Mage::helper('full/log')->log("sagepay->getPayerStatus: ".$sage->getPayerStatus());
             }
-            $optimalTransaction = $payment->getAdditionalInformation('transaction');
+            $optimalTransaction = unserialize($payment->getAdditionalInformation('transaction'));
             if($optimalTransaction) {
                 Mage::helper('full/log')->log("Optimal transaction: ");
                 Mage::helper('full/log')->log("transaction->cvdVerification: ".$optimalTransaction->cvdVerification);
@@ -431,11 +431,15 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     #$is_fraud = $payment->getAdditionalInformation('is_fraud');
                     break;
                 case 'optimal_hosted':
-                    $optimalTransaction = $payment->getAdditionalInformation('transaction');
-                    $cvv_result_code = $optimalTransaction->cvdVerification;
-                    $houseVerification = $optimalTransaction->houseNumberVerification;
-                    $zipVerification = $optimalTransaction->zipVerification;
-                    $avs_result_code = $houseVerification . ',' . $zipVerification;
+                    try {
+                        $optimalTransaction = unserialize($payment->getAdditionalInformation('transaction'));
+                        $cvv_result_code = $optimalTransaction->cvdVerification;
+                        $houseVerification = $optimalTransaction->houseNumberVerification;
+                        $zipVerification = $optimalTransaction->zipVerification;
+                        $avs_result_code = $houseVerification . ',' . $zipVerification;
+                    } catch(Exception $e) {
+                        Mage::helper('full/log')->log("optimal payment (".$gateway_name.") additional payment info failed to parse:".$e->getMessage());
+                    }
                     break;
                 case 'paypal_express':
                 case 'paypaluk_express':
