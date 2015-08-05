@@ -21,6 +21,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     /**
      * Update the merchan't settings
+     *
      * @param settings hash
      * @return stdClass
      * @throws Exception
@@ -66,7 +67,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $transport = $this->getTransport();
         $headers = $this->getHeaders();
 
-	    Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $action);
+      Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $action);
 
         $eventData = array(
             'order' => $order,
@@ -109,7 +110,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             Mage::helper('full/log')->logException($curlException);
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
 
-            $this->updateOrder($order, 'error',null, 'Error transferring order data to Riskified');
+            $this->updateOrder($order, 'error',nil, 'Error transferring order data to Riskified');
             $this->scheduleSubmissionRetry($order, $action);
 
             Mage::dispatchEvent(
@@ -144,50 +145,50 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         return "Successfully uploaded ".count($msgs)." orders.".PHP_EOL;
     }
 
-	/**
-	 * Dispatch events for order update handling
-	 *
-	 * Possible events are:
-	 *      - riskified_order_update
-	 *      - riskified_order_update_approved
-	 *      - riskified_order_update_declined
-	 *      - riskified_order_update_submitted
-	 *      - riskified_order_update_captured
+  /**
+   * Dispatch events for order update handling
+   *
+   * Possible events are:
+   *      - riskified_order_update
+   *      - riskified_order_update_approved
+   *      - riskified_order_update_declined
+   *      - riskified_order_update_submitted
+   *      - riskified_order_update_captured
      *      - riskified_order_update_error
-	 *      - riskified_order_update_?
-	 *
-	 * @param Mage_Sales_Model_Order $order
-	 * @param string $status
+   *      - riskified_order_update_?
+   *
+   * @param Mage_Sales_Model_Order $order
+   * @param string $status
      * @param string $oldStatus
-	 * @param string $description
-	 * @return void
-	 */
-	public function updateOrder($order, $status, $oldStatus, $description) {
-		Mage::helper('full/log')->log('Dispatching event for order ' . $order->getId() . ' with status "' . $status .
+   * @param string $description
+   * @return void
+   */
+  public function updateOrder($order, $status, $oldStatus, $description) {
+    Mage::helper('full/log')->log('Dispatching event for order ' . $order->getId() . ' with status "' . $status .
             '" old status "' . $oldStatus . '" and description "' . $description . '"');
 
-		$eventData = array(
-			'order' => $order,
-			'status' => $status,
+    $eventData = array(
+      'order' => $order,
+      'status' => $status,
             'old_status' => $oldStatus,
-			'description' => $description
-		);
+      'description' => $description
+    );
 
-		// A generic event for all updates
-		Mage::dispatchEvent(
-			'riskified_full_order_update',
-			$eventData
-		);
+    // A generic event for all updates
+    Mage::dispatchEvent(
+      'riskified_full_order_update',
+      $eventData
+    );
 
-		// A status-specific event
-		$eventIdentifier = preg_replace("/[^a-z]/", '_', strtolower($status));
+    // A status-specific event
+    $eventIdentifier = preg_replace("/[^a-z]/", '_', strtolower($status));
 
-		Mage::dispatchEvent(
-			'riskified_full_order_update_' . $eventIdentifier,
-			$eventData
-		);
+    Mage::dispatchEvent(
+      'riskified_full_order_update_' . $eventIdentifier,
+      $eventData
+    );
 
-		return;
+    return;
     }
 
     public function getRiskifiedDomain() {
@@ -223,7 +224,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $this->version = $helper->getExtensionVersion();
         $sdkVersion = Riskified::VERSION;
 
-	    Mage::helper('full/log')->log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken, extension_version: $this->version, sdk_version: $sdkVersion");
+      Mage::helper('full/log')->log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken, extension_version: $this->version, sdk_version: $sdkVersion");
         Riskified::init($shopDomain, $authToken, $env, Validations::SKIP);
     }
 
@@ -298,7 +299,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             $order->client_details = $this->getClientDetails($model);
         }
 
-	    Mage::helper('full/log')->log("getOrder(): ".PHP_EOL.json_encode(json_decode($order->toJson())));
+      Mage::helper('full/log')->log("getOrder(): ".PHP_EOL.json_encode(json_decode($order->toJson())));
 
         return $order;
     }
@@ -382,19 +383,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 Mage::helper('full/log')->log("sagepay->getBankAuthCode: ".$sage->getBankAuthCode());
                 Mage::helper('full/log')->log("sagepay->getPayerStatus: ".$sage->getPayerStatus());
             }
-            if($gateway_name == "optimal_hosted") {
-                $optimalTransaction = unserialize($payment->getAdditionalInformation('transaction'));
-                if($optimalTransaction) {
-                    Mage::helper('full/log')->log("Optimal transaction: ");
-                    Mage::helper('full/log')->log("transaction->cvdVerification: ".$optimalTransaction->cvdVerification);
-                    Mage::helper('full/log')->log("transaction->houseNumberVerification: ".$optimalTransaction->houseNumberVerification);
-                    Mage::helper('full/log')->log("transaction->zipVerification: ".$optimalTransaction->zipVerification);
-                }
-                else {
-                    Mage::helper('full/log')->log("Optimal gateway but no transaction found");
-                }
-            }
-
         } catch(Exception $e) {
             Mage::helper('full/log')->logException($e);
         }
@@ -406,16 +394,16 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             return null;
         }
 
-        if(Mage::helper('full')->isDebugLogsEnabled()) {
-            $this->logPaymentData($model);
-        }
-
         $transactionId = $payment->getTransactionId();
 
         $gateway_name = $payment->getMethod();
 
         try {
             switch ($gateway_name) {
+                // Conekta gateway
+                case 'card':
+                    $credit_card_bin = $payment->getCardBin();
+                    break;
                 case 'authorizenet':
                     $authorize_data = $payment->getAdditionalInformation('authorize_cards');
                     if($authorize_data && is_array($authorize_data)) {
@@ -434,17 +422,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     $cvv_result_code = $payment->getAdditionalInformation('card_code_response_code');
                     #$cavv_result_code = $payment->getAdditionalInformation('cavv_response_code');
                     #$is_fraud = $payment->getAdditionalInformation('is_fraud');
-                    break;
-                case 'optimal_hosted':
-                    try {
-                        $optimalTransaction = unserialize($payment->getAdditionalInformation('transaction'));
-                        $cvv_result_code = $optimalTransaction->cvdVerification;
-                        $houseVerification = $optimalTransaction->houseNumberVerification;
-                        $zipVerification = $optimalTransaction->zipVerification;
-                        $avs_result_code = $houseVerification . ',' . $zipVerification;
-                    } catch(Exception $e) {
-                        Mage::helper('full/log')->log("optimal payment (".$gateway_name.") additional payment info failed to parse:".$e->getMessage());
-                    }
                     break;
                 case 'paypal_express':
                 case 'paypaluk_express':
@@ -518,7 +495,12 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         if (isset($credit_card_number)) {
             $credit_card_number = "XXXX-XXXX-XXXX-" . $credit_card_number;
         }
-        $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
+        if (!isset($credit_card_bin)) {
+            $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
+        }
+        if(Mage::helper('full')->isDebugLogsEnabled()) {
+            $this->logPaymentData($model);
+        }
 
         return new Model\PaymentDetails(array_filter(array(
             'authorization_id' => $transactionId,
@@ -562,7 +544,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     private function getClientDetails($model) {
         return new Model\ClientDetails(array_filter(array(
             'accept_language' => Mage::app()->getLocale()->getLocaleCode(),
-            //'browser_ip' => $this->getRemoteIp($model),
+            'browser_ip' => $this->getRemoteIp($model),
             'user_agent' => Mage::helper('core/http')->getHttpUserAgent()
         ),'strlen'));
     }
