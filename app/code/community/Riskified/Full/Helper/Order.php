@@ -21,7 +21,6 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
     /**
      * Update the merchan't settings
-     *
      * @param settings hash
      * @return stdClass
      * @throws Exception
@@ -383,13 +382,19 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 Mage::helper('full/log')->log("sagepay->getBankAuthCode: ".$sage->getBankAuthCode());
                 Mage::helper('full/log')->log("sagepay->getPayerStatus: ".$sage->getPayerStatus());
             }
-            $optimalTransaction = unserialize($payment->getAdditionalInformation('transaction'));
-            if($optimalTransaction) {
-                Mage::helper('full/log')->log("Optimal transaction: ");
-                Mage::helper('full/log')->log("transaction->cvdVerification: ".$optimalTransaction->cvdVerification);
-                Mage::helper('full/log')->log("transaction->houseNumberVerification: ".$optimalTransaction->houseNumberVerification);
-                Mage::helper('full/log')->log("transaction->zipVerification: ".$optimalTransaction->zipVerification);
+            if($gateway_name == "optimal_hosted") {
+                $optimalTransaction = unserialize($payment->getAdditionalInformation('transaction'));
+                if($optimalTransaction) {
+                    Mage::helper('full/log')->log("Optimal transaction: ");
+                    Mage::helper('full/log')->log("transaction->cvdVerification: ".$optimalTransaction->cvdVerification);
+                    Mage::helper('full/log')->log("transaction->houseNumberVerification: ".$optimalTransaction->houseNumberVerification);
+                    Mage::helper('full/log')->log("transaction->zipVerification: ".$optimalTransaction->zipVerification);
+                }
+                else {
+                    Mage::helper('full/log')->log("Optimal gateway but no transaction found");
+                }
             }
+
         } catch(Exception $e) {
             Mage::helper('full/log')->logException($e);
         }
