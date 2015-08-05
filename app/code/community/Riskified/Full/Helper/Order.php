@@ -557,7 +557,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     private function getClientDetails($model) {
         return new Model\ClientDetails(array_filter(array(
             'accept_language' => Mage::app()->getLocale()->getLocaleCode(),
-            'browser_ip' => $this->getRemoteIp($model),
+            //'browser_ip' => $this->getRemoteIp($model),
             'user_agent' => Mage::helper('core/http')->getHttpUserAgent()
         ),'strlen'));
     }
