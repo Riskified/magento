@@ -262,6 +262,21 @@ class Riskified_Full_Model_Observer {
 		}
 	}
 
+    private function logInvoiceParameters($order) {
+        try {
+            Mage::helper('full/log')->log("Order ".$order->getId()." parameters relevant to invoicing failure:");
+            Mage::helper('full/log')->log("Order state: ".$order->getState());
+            Mage::helper('full/log')->log("Order status: ".$order->getStatus());
+            Mage::helper('full/log')->log("UNHOLD action flag: ".$order->getActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_UNHOLD));
+            Mage::helper('full/log')->log("INVOICE action flag: ".$order->getActionFlag(Mage_Sales_Model_Order::ACTION_FLAG_INVOICE));
+            foreach ($order->getAllItems() as $item) {
+                Mage::helper('full/log')->log("item ".$item->getProductId()." - qty: ".$item->getQtyToInvoice()."  locked: ".$item->getLockedDoInvoice());
+            }
+        } catch(Exception $e) {
+            Mage::helper('full/log')->logException($e);
+        }
+    }
+
 	/**
 	 * Create an invoice when the order is approved
 	 *
@@ -286,6 +301,11 @@ class Riskified_Full_Model_Observer {
 
 		if (!$order->canInvoice()) {
 			Mage::helper('full/log')->log("Order cannot be invoiced");
+
+            if(Mage::helper('full')->isDebugLogsEnabled()) {
+                $this->logInvoiceParameters($order);
+            }
+
 			return;
 		}
 
