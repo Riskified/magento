@@ -15,12 +15,15 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
         try {
             $notification = $helper->parseRequest($request);
             $id = $notification->id;
-            if ($notification-> status == 'test' && $id == 0) {
+            if ($notification->status == 'test' && $id == 0) {
                 $statusCode = 200;
                 $msg = 'Test notification received successfully';
                 Mage::helper('full/log')->log("Test Notification received: ", serialize($notification));
             }
             else {
+
+                // Changing scope to ADMIN store so that all orders will be visible and all admin functionalities will work
+                Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
 
                 Mage::helper('full/log')->log("Notification received: ", serialize($notification));
 

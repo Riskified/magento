@@ -1,5 +1,5 @@
 <_>
-   <form_key>ia87vCklBPAgno83</form_key>
+   <form_key>LxjwgBW0lifCDtyE</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,9 +10,9 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.7.6</version>
+   <version>1.0.7.7</version>
    <stability>stable</stability>
-   <notes>* Added support for Optimal gateway (extension by Demac)</notes>
+   <notes>* Changing notification scope to ADMIN store so that all orders will be visible and all admin functionalities will work.</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -41,7 +41,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                     </files>
+            <files>                                                                         </files>
          </files>
       </package>
       <extension>
@@ -118,8 +118,4 @@ transactions you would otherwise decline.</description>
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
