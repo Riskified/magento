@@ -13,7 +13,8 @@ transactions you would otherwise decline.</description>
    <version>1.0.7.8</version>
    <stability>stable</stability>
    <notes>* Added Paypal Standard support
-* Limited auto-capture feature to only invoice orders in processing state (skip offline methods such as bank transfer)</notes>
+* Limited auto-capture feature to only invoice orders in processing state (skip offline methods such as bank transfer)
+* Bugfix for display issue on enterprise edition</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -42,7 +43,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                           </files>
+            <files>                                                                            </files>
          </files>
       </package>
       <extension>
@@ -119,8 +120,4 @@ transactions you would otherwise decline.</description>
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
