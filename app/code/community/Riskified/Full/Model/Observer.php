@@ -152,7 +152,8 @@ class Riskified_Full_Model_Observer {
 
     public function addMassAction($observer) {
         $block = $observer->getEvent()->getBlock();
-        if(get_class($block) =='Mage_Adminhtml_Block_Widget_Grid_Massaction'
+        if((get_class($block) =='Mage_Adminhtml_Block_Widget_Grid_Massaction'
+                || get_class($block)=='Enterprise_SalesArchive_Block_Adminhtml_Sales_Order_Grid_Massaction')
             && $block->getRequest()->getControllerName() == 'sales_order')
         {
             $block->addItem('full', array(
@@ -299,7 +300,7 @@ class Riskified_Full_Model_Observer {
 
 		Mage::helper('full/log')->log("Auto-invoicing  order " . $order->getId());
 
-		if (!$order->canInvoice()) {
+		if (!$order->canInvoice() || $order->getState() != Mage_Sales_Model_Order::STATE_PROCESSING) {
 			Mage::helper('full/log')->log("Order cannot be invoiced");
 
             if(Mage::helper('full')->isDebugLogsEnabled()) {
