@@ -1,5 +1,5 @@
 <_>
-   <form_key>LxjwgBW0lifCDtyE</form_key>
+   <form_key>lYJ97k9nAjYDiwlk</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,9 +10,11 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.7.7</version>
+   <version>1.0.7.8</version>
    <stability>stable</stability>
-   <notes>* Changing notification scope to ADMIN store so that all orders will be visible and all admin functionalities will work.</notes>
+   <notes>* Added Paypal Standard support
+* Limited auto-capture feature to only invoice orders in processing state (skip offline methods such as bank transfer)
+* Bugfix for display issue on enterprise edition</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -41,7 +43,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                         </files>
+            <files>                                                                            </files>
          </files>
       </package>
       <extension>
