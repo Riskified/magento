@@ -1,0 +1,12 @@
+{
+    "name": "riskified/magento",
+    "type": "magento-module",
+    "license":"OSL-3.0",
+    "description":"Riskified Magento extension",
+    "authors":[
+        {
+            "name":"omrimos",
+            "email":"omrimos@riskified.com"
+        }
+    ]
+}
