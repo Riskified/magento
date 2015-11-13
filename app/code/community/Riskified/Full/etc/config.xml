@@ -207,13 +207,14 @@
 
     <admin>
         <routers>
-            <full>
-                <use>admin</use>
+            <adminhtml>
                 <args>
-                    <module>Riskified_Full</module>
-                    <frontName>full</frontName>
+                    <modules>
+                        <riskified_full after="Mage_Adminhtml">Riskified_Full_Adminhtml</riskified_full>
+                        <frontName>riskifiedfull</frontName>
+                    </modules>
                 </args>
-            </full>
+            </adminhtml>
         </routers>
     </admin>
 

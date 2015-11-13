@@ -126,7 +126,7 @@ class Riskified_Full_Model_Observer {
         Mage::helper('full/log')->log("salesOrderCancel");
 
         $order = $evt->getOrder();
-        
+
         // TODO not sure if this is still required - saveAfter should be enough
 
         try {
@@ -158,7 +158,7 @@ class Riskified_Full_Model_Observer {
         {
             $block->addItem('full', array(
                 'label' => 'Submit to Riskified',
-                'url' => Mage::app()->getStore()->getUrl('full/adminhtml_full/riskimass'),
+                'url' => Mage::helper('adminhtml')->getUrl('adminhtml/riskifiedfull/massSend'),
             ));
         }
     }
@@ -167,7 +167,7 @@ class Riskified_Full_Model_Observer {
         $block = $observer->getEvent()->getBlock();
         if ($block->getType() == 'adminhtml/sales_order_view') {
             $message = Mage::helper('sales')->__('Are you sure you want to submit this order to Riskified?');
-            $url = $block->getUrl('full/adminhtml_full/riski');
+            $url = $block->getUrl('adminhtml/riskifiedfull/send');
             $block->addButton('riski_submit', array(
                 'label'     => Mage::helper('sales')->__('Submit to Riskified'),
                 'onclick'   => "deleteConfirm('$message', '$url')",

@@ -3,7 +3,17 @@
 class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_Action
 {
 
-    public function riskiAction()
+    /**
+     * Acl check for admin
+     *
+     * @return bool
+     */
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('sales/order');
+    }
+
+    public function sendAction()
     {
         $id = $this->getRequest()->getParam('order_id');
         $call = Mage::getModel('full/observer');
@@ -12,7 +22,7 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
         Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/index", array('id'=>$id)));
     }
 
-    public function riskimassAction()
+    public function massSendAction()
     {
         $order_ids = $this->getRequest()->getParam('order_ids');
         $call = Mage::getModel('full/observer');
