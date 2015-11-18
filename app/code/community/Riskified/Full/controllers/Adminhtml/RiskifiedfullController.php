@@ -1,6 +1,6 @@
 <?php
 
-class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_Action
+class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Controller_Action
 {
 
     /**
@@ -19,7 +19,7 @@ class Riskified_Full_Adminhtml_FullController extends Mage_Adminhtml_Controller_
         $call = Mage::getModel('full/observer');
         $call->postOrderIds(array($id));
 
-        Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/index", array('id'=>$id)));
+        Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/view", array('order_id'=>$id)));
     }
 
     public function massSendAction()
