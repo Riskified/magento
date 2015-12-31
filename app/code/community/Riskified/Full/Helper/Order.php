@@ -508,6 +508,14 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     Mage::helper('full/log')->log("transarmor payment additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
                     break;
 
+                case 'braintreevzero':
+                    $cvvResultCode = $payment->getAdditionalInformation('cvvResponseCode');
+                    $creditCardBin = $payment->getAdditionalInformation('bin');
+                    $houseVerification = $payment->getAdditionalInformation('avsStreetAddressResponseCode');
+                    $zipVerification = $payment->getAdditionalInformation('avsPostalCodeResponseCode');
+                    $avsResultCode = $houseVerification . ',' . $zipVerification;
+                    break;
+
                 default:
                     Mage::helper('full/log')->log("unknown gateway:" . $gatewayName);
                     Mage::helper('full/log')->log("Gateway payment (".$gatewayName.") additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
@@ -530,10 +538,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         if (!isset($avsResultCode)) {
             $avsResultCode = $payment->getCcAvsStatus();
         }
+        if (!isset($creditCardBin)) {
+            $creditCardBin = $payment->getAdditionalInformation('riskified_cc_bin');
+        }
         if (isset($creditCardNumber)) {
             $creditCardNumber = "XXXX-XXXX-XXXX-" . $creditCardNumber;
         }
-        $creditCardBin = $payment->getAdditionalInformation('riskified_cc_bin');
+
 
         return new Model\PaymentDetails(array_filter(array(
             'authorization_id' => $transactionId,
