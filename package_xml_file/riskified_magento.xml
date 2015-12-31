@@ -1,5 +1,5 @@
 <_>
-   <form_key>mZfRG0s3pFhzdlro</form_key>
+   <form_key>YBY5CSW3BBYdiwtY</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,9 +10,9 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.7.9.2</version>
-   <stability>beta</stability>
-   <notes>* Adyen data point extraction support</notes>
+   <version>1.0.8.0</version>
+   <stability>stable</stability>
+   <notes>* Braintree vZero gateway data extraction support</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -41,7 +41,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                               </files>
+            <files>                                                                                </files>
          </files>
       </package>
       <extension>
