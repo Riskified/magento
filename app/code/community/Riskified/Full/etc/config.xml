@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.7.8</version>
+            <version>1.0.8.0</version>
         </Riskified_Full>
     </modules>
 
@@ -207,13 +207,14 @@
 
     <admin>
         <routers>
-            <full>
-                <use>admin</use>
+            <adminhtml>
                 <args>
-                    <module>Riskified_Full</module>
-                    <frontName>full</frontName>
+                    <modules>
+                        <riskified_full after="Mage_Adminhtml">Riskified_Full_Adminhtml</riskified_full>
+                        <frontName>riskifiedfull</frontName>
+                    </modules>
                 </args>
-            </full>
+            </adminhtml>
         </routers>
     </admin>
 

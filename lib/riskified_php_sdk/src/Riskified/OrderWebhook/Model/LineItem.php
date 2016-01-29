@@ -40,12 +40,64 @@ class LineItem extends AbstractModel {
         'requires_shipping' => 'boolean optional',
         'taxable' => 'boolean optional',
         'product_exists' => 'boolean optional',
-        'event_sub_category_name' => 'string optional',
+        'condition' => 'string optional',
+        'product_type' => 'string optional',
+        'brand' => 'string optional',
+
+        /* add this field when the (digital) goods are to be delivered in future date */
+        'delivered_at' => 'date optional',
+
+        /* adding product's category to php sdk */
+        'category' => 'string optional',
+        'sub_category' => 'string optional',
+
+        /* fields for ticket industry */
         'event_name' => 'string optional',
         'event_section_name' => 'string optional',
         'event_date' => 'date optional',
-        'condition' => 'string optional',
-        'product_type' => 'string optional',
+        'event_country' => 'string optional',
+        'event_city' => 'string optional',
+        'event_location' => 'string optional',
+
+        /* fields for giftcard industry */
+        'photo_url' => 'string optional',
+        'photo_uploaded' => 'boolean optional',
+        'greeting_photo_url' => 'string optional',
+        'display_name' => 'string optional',
+        'message' => 'string optional',
+        'greeting_message' => 'string optional',
+        'card_type' => 'string optional',
+        'card_subtype' => 'string optional',
+        'sender_name'=> 'string optional',
+
+        /* fields for travel industry */
+        'leg_id'=> 'string optional',
+        'departure_port_code'=> 'string optional',
+        'departure_city'=> 'string optional',
+        'departure_country_code'=> 'string optional',
+        'arrival_port_code'=> 'string optional',
+        'arrival_city'=> 'string optional',
+        'arrival_country_code'=> 'string optional',
+        'departure_date'=> 'datetime optional',
+        'arrival_date'=> 'datetime optional',
+        'carrier_name'=> 'string optional',
+        'carrier_code'=> 'string optional',
+        'route_index'=> 'number optional',
+        'leg_index'=> 'number optional',
+        'ticket_class'=> 'string optional',
+        'transport_method'=> 'string optional',
+
+        /* fields for accommodation industry */
+        'room_type'=> 'string optional',
+        'city'=> 'string optional',
+        'country_code'=> 'string optional',
+        'check_in_date'=> 'date optional',
+        'check_out_date'=> 'date optional',
+        'rating'=> 'float optional',
+        'number_of_guests'=> 'number optional',
+        'cancellation_policy' => 'string optional',
+        'accommodation_type' => 'string optional',
+
 
         'properties' =>'array object \Attribute optional',
         'tax_lines' => 'array object \TaxLine optional',

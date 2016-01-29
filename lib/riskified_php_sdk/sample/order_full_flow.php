@@ -26,12 +26,12 @@ use Riskified\OrderWebhook\Model;
 use Riskified\OrderWebhook\Transport;
 
 # Replace with the 'shop domain' of your account in Riskified
-$domain = "test.com";
+$domain = "[your shop domain as registered to Riskified]";
 
 # Replace with the 'auth token' listed in the Riskified web app under the 'Settings' Tab
-$authToken = "1388add8a99252fc1a4974de471e73cd";
+$authToken = "[your authentication token string]";
 
-Riskified::init($domain, $authToken, Env::SANDBOX, Validations::IGNORE_MISSING);
+Riskified::init($domain, $authToken, Env::SANDBOX, Validations::ALL);
 
 $order_details = array(
     'id' => 'ch567',
@@ -46,7 +46,7 @@ $order_details = array(
     'total_price' => 113.23,
     'total_discounts' => 5.0,
     'cart_token' => '1sdaf23j212',
-    'additional_emails' => array('my@email.com','second@email.co.uk'),
+    'additional_emails' => array('my@email.com','second@email.co.uk', 'third!2@email.rr.com'),
     'note' => 'Shipped to my hotel.',
     'referring_site' => 'google.com',
     'line_items' => array(
@@ -57,12 +57,22 @@ $order_details = array(
             'product_id' => '101',
             'sku' => 'ABCD'
         )),
+        // Digital Goods product example using "requires_shipping":false
+        new Model\LineItem(array(
+            'title' => 'Giftcard',
+            'price' => 100,
+            'quantity' => 1,
+            'requires_shipping' => false,
+            'delivered_at' => '2017-03-10T11:00:00-05:00',
+        )),
         new Model\LineItem(array(
             'price' => 200,
             'quantity' => 4,
             'title' => 'ACME Spring',
             'product_id' => '202',
-            'sku' => 'EFGH'
+            'sku' => 'EFGH',
+            'category' => 'ACME Spring Category',
+            'sub_category' => 'ACME Spring Sub Category'
         ))
     ),
     'discount_codes' =>  new Model\DiscountCode(array(
@@ -70,6 +80,7 @@ $order_details = array(
         'code' => '12'
     )),
     'shipping_lines' => new Model\ShippingLine(array(
+        'title' => 'FedEx',
         'price' => 123.00,
         'code' => 'Free',
     )),
@@ -117,6 +128,10 @@ $order_details = array(
         'province' => 'New York',
         'province_code' => 'NY',
         'zip' => '64155'
+    )),
+    'charge_free_payment_details' => new Model\ChargeFreePaymentDetails(array(
+        'gateway' => 'giftcard',
+        'amount' => '50',
     ))
 );
 
@@ -180,6 +195,7 @@ echo PHP_EOL."Refund Order succeeded. Response: ".PHP_EOL.json_encode($response)
 $fullfillments = new Model\Fulfillment(array (
     'id' => $order->id,
     'fulfillments' => array(new Model\FulfillmentDetails(array(
+        'fulfillment_id' => '123',
         'created_at' =>  '2013-04-23T13:36:50Z',
         'status' => 'success',
         'tracking_company' =>  'fedex',

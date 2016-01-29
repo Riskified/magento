@@ -354,13 +354,27 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         Mage::helper('full/log')->log("Payment info debug Logs:");
         try {
             $payment = $model->getPayment();
-            $gateway_name = $payment->getMethod();
-            Mage::helper('full/log')->log("Payment Gateway: ".$gateway_name);
+            $gatewayName = $payment->getMethod();
+            Mage::helper('full/log')->log("Payment Gateway: ".$gatewayName);
             Mage::helper('full/log')->log("payment->getCcLast4(): ".$payment->getCcLast4());
             Mage::helper('full/log')->log("payment->getCcType(): ".$payment->getCcType());
             Mage::helper('full/log')->log("payment->getCcCidStatus(): ".$payment->getCcCidStatus());
             Mage::helper('full/log')->log("payment->getCcAvsStatus(): ".$payment->getCcAvsStatus());
             Mage::helper('full/log')->log("payment->getAdditionalInformation(): ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
+
+
+            Mage::helper('full/log')->log("payment->getAdyenPspReference(): ".$payment->getAdyenPspReference());
+            Mage::helper('full/log')->log("payment->getAdyenKlarnaNumber(): ".$payment->getAdyenKlarnaNumber());
+            Mage::helper('full/log')->log("payment->getAdyenAvsResult(): ".$payment->getAdyenAvsResult());
+            Mage::helper('full/log')->log("payment->getAdyenCvcResult(): ".$payment->getAdyenCvcResult());
+            Mage::helper('full/log')->log("payment->getAdyenBoletoPaidAmount(): ".$payment->getAdyenBoletoPaidAmount());
+            Mage::helper('full/log')->log("payment->getAdyenTotalFraudScore(): ".$payment->getAdyenTotalFraudScore());
+            Mage::helper('full/log')->log("payment->getAdyenRefusalReasonRaw(): ".$payment->getAdyenRefusalReasonRaw());
+            Mage::helper('full/log')->log("payment->getAdyenAcquirerReference(): ".$payment->getAdyenAcquirerReference());
+            Mage::helper('full/log')->log("payment->getAdyenAuthCode(): ".$payment->getAdyenAuthCode());
+
+            Mage::helper('full/log')->log("payment->getInfo(): ".PHP_EOL.var_export($payment->getInfo(), 1));
+
             # paypal_avs_code,paypal_cvv2_match,paypal_fraud_filters,avs_result,cvv2_check_result,address_verification,
             # postcode_verification,payment_status,pending_reason,payer_id,payer_status,email,credit_card_cvv2,
             # cc_avs_status,cc_approval,cc_last4,cc_owner,cc_exp_month,cc_exp_year,
@@ -382,7 +396,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 Mage::helper('full/log')->log("sagepay->getBankAuthCode: ".$sage->getBankAuthCode());
                 Mage::helper('full/log')->log("sagepay->getPayerStatus: ".$sage->getPayerStatus());
             }
-            if($gateway_name == "optimal_hosted") {
+            if($gatewayName == "optimal_hosted") {
                 $optimalTransaction = unserialize($payment->getAdditionalInformation('transaction'));
                 if($optimalTransaction) {
                     Mage::helper('full/log')->log("Optimal transaction: ");
@@ -412,38 +426,38 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
 
         $transactionId = $payment->getTransactionId();
 
-        $gateway_name = $payment->getMethod();
+        $gatewayName = $payment->getMethod();
 
         try {
-            switch ($gateway_name) {
+            switch ($gatewayName) {
                 case 'authorizenet':
                     $authorize_data = $payment->getAdditionalInformation('authorize_cards');
                     if($authorize_data && is_array($authorize_data)) {
                         $cards_data = array_values($authorize_data);
                         if ($cards_data && $cards_data[0]) {
                             $card_data = $cards_data[0];
-                            if(isset($card_data['cc_last4'])) { $credit_card_number = $card_data['cc_last4']; }
-                            if(isset($card_data['cc_type'])) { $credit_card_company = $card_data['cc_type']; }
-                            if(isset($card_data['cc_avs_result_code'])) { $avs_result_code = $card_data['cc_avs_result_code']; }// getAvsResultCode
-                            if(isset($card_data['cc_response_code'])) { $cvv_result_code = $card_data['cc_response_code']; } // getCardCodeResponseCode
+                            if(isset($card_data['cc_last4'])) { $creditCardNumber = $card_data['cc_last4']; }
+                            if(isset($card_data['cc_type'])) { $creditCardCompany = $card_data['cc_type']; }
+                            if(isset($card_data['cc_avs_result_code'])) { $avsResultCode = $card_data['cc_avs_result_code']; }// getAvsResultCode
+                            if(isset($card_data['cc_response_code'])) { $cvvResultCode = $card_data['cc_response_code']; } // getCardCodeResponseCode
                         }
                     }
                     break;
                 case 'authnetcim':
-                    $avs_result_code = $payment->getAdditionalInformation('avs_result_code');
-                    $cvv_result_code = $payment->getAdditionalInformation('card_code_response_code');
+                    $avsResultCode = $payment->getAdditionalInformation('avs_result_code');
+                    $cvvResultCode = $payment->getAdditionalInformation('card_code_response_code');
                     #$cavv_result_code = $payment->getAdditionalInformation('cavv_response_code');
                     #$is_fraud = $payment->getAdditionalInformation('is_fraud');
                     break;
                 case 'optimal_hosted':
                     try {
                         $optimalTransaction = unserialize($payment->getAdditionalInformation('transaction'));
-                        $cvv_result_code = $optimalTransaction->cvdVerification;
+                        $cvvResultCode = $optimalTransaction->cvdVerification;
                         $houseVerification = $optimalTransaction->houseNumberVerification;
                         $zipVerification = $optimalTransaction->zipVerification;
-                        $avs_result_code = $houseVerification . ',' . $zipVerification;
+                        $avsResultCode = $houseVerification . ',' . $zipVerification;
                     } catch(Exception $e) {
-                        Mage::helper('full/log')->log("optimal payment (".$gateway_name.") additional payment info failed to parse:".$e->getMessage());
+                        Mage::helper('full/log')->log("optimal payment (".$gatewayName.") additional payment info failed to parse:".$e->getMessage());
                     }
                     break;
                 case 'paypal_express':
@@ -466,37 +480,45 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                     ), 'strlen'));
                 case 'paypal_direct':
                 case 'paypaluk_direct':
-                    $avs_result_code = $payment->getAdditionalInformation('paypal_avs_code');
-                    $cvv_result_code = $payment->getAdditionalInformation('paypal_cvv2_match');
-                    $credit_card_number = $payment->getCcLast4();
-                    $credit_card_company = $payment->getCcType();
+                    $avsResultCode = $payment->getAdditionalInformation('paypal_avs_code');
+                    $cvvResultCode = $payment->getAdditionalInformation('paypal_cvv2_match');
+                    $creditCardNumber = $payment->getCcLast4();
+                    $creditCardCompany = $payment->getCcType();
                     break;
                 case 'sagepaydirectpro':
                 case 'sage_pay_form':
                 case 'sagepayserver':
                     $sage = $model->getSagepayInfo();
                     if ($sage) {
-                        $avs_result_code = $sage->getData('address_result');
-                        $cvv_result_code = $sage->getData('cv2result');
-                        $credit_card_number = $sage->getData('last_four_digits');
-                        $credit_card_company = $sage->getData('card_type');
-                        //Mage::helper('full/log')->log("sagepay payment (".$gateway_name.") additional info: ".PHP_EOL.var_export($sage->getAdditionalInformation(), 1));
-                        Mage::helper('full/log')->log("sagepay payment (".$gateway_name.") additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
+                        $avsResultCode = $sage->getData('address_result');
+                        $cvvResultCode = $sage->getData('cv2result');
+                        $creditCardNumber = $sage->getData('last_four_digits');
+                        $creditCardCompany = $sage->getData('card_type');
+                        //Mage::helper('full/log')->log("sagepay payment (".$gatewayName.") additional info: ".PHP_EOL.var_export($sage->getAdditionalInformation(), 1));
+                        Mage::helper('full/log')->log("sagepay payment (".$gatewayName.") additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
                     }
                     else {
-                        Mage::helper('full/log')->log("sagepay payment (".$gateway_name.") - getSagepayInfo returned null object");
+                        Mage::helper('full/log')->log("sagepay payment (".$gatewayName.") - getSagepayInfo returned null object");
                     }
                     break;
 
                 case 'transarmor':
-                    $avs_result_code = $payment->getAdditionalInformation('avs_response');
-                    $cvv_result_code = $payment->getAdditionalInformation('cvv2_response');
+                    $avsResultCode = $payment->getAdditionalInformation('avs_response');
+                    $cvvResultCode = $payment->getAdditionalInformation('cvv2_response');
                     Mage::helper('full/log')->log("transarmor payment additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
                     break;
 
+                case 'braintreevzero':
+                    $cvvResultCode = $payment->getAdditionalInformation('cvvResponseCode');
+                    $creditCardBin = $payment->getAdditionalInformation('bin');
+                    $houseVerification = $payment->getAdditionalInformation('avsStreetAddressResponseCode');
+                    $zipVerification = $payment->getAdditionalInformation('avsPostalCodeResponseCode');
+                    $avsResultCode = $houseVerification . ',' . $zipVerification;
+                    break;
+
                 default:
-                    Mage::helper('full/log')->log("unknown gateway:" . $gateway_name);
-                    Mage::helper('full/log')->log("Gateway payment (".$gateway_name.") additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
+                    Mage::helper('full/log')->log("unknown gateway:" . $gatewayName);
+                    Mage::helper('full/log')->log("Gateway payment (".$gatewayName.") additional info: ".PHP_EOL.var_export($payment->getAdditionalInformation(), 1));
                     break;
             }
         } catch (Exception $e) {
@@ -504,52 +526,77 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
         }
 
-        if (!isset($cvv_result_code)) {
-            $cvv_result_code = $payment->getCcCidStatus();
+        if (!isset($cvvResultCode)) {
+            $cvvResultCode = $payment->getCcCidStatus();
         }
-        if (!isset($credit_card_number)) {
-            $credit_card_number = $payment->getCcLast4();
+        if (!isset($creditCardNumber)) {
+            $creditCardNumber = $payment->getCcLast4();
         }
-        if (!isset($credit_card_company)) {
-            $credit_card_company = $payment->getCcType();
+        if (!isset($creditCardCompany)) {
+            $creditCardCompany = $payment->getCcType();
         }
-        if (!isset($avs_result_code)) {
-            $avs_result_code = $payment->getCcAvsStatus();
+        if (!isset($avsResultCode)) {
+            $avsResultCode = $payment->getCcAvsStatus();
         }
-        if (isset($credit_card_number)) {
-            $credit_card_number = "XXXX-XXXX-XXXX-" . $credit_card_number;
+        if (!isset($creditCardBin)) {
+            $creditCardBin = $payment->getAdditionalInformation('riskified_cc_bin');
         }
-        $credit_card_bin = $payment->getAdditionalInformation('riskified_cc_bin');
+        if (isset($creditCardNumber)) {
+            $creditCardNumber = "XXXX-XXXX-XXXX-" . $creditCardNumber;
+        }
+
 
         return new Model\PaymentDetails(array_filter(array(
             'authorization_id' => $transactionId,
-            'avs_result_code' => $avs_result_code,
-            'cvv_result_code' => $cvv_result_code,
-            'credit_card_number' => $credit_card_number,
-            'credit_card_company' => $credit_card_company,
-            'credit_card_bin' => $credit_card_bin
+            'avs_result_code' => $avsResultCode,
+            'cvv_result_code' => $cvvResultCode,
+            'credit_card_number' => $creditCardNumber,
+            'credit_card_company' => $creditCardCompany,
+            'credit_card_bin' => $creditCardBin
         ),'strlen'));
     }
 
     private function getLineItems($model) {
-        $line_items = array();
+        $lineItems = array();
         foreach ($model->getAllVisibleItems() as $key => $val) {
-            $prod_type = null;
-            if($val->getProduct()) {
-                $prod_type = $val->getProduct()->getTypeId();
+            $prodType = null;
+            $category = null;
+            $subCategories = null;
+            $product = $val->getProduct();
+            if($product) {
+                $prodType = $val->getProduct()->getTypeId();
+                $categoryIds = $product->getCategoryIds();
+                foreach ($categoryIds as $categoryId) {
+                    $cat = Mage::getModel('catalog/category')->load($categoryId);
+                    $catName = $cat->getName();
+                    if (!empty($catName)) {
+                        if(empty($category)) {
+                            $category = $catName;
+                        }
+                        else if(empty($subCategories)) {
+                            $subCategories = $catName;
+                        }
+                        else {
+                            $subCategories = $subCategories . '|' . $catName;
+                        }
+
+                    }
+                }
             }
-            $line_items[] = new Model\LineItem(array_filter(array(
+            $lineItems[] = new Model\LineItem(array_filter(array(
                 'price' => $val->getPrice(),
                 'quantity' => intval($val->getQtyOrdered()),
                 'title' => $val->getName(),
                 'sku' => $val->getSku(),
                 'product_id' => $val->getItemId(),
                 'grams' => $val->getWeight(),
-                'product_type' => $prod_type
+                'product_type' => $prodType,
+                'category' => $category,
+                //'sub_category' => $subCategories
             ),'strlen'));
         }
 
-        return $line_items;
+        return $lineItems;
     }
 
     private function getShippingLines($model) {
