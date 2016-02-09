@@ -9,7 +9,7 @@ class Riskified_Full_Model_Authorizenet extends Mage_Paygate_Model_Authorizenet
      * @param mage_sales_model_order_payment $payment
      * @return varien_object
      */
-    protected function _registercard(varien_object $response, mage_sales_model_order_payment $payment)
+    protected function _registerCard(varien_object $response, mage_sales_model_order_payment $payment)
     {
         Mage::helper('full/log')->log("in inherited _registercard.");
         $card = parent::_registercard($response, $payment);

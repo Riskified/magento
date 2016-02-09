@@ -210,15 +210,17 @@
     </admin>
 
     <adminhtml>
-        <adminhtml_widget_container_html_before>
-            <observers>
-                <module>
-                    <type>singleton</type>
-                    <class>full/observer</class>
-                    <method>blockHtmlBefore</method>
-                </module>
-            </observers>
-        </adminhtml_widget_container_html_before>
+        <events>
+            <adminhtml_widget_container_html_before>
+                <observers>
+                    <module>
+                        <type>singleton</type>
+                        <class>full/observer</class>
+                        <method>blockHtmlBefore</method>
+                    </module>
+                </observers>
+            </adminhtml_widget_container_html_before>
+        </events>
         <layout>
             <updates>
                 <full>
