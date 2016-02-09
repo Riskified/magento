@@ -24,6 +24,22 @@
                             </config>
                         </children>
                     </system>
+                    <sales>
+                        <children>
+                            <order>
+                                <children>
+                                    <actions>
+                                        <children>
+                                            <send_to_riskified translate="title" module="full">
+                                                <title>Send Manually to Riskfied</title>
+                                                <sort_order>99</sort_order>
+                                            </send_to_riskified>
+                                        </children>
+                                    </actions>
+                                </children>
+                            </order>
+                        </children>
+                    </sales>
                 </children>
             </admin>
         </resources>
