@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<config>
+    <acl>
+        <resources>
+            <all>
+                <title>Allow Everything</title>
+            </all>
+            <admin>
+                <children>
+                    <Riskified_Full translate="title" module="full">
+                        <title>Full Module</title>
+                        <sort_order>10</sort_order>
+                    </Riskified_Full>
+                    <system>
+                        <children>
+                            <config>
+                                <children>
+                                    <fullsection translate="title" module="full">
+                                        <title>Riskified</title>
+                                        <sort_order>99</sort_order>
+                                    </fullsection>
+                                </children>
+                            </config>
+                        </children>
+                    </system>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>
