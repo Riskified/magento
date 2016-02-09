@@ -138,15 +138,6 @@
                     </riskified_full>
                 </observers>
             </order_cancel_after>
-            <adminhtml_widget_container_html_before>
-                <observers>
-                    <module>
-                        <type>singleton</type>
-                        <class>full/observer</class>
-                        <method>blockHtmlBefore</method>
-                    </module>
-                </observers>
-            </adminhtml_widget_container_html_before>
             <riskified_full_order_update>
                 <observers>
                     <riskified_full_handle_order_update>
@@ -219,35 +210,15 @@
     </admin>
 
     <adminhtml>
-        <acl>
-            <resources>
-                <all>
-                    <title>Allow Everything</title>
-                </all>
-                <admin>
-                    <children>
-                        <Riskified_Full>
-                            <title>Full Module</title>
-                            <sort_order>10</sort_order>
-                        </Riskified_Full>
-                        <system>
-                            <children>
-                                <config>
-                                    <children>
-                                        <fullsection translate="title"
-                                                     module="full">  <!-- This is name of the section created by us -->
-                                            <title>Riskified</title>
-                                            <!-- Title as shown in User->Roles->Permissions Window -->
-                                            <sort_order>99</sort_order>
-                                        </fullsection>
-                                    </children>
-                                </config>
-                            </children>
-                        </system>
-                    </children>
-                </admin>
-            </resources>
-        </acl>
+        <adminhtml_widget_container_html_before>
+            <observers>
+                <module>
+                    <type>singleton</type>
+                    <class>full/observer</class>
+                    <method>blockHtmlBefore</method>
+                </module>
+            </observers>
+        </adminhtml_widget_container_html_before>
         <layout>
             <updates>
                 <full>
@@ -267,7 +238,6 @@
             </core_block_abstract_prepare_layout_before>
         </events>
     </adminhtml>
-
     <crontab>
         <jobs>
             <riskified_full_retry_submission>
@@ -284,7 +254,7 @@
     <phpunit>
         <suite>
             <modules>
-                <Riskified_Full />
+                <Riskified_Full/>
             </modules>
         </suite>
     </phpunit>

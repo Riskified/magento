@@ -19,7 +19,7 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
         $call = Mage::getModel('full/observer');
         $call->postOrderIds(array($id));
 
-        Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/view", array('order_id'=>$id)));
+        Mage::app()->getResponse()->setRedirect(Mage::helper('adminhtml')->getUrl("adminhtml/sales_order/view", array('order_id' => $id)));
     }
 
     public function massSendAction()

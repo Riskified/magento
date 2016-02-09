@@ -42,7 +42,8 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <comment><![CDATA[This is the shop domain used during signup. See <a href="http://www.riskified.com/documentation/magento.html" target="_blank">documentation</a> for more details.]]></comment>
+                            <comment>
+                                <![CDATA[This is the shop domain used during signup. See <a href="http://www.riskified.com/documentation/magento.html" target="_blank">documentation</a> for more details.]]></comment>
                         </domain>
                         <key translate="label comment">
                             <label>Auth token</label>
@@ -51,7 +52,8 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <comment><![CDATA[ Your <i>secret</i> auth token can be found in your <a href="https://app.riskified.com/main/settings/advanced" target="_blank">Riskified Settings page</a>. ]]></comment>
+                            <comment>
+                                <![CDATA[ Your <i>secret</i> auth token can be found in your <a href="https://app.riskified.com/main/settings/advanced" target="_blank">Riskified Settings page</a>. ]]></comment>
                         </key>
                         <order_status_sync translate="label comment">
                             <label>Order Status Sync</label>
@@ -161,7 +163,8 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <comment><![CDATA[Should an invoice automatically be created when Riskified approves this order?]]></comment>
+                            <comment>
+                                <![CDATA[Should an invoice automatically be created when Riskified approves this order?]]></comment>
                             <depends>
                                 <order_status_sync>1</order_status_sync>
                             </depends>
