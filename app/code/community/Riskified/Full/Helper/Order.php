@@ -83,25 +83,27 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             switch ($action) {
                 case self::ACTION_CREATE:
                     $orderForTransport = $this->getOrder($order);
-                    $response = $transport->createOrder($orderForTransport);
+//                    $response = $transport->createOrder($orderForTransport);
 
                     break;
                 case self::ACTION_UPDATE:
                     $orderForTransport = $this->getOrder($order);
-                    $response = $transport->updateOrder($orderForTransport);
+//                    $response = $transport->updateOrder($orderForTransport);
 
                     break;
                 case self::ACTION_SUBMIT:
                     $orderForTransport = $this->getOrder($order);
-                    $response = $transport->submitOrder($orderForTransport);
+//                    $response = $transport->submitOrder($orderForTransport);
 
                     break;
                 case self::ACTION_CANCEL:
                     $orderForTransport = $this->getOrderCancellation($order);
-                    $response = $transport->cancelOrder($orderForTransport);
+//                    $response = $transport->cancelOrder($orderForTransport);
 
                     break;
             }
+
+            Zend_Debug::dump($orderForTransport); exit;
 
             Mage::helper('full/log')->log('Order posted successfully - invoking post order event');
 
@@ -337,18 +339,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             $customer_props['updated_at'] = $this->formatDateAsIso8601($customer_details->getUpdatedAt());
 
             try {
-                $customer_orders = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('customer_id', $customer_id);
-                $customer_orders_count = $customer_orders->getSize();
-
-                $customer_props['orders_count'] = $customer_orders_count;
-                if ($customer_orders_count) {
-                    $customer_props['last_order_id'] = $customer_orders->getLastItem()->getId();
-                    $total_spent = $customer_orders
-                        ->addExpressionFieldToSelect('sum_total', 'SUM(base_grand_total)', 'base_grand_total')
-                        ->addOrder('entity_id')
-                        ->fetchItem()->getSumTotal();
-                    $customer_props['total_spent'] = $total_spent;
-                }
+                $customer_data = Mage::helper('full/customer_order')->getCustomerOrders($model->getCustomerId());
+                $customer_props['total_spent'] = $customer_data['total_spent'];
+                $customer_props['orders_count'] = $customer_data['orders_count'];
+                $customer_props['last_order_id'] = $customer_data['last_order_id'];
             } catch (Exception $e) {
                 Mage::helper('full/log')->logException($e);
                 Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
