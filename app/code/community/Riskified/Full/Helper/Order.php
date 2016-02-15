@@ -16,6 +16,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     const ACTION_SUBMIT = 'submit';
     const ACTION_CANCEL = 'cancel';
 
+    private $_customer = array();
+
     public function __construct()
     {
         $this->initSdk();
@@ -81,25 +83,26 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             switch ($action) {
                 case self::ACTION_CREATE:
                     $orderForTransport = $this->getOrder($order);
-                    $response = $transport->createOrder($orderForTransport);
+//                    $response = $transport->createOrder($orderForTransport);
 
                     break;
                 case self::ACTION_UPDATE:
                     $orderForTransport = $this->getOrder($order);
-                    $response = $transport->updateOrder($orderForTransport);
+//                    $response = $transport->updateOrder($orderForTransport);
 
                     break;
                 case self::ACTION_SUBMIT:
                     $orderForTransport = $this->getOrder($order);
-                    $response = $transport->submitOrder($orderForTransport);
+//                    $response = $transport->submitOrder($orderForTransport);
 
                     break;
                 case self::ACTION_CANCEL:
                     $orderForTransport = $this->getOrderCancellation($order);
-                    $response = $transport->cancelOrder($orderForTransport);
+//                    $response = $transport->cancelOrder($orderForTransport);
 
                     break;
             }
+            Zend_Debug::dump($orderForTransport); exit;
 
             Mage::helper('full/log')->log('Order posted successfully - invoking post order event');
 
@@ -330,10 +333,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         );
 
         if ($customer_id) {
-            $collection = Mage::getModel('customer/customer')->getCollection();
-            $collection->addAttributeToFilter('entity_id', $customer_id);
-            $customer_details = $collection->getFirstItem();
-
+            $customer_details = $this->_getCustomerObject($model->getCustomerId());
             $customer_props['created_at'] = $this->formatDateAsIso8601($customer_details->getCreatedAt());
             $customer_props['updated_at'] = $this->formatDateAsIso8601($customer_details->getUpdatedAt());
 
@@ -357,6 +357,16 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         }
 
         return new Model\Customer(array_filter($customer_props, 'strlen'));
+    }
+
+    private function _getCustomerObject($customer_id) {
+        if(!$this->_customer[$customer_id]) {
+            $collection = Mage::getModel('customer/customer')->getCollection();
+            $collection->addAttributeToFilter('entity_id', $customer_id);
+            $this->_customer[$customer_id] = $collection->getFirstItem();
+        }
+
+        return $this->_customer[$customer_id];
     }
 
     private function getShippingAddress($model)
