@@ -359,7 +359,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     }
 
     private function _getCustomerObject($customer_id) {
-        if(!$this->_customer[$customer_id]) {
+        if(!isset($this->_customer[$customer_id])) {
             $collection = Mage::getModel('customer/customer')->getCollection();
             $collection->addAttributeToFilter('entity_id', $customer_id);
             $this->_customer[$customer_id] = $collection->getFirstItem();
