@@ -83,26 +83,25 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             switch ($action) {
                 case self::ACTION_CREATE:
                     $orderForTransport = $this->getOrder($order);
-//                    $response = $transport->createOrder($orderForTransport);
+                    $response = $transport->createOrder($orderForTransport);
 
                     break;
                 case self::ACTION_UPDATE:
                     $orderForTransport = $this->getOrder($order);
-//                    $response = $transport->updateOrder($orderForTransport);
+                    $response = $transport->updateOrder($orderForTransport);
 
                     break;
                 case self::ACTION_SUBMIT:
                     $orderForTransport = $this->getOrder($order);
-//                    $response = $transport->submitOrder($orderForTransport);
+                    $response = $transport->submitOrder($orderForTransport);
 
                     break;
                 case self::ACTION_CANCEL:
                     $orderForTransport = $this->getOrderCancellation($order);
-//                    $response = $transport->cancelOrder($orderForTransport);
+                    $response = $transport->cancelOrder($orderForTransport);
 
                     break;
             }
-            Zend_Debug::dump($orderForTransport); exit;
 
             Mage::helper('full/log')->log('Order posted successfully - invoking post order event');
 
