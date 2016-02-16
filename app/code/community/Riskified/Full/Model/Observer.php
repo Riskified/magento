@@ -66,8 +66,8 @@ class Riskified_Full_Model_Observer
     public function salesOrderPaymentVoid($evt)
     {
         Mage::helper('full/log')->log("salesOrderPaymentVoid");
-        //$order = $evt->getPayment()->getOrder();
-        //Mage::helper('full/order')->postOrder($order,'cancel');
+        $order = $evt->getPayment()->getOrder();
+        Mage::helper('full/order')->postOrder($order, 'cancel');
     }
 
     public function salesOrderPaymentRefund($evt)
@@ -80,8 +80,8 @@ class Riskified_Full_Model_Observer
     public function salesOrderPaymentCancel($evt)
     {
         Mage::helper('full/log')->log("salesOrderPaymentCancel");
-        //$order = $evt->getPayment()->getOrder();
-        //Mage::helper('full/order')->postOrder($order,'cancel');
+        $order = $evt->getPayment()->getOrder();
+        Mage::helper('full/order')->postOrder($order, 'cancel');
     }
 
     public function salesOrderPlaceBefore($evt)
