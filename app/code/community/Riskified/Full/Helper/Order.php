@@ -593,6 +593,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             $prodType = null;
             $category = null;
             $subCategories = null;
+            $brand = null;
             $product = $val->getProduct();
             if ($product) {
                 $prodType = $val->getProduct()->getTypeId();
@@ -611,6 +612,11 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
 
                     }
                 }
+
+
+                if ($product->getManufacturer()) {
+                    $brand = $product->getAttributeText('manufacturer');
+                }
             }
             $lineItems[] = new Model\LineItem(array_filter(array(
                 'price' => $val->getPrice(),
@@ -621,6 +627,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 'grams' => $val->getWeight(),
                 'product_type' => $prodType,
                 'category' => $category,
+                'brand' => $brand,
                 //'sub_category' => $subCategories
             ), 'strlen'));
         }
