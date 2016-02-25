@@ -394,7 +394,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             Mage::helper('full/log')->log("payment->getAdyenTotalFraudScore(): " . $payment->getAdyenTotalFraudScore());
             Mage::helper('full/log')->log("payment->getAdyenRefusalReasonRaw(): " . $payment->getAdyenRefusalReasonRaw());
             Mage::helper('full/log')->log("payment->getAdyenAcquirerReference(): " . $payment->getAdyenAcquirerReference());
-            Mage::helper('full/log')->log("payment->getAdyenAuthCode(): " . $payment->getAdyenAuthCode());
+            Mage::helper('full/log')->log("(possibly BIN?) payment->getAdyenAuthCode(): " . $payment->getAdyenAuthCode());
 
             Mage::helper('full/log')->log("payment->getInfo(): " . PHP_EOL . var_export($payment->getInfo(), 1));
 
@@ -544,6 +544,13 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                     $houseVerification = $payment->getAdditionalInformation('avsStreetAddressResponseCode');
                     $zipVerification = $payment->getAdditionalInformation('avsPostalCodeResponseCode');
                     $avsResultCode = $houseVerification . ',' . $zipVerification;
+                    break;
+
+                case 'adyen_cc':
+                    $avsResultCode = $payment->getAdyenAvsResult();
+                    $cvvResultCode = $payment->getAdyenCvcResult();
+                    $transactionId = $payment->getAdyenPspReference();
+                    //$creditCardBin = $payment->getAdyenAuthCode();
                     break;
 
                 default:
