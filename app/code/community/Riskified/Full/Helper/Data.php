@@ -69,6 +69,7 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
     }
 
     public function getSessionId(){
+        //return Mage::getSingleton("core/session")->getEncryptedSessionId();
     	return Mage::getModel('core/cookie')->get('rCookie');
     }
 
