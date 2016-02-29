@@ -1,4 +1,10 @@
 <?php
+use Riskified\Common\Riskified;
+use Riskified\Common\Env;
+use Riskified\Common\Validations;
+use Riskified\Common\Signature;
+use Riskified\OrderWebhook\Model;
+use Riskified\OrderWebhook\Transport;
 
 class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Controller_Action
 {
@@ -39,6 +45,14 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
         if (!$page) {
             $page = 1;
         }
+        include MAGENTO_ROOT . '/lib/riskified_php_sdk/src/Riskified/autoloader.php';
+        $helper = Mage::helper('full');
+        $authToken = $helper->getAuthToken();
+        $env = constant($helper->getConfigEnv());
+        $domain = $helper->getShopDomain();
+
+        Riskified::init($domain, $authToken, $env, Validations::SKIP);
+
         $orders = Mage::getModel('sales/order')->getCollection();
 
         $total_count = $orders->getSize();
