@@ -1,0 +1,12 @@
+{
+    "name": "riskified/magento",
+    "license": "OSL-3.0",
+    "type": "magento-module",
+    "description": "This extension allows for automatic and/or manual submission of purchase orders to Riskified for fraud review and guarantee.",
+    "require": {
+	        "magento-hackathon/magento-composer-installer": "*"
+	    },
+    "authors":[
+    ],
+	"url": "http://www.riskified.com/"
+}
