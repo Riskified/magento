@@ -137,7 +137,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
     public function postHistoricalOrders($models) {
         $orders = array();
         foreach ($models as $model) {
-            $orders[] = $this->getOrder($model);
+            $order = $this->getOrder($model);
+            $model->setIsSentToRiskified(1);
+            $model->save();
+            $orders[] = $order;
         }
 
         $msgs = $this->getTransport()->sendHistoricalOrders($orders);

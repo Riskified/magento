@@ -21,6 +21,7 @@
 
 <?php
 $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
+$alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('is_sent_to_riskified', 1)->getSize();
 ?>
 
 <style type="text/css">
@@ -93,6 +94,10 @@ $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
             rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
             rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="//<?php echo Mage::helper('full/order')->getRiskifiedApp()?>" target="_blank">Go to Riskified App</a>';
             rhtml += '<a class="riskified-botton" id="send-historical-orders" style="margin-bottom:30px;display:block;" href="javascript:void(0);">Send All Historical Orders</a>';
+            rhtml += '<p id="send-historical-orders-status" style="margin-bottom:30px;display:none;"><span id="percentage"></span> was sent.</p>';
+            <?php if($alreadySent): ?>
+                rhtml += '<p style="margin-bottom:30px;"><?php echo $alreadySent; ?> was sent in the past.</p>';
+            <?php endif; ?>
         }else{
             rhtml += '<span class="step-wrapper">';
             rhtml += '    <div class="step-title"  style="font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #393536; display:inline-block">';
@@ -115,7 +120,15 @@ $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
 
         $("send-historical-orders").observe('click', function(){
             new Ajax.Request('<?php echo Mage::helper('adminhtml')->getUrl("adminhtml/riskifiedfull/sendHistoricalOrders"); ?>', {
-                method:     'get'
+                method:     'get',
+                onSuccess : function(resp) {
+                    var response = JSON.parse(resp.responseText);
+
+                    if(response.success) {
+                        $('send-historical-orders-status').show();
+                        $('percentage').update(response.uploaded);
+                    }
+                }
             });
         });
     });
