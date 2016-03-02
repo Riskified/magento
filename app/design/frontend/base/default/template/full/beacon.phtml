@@ -2,7 +2,7 @@
 (function() {
     function riskifiedBeaconLoad() {
         var session_id = "<?php echo $this->sessionId; ?>";
-        var store_domain="<?php echo $this->getShopDomain; ?>";
+        var store_domain = "<?php echo $this->shopDomain; ?>";
         var version = "<?php echo $this->extensionVersion; ?>";
         var url = ('https:' == document.location.protocol ? 'https://' : 'http://') + "<?php echo $this->beaconUrl?>?shop="+store_domain+"&sid="+session_id+"&v="+version;
         var s = document.createElement('script');

@@ -4,10 +4,9 @@ class Riskified_Full_Model_Container_Beacon extends Enterprise_PageCache_Model_C
 {
     protected function _getCacheId()
     {
-        $timestamp = floor(time() / 3600);
-        $identifier = $this->_getIdentifier();
+        $identifier =  $this->_getCookieValue('frontend', '') . $this->_getCookieValue('rCookie', '');
         $cache = md5($this->_placeholder->getAttribute('cache_id'));
-        return 'RISKIFIED_FULL_BEACON_CACHE_' . $cache . '_'  . $identifier . '_' . $timestamp;
+        return 'RISKIFIED_FULL_BEACON_CACHE_' . $cache . '_'  . $identifier;
     }
 
     protected function _renderBlock()
@@ -17,10 +16,5 @@ class Riskified_Full_Model_Container_Beacon extends Enterprise_PageCache_Model_C
         $block = new $blockClass;
         $block->setTemplate($template);
         return $block->toHtml();
-    }
-
-    protected function _getIdentifier()
-    {
-        return $this->_getCookieValue('rCookie', '');
     }
 }
