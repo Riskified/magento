@@ -26,6 +26,11 @@
                 </entities>
             </riskified_full_resource>
         </models>
+        <blocks>
+            <full>
+                <class>Riskified_Full_Block</class>
+            </full>
+        </blocks>
         <resources>
             <riskified_full_setup>
                 <setup>

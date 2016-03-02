@@ -76,7 +76,7 @@ transactions you would otherwise decline.</description>
          <path>adminhtml/default/default/layout/full.xml</path>
          <path>adminhtml/default/default/template/full/jsinit.phtml</path>
          <path>frontend/base/default/layout/full.xml</path>
-         <path>frontend/base/default/template/full/riskified.phtml</path>
+         <path>frontend/base/default/template/full/beacon.phtml</path>
          <path>adminhtml/default/default/images/riskified/logo.jpg</path>
          <path>riskified_php_sdk/</path>
          <path>riskified_scripts/</path>
