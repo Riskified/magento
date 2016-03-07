@@ -216,6 +216,8 @@ class Riskified_Full_Model_Observer {
 				break;
 			case 'submitted':
 				if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
+                    && $currentStatus != $riskifiedOrderStatusHelper->getOnHoldStatusCode() // prevents re-holding on manual unhold
+                    && $currentStatus != $riskifiedOrderStatusHelper->getTransportErrorStatusCode() // prevents re-holding on manual unhold
                     || ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
                         && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
 					$newState = Mage_Sales_Model_Order::STATE_HOLDED;
@@ -240,13 +242,14 @@ class Riskified_Full_Model_Observer {
             && ($newState != $currentState || $newStatus != $currentStatus)
 			 && Mage::helper('full')->getConfigStatusControlActive()) {
             if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED && $newState != Mage_Sales_Model_Order::STATE_HOLDED) {
-                $order = $order->unhold();
+                $order->unhold();
             } elseif ($currentState != Mage_Sales_Model_Order::STATE_HOLDED && $newState == Mage_Sales_Model_Order::STATE_HOLDED) {
-                $order = $order->hold();
+                $order->setStatus($newStatus); // hacking magento to save prev status as new status to avoid manual unhold from triggering our code and re-holding
+                $order->hold();
             }
             if ($newState == Mage_Sales_Model_Order::STATE_CANCELED) {
                 Mage::helper('full/log')->log("Order '" . $order->getId() . "' should be canceled - calling cancel method");
-                $order = $order->cancel();
+                $order->cancel();
                 $order->addStatusHistoryComment($description, $newStatus);
             } else {
                 $order->setState($newState, $newStatus, $description);
