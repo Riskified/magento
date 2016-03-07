@@ -229,6 +229,8 @@ class Riskified_Full_Model_Observer {
                     $newState = Mage_Sales_Model_Order::STATE_HOLDED;
                     $newStatus = $riskifiedOrderStatusHelper->getTransportErrorStatusCode();
                 }
+
+                break;
 		}
 
         $changed = false;
@@ -237,11 +239,18 @@ class Riskified_Full_Model_Observer {
 		if ($newState
             && ($newState != $currentState || $newStatus != $currentStatus)
 			 && Mage::helper('full')->getConfigStatusControlActive()) {
+            if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED && $newState != Mage_Sales_Model_Order::STATE_HOLDED) {
+                $order = $order->unhold();
+            } elseif ($currentState != Mage_Sales_Model_Order::STATE_HOLDED && $newState == Mage_Sales_Model_Order::STATE_HOLDED) {
+                $order = $order->hold();
+            }
             if ($newState == Mage_Sales_Model_Order::STATE_CANCELED) {
                 Mage::helper('full/log')->log("Order '" . $order->getId() . "' should be canceled - calling cancel method");
-                $order->cancel();
+                $order = $order->cancel();
+                $order->addStatusHistoryComment($description, $newStatus);
+            } else {
+                $order->setState($newState, $newStatus, $description);
             }
-            $order->setState($newState, $newStatus, $description);
             Mage::helper('full/log')->log("Updated order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
             $changed=true;
 		} elseif ($description && $riskifiedStatus != $riskifiedOldStatus) {
