@@ -83,10 +83,10 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
         return (bool)Mage::getStoreConfig('fullsection/full/debug_logs');
     }
 
-    public function getSessionId()
-    {
+    public function getSessionId(){
         //return Mage::getSingleton("core/session")->getEncryptedSessionId();
-        return Mage::getModel('core/cookie')->get('rCookie');
+        //return Mage::getModel('core/cookie')->get('rCookie');
+        return Mage::getSingleton("core/session")->getSessionId();
     }
 
     /**

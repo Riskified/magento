@@ -233,6 +233,8 @@ class Riskified_Full_Model_Observer
                 break;
             case 'submitted':
                 if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
+                    && $currentStatus != $riskifiedOrderStatusHelper->getOnHoldStatusCode() // prevents re-holding on manual unhold
+                    && $currentStatus != $riskifiedOrderStatusHelper->getTransportErrorStatusCode() // prevents re-holding on manual unhold
                     || ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
                         && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())
                 ) {
@@ -248,6 +250,8 @@ class Riskified_Full_Model_Observer
                     $newState = Mage_Sales_Model_Order::STATE_HOLDED;
                     $newStatus = $riskifiedOrderStatusHelper->getTransportErrorStatusCode();
                 }
+
+                break;
         }
 
         $changed = false;
@@ -255,17 +259,25 @@ class Riskified_Full_Model_Observer
         // if newState exists and new state/status are different from current and config is set to status-sync
         if ($newState
             && ($newState != $currentState || $newStatus != $currentStatus)
-            && Mage::helper('full')->getConfigStatusControlActive()
+			 && Mage::helper('full')->getConfigStatusControlActive()
         ) {
+            if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED && $newState != Mage_Sales_Model_Order::STATE_HOLDED) {
+                $order->unhold();
+            } elseif ($currentState != Mage_Sales_Model_Order::STATE_HOLDED && $newState == Mage_Sales_Model_Order::STATE_HOLDED) {
+                $order->setStatus($newStatus); // hacking magento to save prev status as new status to avoid manual unhold from triggering our code and re-holding
+                $order->hold();
+            }
             if ($newState == Mage_Sales_Model_Order::STATE_CANCELED) {
                 Mage::helper('full/log')->log("Order '" . $order->getId() . "' should be canceled - calling cancel method");
                 $order->cancel();
+                $order->addStatusHistoryComment($description, $newStatus);
+            } else {
+                $order->setState($newState, $newStatus, $description);
             }
-            $order->setState($newState, $newStatus, $description);
-            Mage::helper('full/log')->log("Updated order '" . $order->getId() . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
-            $changed = true;
-        } elseif ($description && $riskifiedStatus != $riskifiedOldStatus) {
-            Mage::helper('full/log')->log("Updated order " . $order->getId() . " history comment to: " . $description);
+            Mage::helper('full/log')->log("Updated order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
+            $changed=true;
+		} elseif ($description && $riskifiedStatus != $riskifiedOldStatus) {
+            Mage::helper('full/log')->log("Updated order " . $order->getId() . " history comment to: "  . $description);
             $order->addStatusHistoryComment($description);
             $changed = true;
         } else {

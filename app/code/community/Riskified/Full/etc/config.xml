@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.8.1</version>
+            <version>1.0.8.2</version>
         </Riskified_Full>
     </modules>
 
@@ -26,6 +26,11 @@
                 </entities>
             </riskified_full_resource>
         </models>
+        <blocks>
+            <full>
+                <class>Riskified_Full_Block</class>
+            </full>
+        </blocks>
         <resources>
             <riskified_full_setup>
                 <setup>
