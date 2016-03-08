@@ -10,7 +10,7 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.8.2</version>
+   <version>1.0.8.3</version>
    <stability>stable</stability>
    <notes>* Beacon with FPC hole punching capabilities</notes>
    <authors>

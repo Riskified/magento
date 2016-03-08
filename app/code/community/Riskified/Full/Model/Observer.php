@@ -30,7 +30,8 @@ class Riskified_Full_Model_Observer
         $authToken = $helper->getAuthToken();
         $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
         $gateWays = '';
-        foreach ($all_active_methods as $key => $value) {
+        foreach ($all_active_methods as $key => $value)
+        {
             $gateWays .= $key . ",";
         }
         $extensionVersion = Mage::helper('full')->getExtensionVersion();
@@ -111,7 +112,14 @@ class Riskified_Full_Model_Observer
         $newState = $order->getState();
 
         if ($order->dataHasChangedFor('state')) {
-            Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
+            $oldState = $order->getOrigData('state');
+
+            if ($oldState == Mage_Sales_Model_Order::STATE_HOLDED and $newState == Mage_Sales_Model_Order::STATE_PROCESSING) {
+                Mage::helper('full/log')->log("Order : " . $order->getId() . " not notifying on unhold action");
+                return;
+            }
+
+            Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $oldState . " to: " . $newState);
 
             // if we posted we should not re post
             if ($order->riskifiedInSave) {
@@ -230,17 +238,14 @@ class Riskified_Full_Model_Observer
                     $newStatus = $riskifiedOrderStatusHelper->getSelectedDeclinedStatus();
                 }
 
-                break;
-            case 'submitted':
-                if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
-                    && $currentStatus != $riskifiedOrderStatusHelper->getOnHoldStatusCode() // prevents re-holding on manual unhold
-                    && $currentStatus != $riskifiedOrderStatusHelper->getTransportErrorStatusCode() // prevents re-holding on manual unhold
+				break;
+			case 'submitted':
+				if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
                     || ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
-                        && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())
-                ) {
-                    $newState = Mage_Sales_Model_Order::STATE_HOLDED;
-                    $newStatus = $riskifiedOrderStatusHelper->getOnHoldStatusCode();
-                }
+                        && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
+					$newState = Mage_Sales_Model_Order::STATE_HOLDED;
+					$newStatus = $riskifiedOrderStatusHelper->getOnHoldStatusCode();
+				}
 
                 break;
             case 'error':
@@ -264,7 +269,6 @@ class Riskified_Full_Model_Observer
             if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED && $newState != Mage_Sales_Model_Order::STATE_HOLDED) {
                 $order->unhold();
             } elseif ($currentState != Mage_Sales_Model_Order::STATE_HOLDED && $newState == Mage_Sales_Model_Order::STATE_HOLDED) {
-                $order->setStatus($newStatus); // hacking magento to save prev status as new status to avoid manual unhold from triggering our code and re-holding
                 $order->hold();
             }
             if ($newState == Mage_Sales_Model_Order::STATE_CANCELED) {
