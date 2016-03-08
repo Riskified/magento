@@ -101,7 +101,14 @@ class Riskified_Full_Model_Observer {
         $newState = $order->getState();
 
         if ($order->dataHasChangedFor('state')) {
-            Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $order->getOrigData('state') . " to: " . $newState);
+            $oldState = $order->getOrigData('state');
+
+            if ($oldState == Mage_Sales_Model_Order::STATE_HOLDED and $newState == Mage_Sales_Model_Order::STATE_PROCESSING) {
+                Mage::helper('full/log')->log("Order : " . $order->getId() . " not notifying on unhold action");
+                return;
+            }
+
+            Mage::helper('full/log')->log("Order: " . $order->getId() . " state changed from: " . $oldState . " to: " . $newState);
 
             // if we posted we should not re post
             if($order->riskifiedInSave) {
@@ -240,13 +247,13 @@ class Riskified_Full_Model_Observer {
             && ($newState != $currentState || $newStatus != $currentStatus)
 			 && Mage::helper('full')->getConfigStatusControlActive()) {
             if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED && $newState != Mage_Sales_Model_Order::STATE_HOLDED) {
-                $order = $order->unhold();
+                $order->unhold();
             } elseif ($currentState != Mage_Sales_Model_Order::STATE_HOLDED && $newState == Mage_Sales_Model_Order::STATE_HOLDED) {
-                $order = $order->hold();
+                $order->hold();
             }
             if ($newState == Mage_Sales_Model_Order::STATE_CANCELED) {
                 Mage::helper('full/log')->log("Order '" . $order->getId() . "' should be canceled - calling cancel method");
-                $order = $order->cancel();
+                $order->cancel();
                 $order->addStatusHistoryComment($description, $newStatus);
             } else {
                 $order->setState($newState, $newStatus, $description);
