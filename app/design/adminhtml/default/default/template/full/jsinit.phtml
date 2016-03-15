@@ -49,6 +49,9 @@ $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter(
         text-decoration: none;
         color: #FFF;
     }
+    .riskified-botton.send {
+        margin-bottom: 10px;
+    }
 
     .step-inner {
         display: inline-block;
@@ -70,6 +73,73 @@ $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter(
         clear: both;
     }
 
+    #send-historical-orders-message {
+        font-family: Helvetica Neue, sans-serif;
+        color : #ff0000;
+        margin-bottom:30px;
+        font-size: 16px;
+    }
+
+    .already-sent {
+        margin-bottom: 30px;
+        font-size: 16px;
+        color: #1b6800;
+    }
+
+    .one {
+        opacity: 0;
+        -webkit-animation: dot 1.3s infinite;
+        -webkit-animation-delay: 0.0s;
+        animation: dot 1.3s infinite;
+        animation-delay: 0.0s;
+    }
+
+    .two {
+        opacity: 0;
+        -webkit-animation: dot 1.3s infinite;
+        -webkit-animation-delay: 0.2s;
+        animation: dot 1.3s infinite;
+        animation-delay: 0.2s;
+    }
+
+    .three {
+        opacity: 0;
+        -webkit-animation: dot 1.3s infinite;
+        -webkit-animation-delay: 0.3s;
+        animation: dot 1.3s infinite;
+        animation-delay: 0.3s;
+    }
+
+    @-webkit-keyframes dot {
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes dot {
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    #send-again {
+        color: #000;
+        font-weight: bolder;
+        cursor: pointer;
+    }
+
 </style>
 
 <script type="text/javascript">
@@ -77,6 +147,7 @@ $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter(
 
     document.observe("dom:loaded", function() {
         var rhtml = '';
+        var bottomHtml = '';
         rhtml += '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">';
         rhtml += '  <img width="204px" height="53px" src="<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"/>';
         rhtml += '</span>';
@@ -93,10 +164,11 @@ $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter(
             rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" src="<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"></span>';
             rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
             rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="//<?php echo Mage::helper('full/order')->getRiskifiedApp()?>" target="_blank">Go to Riskified App</a>';
-            rhtml += '<a class="riskified-botton" id="send-historical-orders" style="margin-bottom:30px;display:block;" href="javascript:void(0);">Send All Historical Orders</a>';
-            rhtml += '<p id="send-historical-orders-status" style="margin-bottom:30px;display:none;"><span id="percentage"></span> was sent.</p>';
+            bottomHtml += '<a class="riskified-botton send" id="send-historical-orders" style="display:block;" href="javascript:void(0);">Send All Historical Orders</a>';
+            bottomHtml += '<p id="send-historical-orders-message" style="display:none;">Sending orders to Riskified<span class="one">.</span><span class="two">.</span><span class="three">.</span>​</p>';
+            bottomHtml += '<p id="send-historical-orders-status" style="display:none;"></p>';
             <?php if($alreadySent): ?>
-                rhtml += '<p style="margin-bottom:30px;"><?php echo $alreadySent; ?> was sent in the past.</p>';
+            bottomHtml += '<p class="already-sent"><?php echo $alreadySent; ?> order(s) were sent in the past. <span id="send-again"> Send All Again</span></p>';
             <?php endif; ?>
         }else{
             rhtml += '<span class="step-wrapper">';
@@ -117,20 +189,32 @@ $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter(
         htmlBody = rhtml;
 
         section.up().insert({top:htmlBody});
+        section.up().insert(bottomHtml);
 
         $("send-historical-orders").observe('click', function(){
+            sendRequest();
+        });
+        $("send-again").observe('click', function() {
+            sendRequest(true);
+        });
+
+        function sendRequest(resend) {
+            $('send-historical-orders-message').show();
             new Ajax.Request('<?php echo Mage::helper('adminhtml')->getUrl("adminhtml/riskifiedfull/sendHistoricalOrders"); ?>', {
                 method:     'get',
+                parameters : {
+                    resend : resend
+                },
                 onSuccess : function(resp) {
                     var response = JSON.parse(resp.responseText);
 
                     if(response.success) {
-                        $('send-historical-orders-status').show();
-                        $('percentage').update(response.uploaded);
+                        $('send-historical-orders-status').show().update(response.message);
+                        $('send-historical-orders-message').hide();
                     }
                 }
             });
-        });
+        }
     });
 
     //]]>

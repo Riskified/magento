@@ -55,17 +55,23 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
         $domain = $helper->getShopDomain();
 
         Riskified::init($domain, $authToken, $env, Validations::SKIP);
+        $resend = $this->getRequest()->getParam('resend', false);
+        $orders = Mage::getModel('sales/order')->getCollection();
 
-        $orders = Mage::getModel('sales/order')->getCollection()
-            ->addFieldToFilter('is_sent_to_riskified', 0);
+        if(!$resend) {
+            $orders->addFieldToFilter('is_sent_to_riskified', 0);
+        }
 
         $total_count = $orders->getSize();
 
         $orders_collection = Mage::getModel('sales/order')
             ->getCollection()
-            ->addFieldToFilter('is_sent_to_riskified', 0)
             ->setPageSize($batch_size)
             ->setCurPage($page);
+
+        if(!$resend) {
+            $orders_collection->addFieldToFilter('is_sent_to_riskified', 0);
+        }
 
         $total_uploaded = 0;
         if($total_count > 0) {
@@ -76,9 +82,12 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
                     $page++;
                     $orders_collection = Mage::getModel('sales/order')
                         ->getCollection()
-                        ->addFieldToFilter('is_sent_to_riskified', 0)
                         ->setPageSize($batch_size)
                         ->setCurPage($page);
+
+                    if(!$resend) {
+                        $orders_collection->addFieldToFilter('is_sent_to_riskified', 0);
+                    }
 
                 } catch (Exception $e) {
                     Mage::logException($e);
@@ -87,6 +96,12 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
             }
 
         }
-        echo json_encode(array('success' => true, 'uploaded' => $total_uploaded));
+
+        if($total_uploaded > 0) {
+            $message = Mage::helper('full')->__('%s was sent to Riskified', $total_count);
+        } else {
+            $message = Mage::helper('full')->__('No new orders sent to Riskified');
+        }
+        echo json_encode(array('success' => true, 'uploaded' => $total_uploaded, 'message' => $message));
     }
 }
