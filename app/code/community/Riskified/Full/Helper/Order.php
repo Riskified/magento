@@ -118,6 +118,16 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
             );
 
             throw $curlException;
+        } catch (\Riskified\OrderWebhook\Exception\MalformedJsonException $e) {
+            if (strstr($e->getMessage(), "504") && strstr($e->getMessage(), "Status Code:")) {
+                $this->updateOrder($order, 'error', null, 'Error transferring order data to Riskified');
+                $this->scheduleSubmissionRetry($order, $action);
+            }
+            Mage::dispatchEvent(
+                'riskified_decider_post_order_error',
+                $eventData
+            );
+            throw $e;
         }
         catch (Exception $e) {
             Mage::helper('full/log')->logException($e);
