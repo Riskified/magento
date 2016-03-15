@@ -78,7 +78,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
                 case self::ACTION_CREATE:
                     $orderForTransport = $this->getOrder($order);
                     $response = $transport->createOrder($orderForTransport);
-
+                    $order->setIsSentToRiskfied(1);
+                    $order->save();
                     break;
                 case self::ACTION_UPDATE:
                     $orderForTransport = $this->getOrder($order);
