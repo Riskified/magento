@@ -8,7 +8,7 @@ use Riskified\OrderWebhook\Transport;
 
 class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Controller_Action
 {
-
+    const MAX_HISTORICAL_FOR_PAGE = 1000;
     /**
      * Acl check for admin
      *
@@ -64,6 +64,16 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
 
         $total_count = $orders->getSize();
 
+        if($total_count > self::MAX_HISTORICAL_FOR_PAGE) {
+            $this->_enableCronJob();
+            if($resend) {
+                $this->_enableResendOrders();
+            }
+            Mage::app()->getStore()->resetConfig();
+            echo json_encode(array('success' => true, 'by_cron' => true));
+            return;
+        }
+
         $orders_collection = Mage::getModel('sales/order')
             ->getCollection()
             ->setPageSize($batch_size)
@@ -103,5 +113,42 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
             $message = Mage::helper('full')->__('No new orders sent to Riskified');
         }
         echo json_encode(array('success' => true, 'uploaded' => $total_uploaded, 'message' => $message));
+    }
+
+    public function sendHistoricalOrdersStatusAction() {
+        try {
+            $_allorders = Mage::getModel('sales/order')->getCollection();
+            $all = $_allorders->getSize();
+
+            $orders = Mage::getModel('sales/order')->getCollection();
+            $orders->addFieldToFilter('is_sent_to_riskified', 0);
+            $sent = $orders->getSize();
+
+            echo json_encode(array('success' => true, 'status' => ($sent/$all), 'total_sent' => $sent)); exit;
+        } catch(Exception $e) {
+            echo json_encode(array('success' => false)); exit;
+        }
+    }
+
+    private function _enableCronJob() {
+        Mage::getConfig()->saveConfig('riskified/cron/run_historical_orders', 1);
+        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
+        $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime(date("H"), date("i")+ 5, date("s"), date("m"), date("d"), date("Y")));
+
+        try {
+            $schedule = Mage::getModel('cron/schedule');
+            $schedule->setJobCode("riskfied_full_upload_historical_orders")
+                ->setCreatedAt($timecreated)
+                ->setScheduledAt($timescheduled)
+                ->setStatus(Mage_Cron_Model_Schedule::STATUS_PENDING)
+                ->save();
+        } catch (Exception $e) {
+            throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
+        }
+
+    }
+
+    private function _enableResendOrders() {
+        Mage::getConfig()->saveConfig('riskified/cron/resend', 1);
     }
 }

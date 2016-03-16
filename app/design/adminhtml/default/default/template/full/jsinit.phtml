@@ -22,6 +22,7 @@
 <?php
 $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
 $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('is_sent_to_riskified', 1)->getSize();
+$sendingOrdersToRiskified = Mage::getStoreConfig('riskified/cron/run_historical_orders', 0);
 ?>
 
 <style type="text/css">
@@ -165,10 +166,10 @@ $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter(
             rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
             rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="//<?php echo Mage::helper('full/order')->getRiskifiedApp()?>" target="_blank">Go to Riskified App</a>';
             bottomHtml += '<a class="riskified-botton send" id="send-historical-orders" style="display:block;" href="javascript:void(0);">Send All Historical Orders</a>';
-            bottomHtml += '<p id="send-historical-orders-message" style="display:none;">Sending orders to Riskified<span class="one">.</span><span class="two">.</span><span class="three">.</span>​</p>';
+            bottomHtml += '<p id="send-historical-orders-message"<?php echo $sendingOrdersToRiskified ? 'style="display:block;"' : 'style="display:none;"'; ?>>Sending orders to Riskified<span class="one">.</span><span class="two">.</span><span class="three">.</span>​</p>';
             bottomHtml += '<p id="send-historical-orders-status" style="display:none;"></p>';
             <?php if($alreadySent): ?>
-            bottomHtml += '<p class="already-sent"><?php echo $alreadySent; ?> order(s) were sent in the past. <span id="send-again"> Send All Again</span></p>';
+            bottomHtml += '<p class="already-sent"><span id="already-sent-count"><?php echo $alreadySent; ?></span> order(s) were sent in the past.<?php if(!$sendingOrdersToRiskified): ?> <span id="send-again"> Send All Again</span><?php endif; ?></p>';
             <?php endif; ?>
         }else{
             rhtml += '<span class="step-wrapper">';
@@ -194,10 +195,12 @@ $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter(
         $("send-historical-orders").observe('click', function(){
             sendRequest();
         });
-        $("send-again").observe('click', function() {
-            sendRequest(true);
-        });
-
+        if($("send-again")) {
+            $("send-again").observe('click', function() {
+                sendRequest(true);
+            });
+        }
+        var internal = null;
         function sendRequest(resend) {
             $('send-historical-orders-message').show();
             new Ajax.Request('<?php echo Mage::helper('adminhtml')->getUrl("adminhtml/riskifiedfull/sendHistoricalOrders"); ?>', {
@@ -208,9 +211,34 @@ $alreadySent = Mage::getModel('sales/order')->getCollection()->addFieldToFilter(
                 onSuccess : function(resp) {
                     var response = JSON.parse(resp.responseText);
 
-                    if(response.success) {
+                    if(response.success && !response.by_cron) {
                         $('send-historical-orders-status').show().update(response.message);
                         $('send-historical-orders-message').hide();
+                    } else if(response.by_cron){
+                        initUpdate();
+                    }
+                }
+            });
+        }
+
+        function initUpdate() {
+            internal = setInterval(getProgress, 5000);
+        }
+
+        function getProgress() {
+            new Ajax.Request('<?php echo Mage::helper('adminhtml')->getUrl("adminhtml/riskifiedfull/sendHistoricalOrdersStatus"); ?>', {
+                method:     'get',
+                onCreate: function(request) {
+                    Ajax.Responders.unregister(varienLoaderHandler.handler);
+                },
+                onSuccess : function(resp) {
+                    Ajax.Responders.register(varienLoaderHandler.handler);
+                    var response = JSON.parse(resp.responseText);
+                    if (response.success) {
+                        $('already-sent-count').update(response.total_sent);
+                        if(response.status == 1) {
+                            clearInterval(internal);
+                        }
                     }
                 }
             });

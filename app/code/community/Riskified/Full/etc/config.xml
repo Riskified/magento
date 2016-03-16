@@ -278,6 +278,11 @@
                     <model>full/cron::retrySubmissions</model>
                 </run>
             </riskified_full_retry_submission>
+            <riskfied_full_upload_historical_orders>
+                <run>
+                    <model>full/cron::uploadHistoricalOrders</model>
+                </run>
+            </riskfied_full_upload_historical_orders>
         </jobs>
     </crontab>
 
