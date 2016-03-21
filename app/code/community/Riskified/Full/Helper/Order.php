@@ -550,7 +550,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                     $avsResultCode = $payment->getAdyenAvsResult();
                     $cvvResultCode = $payment->getAdyenCvcResult();
                     $transactionId = $payment->getAdyenPspReference();
-                    //$creditCardBin = $payment->getAdyenAuthCode();
+                    $creditCardBin = $payment->getAdyenCardBin();
                     break;
 
                 default:
