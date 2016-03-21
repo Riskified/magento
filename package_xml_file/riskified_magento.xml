@@ -10,9 +10,9 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.8.1</version>
+   <version>1.0.8.3</version>
    <stability>stable</stability>
-   <notes>* Additional fields extraction for Adyen gateway</notes>
+   <notes>* Beacon with FPC hole punching capabilities</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -76,7 +76,7 @@ transactions you would otherwise decline.</description>
          <path>adminhtml/default/default/layout/full.xml</path>
          <path>adminhtml/default/default/template/full/jsinit.phtml</path>
          <path>frontend/base/default/layout/full.xml</path>
-         <path>frontend/base/default/template/full/riskified.phtml</path>
+         <path>frontend/base/default/template/full/beacon.phtml</path>
          <path>adminhtml/default/default/images/riskified/logo.jpg</path>
          <path>riskified_php_sdk/</path>
          <path>riskified_scripts/</path>

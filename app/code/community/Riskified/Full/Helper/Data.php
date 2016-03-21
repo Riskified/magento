@@ -2,75 +2,91 @@
 
 require_once(Mage::getBaseDir('lib') . DIRECTORY_SEPARATOR . 'riskified_php_sdk' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Riskified' . DIRECTORY_SEPARATOR . 'autoloader.php');
 
-class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract {
+class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
+{
 
-    public function getAdminUrl(){
-      $out = null;
-      $match = preg_match("/(.*)full\/response\/getresponse.*/i", Mage::helper('adminhtml')->getUrl('full/response/getresponse'),$out);
-      if ($match){
-        return $out[1];
-      }else{
-        return "";
-      }
+    public function getAdminUrl()
+    {
+        $out = null;
+        $match = preg_match("/(.*)full\/response\/getresponse.*/i", Mage::helper('adminhtml')->getUrl('full/response/getresponse'), $out);
+        if ($match) {
+            return $out[1];
+        } else {
+            return "";
+        }
     }
 
-    public function getAuthToken(){
-      return Mage::getStoreConfig('fullsection/full/key',Mage::app()->getStore());
+    public function getAuthToken()
+    {
+        return Mage::getStoreConfig('fullsection/full/key', Mage::app()->getStore());
     }
 
-    public function getConfigStatusControlActive(){
+    public function getConfigStatusControlActive()
+    {
         return Mage::getStoreConfig('fullsection/full/order_status_sync');
     }
 
-    public function getConfigEnv(){
+    public function getConfigEnv()
+    {
         return 'Riskified\Common\Env::' . Mage::getStoreConfig('fullsection/full/env');
     }
 
-    public function getConfigEnableAutoInvoice(){
+    public function getConfigEnableAutoInvoice()
+    {
         return Mage::getStoreConfig('fullsection/full/auto_invoice_enabled');
     }
 
-    public function getConfigAutoInvoiceCaptureCase(){
+    public function getConfigAutoInvoiceCaptureCase()
+    {
         return Mage::getStoreConfig('fullsection/full/auto_invoice_capture_case');
     }
 
-    public function getConfigBeaconUrl(){
+    public function getConfigBeaconUrl()
+    {
         return Mage::getStoreConfig('fullsection/full/beaconurl');
     }
 
-    public function getShopDomain(){
-      return Mage::getStoreConfig('fullsection/full/domain');
+    public function getShopDomain()
+    {
+        return Mage::getStoreConfig('fullsection/full/domain');
     }
 
-    public function getExtensionVersion(){
-        return (string) Mage::getConfig()->getNode()->modules->Riskified_Full->version;
+    public function getExtensionVersion()
+    {
+        return (string)Mage::getConfig()->getNode()->modules->Riskified_Full->version;
     }
 
-    public function getDeclinedState() {
+    public function getDeclinedState()
+    {
         return Mage::getStoreConfig('fullsection/full/declined_state');
     }
 
-    public function getDeclinedStatus() {
+    public function getDeclinedStatus()
+    {
         $state = $this->getDeclinedState();
-        return Mage::getStoreConfig('fullsection/full/declined_status_'.$state);
+        return Mage::getStoreConfig('fullsection/full/declined_status_' . $state);
     }
 
-    public function getApprovedState() {
+    public function getApprovedState()
+    {
         return Mage::getStoreConfig('fullsection/full/approved_state');
     }
 
-    public function getApprovedStatus() {
+    public function getApprovedStatus()
+    {
         $state = $this->getApprovedState();
-        return Mage::getStoreConfig('fullsection/full/approved_status_'.$state);
+        return Mage::getStoreConfig('fullsection/full/approved_status_' . $state);
     }
 
-    public function isDebugLogsEnabled() {
-        return (bool) Mage::getStoreConfig('fullsection/full/debug_logs');
+    public function isDebugLogsEnabled()
+    {
+        return (bool)Mage::getStoreConfig('fullsection/full/debug_logs');
     }
 
     public function getSessionId(){
         //return Mage::getSingleton("core/session")->getEncryptedSessionId();
-    	return Mage::getModel('core/cookie')->get('rCookie');
+        //return Mage::getModel('core/cookie')->get('rCookie');
+        return Mage::getSingleton("core/session")->getSessionId();
     }
 
     /**
