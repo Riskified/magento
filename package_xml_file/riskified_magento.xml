@@ -43,7 +43,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                   </files>
+            <files>                                                                                    </files>
          </files>
       </package>
       <extension>
@@ -120,8 +120,4 @@ transactions you would otherwise decline.</description>
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
