@@ -139,8 +139,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract {
         $orders = array();
         foreach ($models as $model) {
             $order = $this->getOrder($model);
-            $model->setIsSentToRiskified(1);
-            $model->save();
+            Mage::getModel('full/sent')->setOrderId($model->getId())->save();
             $orders[] = $order;
         }
 

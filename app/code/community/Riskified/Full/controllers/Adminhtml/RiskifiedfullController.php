@@ -57,9 +57,10 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
         Riskified::init($domain, $authToken, $env, Validations::SKIP);
         $resend = $this->getRequest()->getParam('resend', false);
         $orders = Mage::getModel('sales/order')->getCollection();
+        $alreadySent = $this->getSentCollection();
 
-        if(!$resend) {
-            $orders->addFieldToFilter('is_sent_to_riskified', 0);
+        if(!$resend && count($alreadySent) > 0) {
+            $orders->addFieldToFilter('entity_id', array('nin' => $alreadySent));
         }
 
         $total_count = $orders->getSize();
@@ -73,14 +74,13 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
             echo json_encode(array('success' => true, 'by_cron' => true));
             return;
         }
-
         $orders_collection = Mage::getModel('sales/order')
             ->getCollection()
             ->setPageSize($batch_size)
             ->setCurPage($page);
 
-        if(!$resend) {
-            $orders_collection->addFieldToFilter('is_sent_to_riskified', 0);
+        if(!$resend && count($alreadySent) > 0) {
+            $orders_collection->addFieldToFilter('entity_id', array('nin' => $alreadySent));
         }
 
         $total_uploaded = 0;
@@ -96,7 +96,7 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
                         ->setCurPage($page);
 
                     if(!$resend) {
-                        $orders_collection->addFieldToFilter('is_sent_to_riskified', 0);
+                        $orders_collection->addFieldToFilter('entity_id', array('nin' => $this->getSentCollection()));
                     }
 
                 } catch (Exception $e) {
@@ -104,7 +104,6 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
                     exit(1);
                 }
             }
-
         }
 
         if($total_uploaded > 0) {
@@ -121,13 +120,24 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
             $all = $_allorders->getSize();
 
             $orders = Mage::getModel('sales/order')->getCollection();
-            $orders->addFieldToFilter('is_sent_to_riskified', 0);
+            $orders->addFieldToFilter('entity_id', array('nin' => $this->getSentCollection()));
             $sent = $orders->getSize();
 
             echo json_encode(array('success' => true, 'status' => ($sent/$all), 'total_sent' => $sent)); exit;
         } catch(Exception $e) {
             echo json_encode(array('success' => false)); exit;
         }
+    }
+
+    protected function getSentCollection() {
+        $sentCollection = Mage::getModel('full/sent')->getCollection();
+        $sentArray = array();
+
+        foreach($sentCollection AS $entry) {
+            $sentArray[] = $entry->getOrderId();
+        }
+
+        return array_unique($sentArray);
     }
 
     private function _enableCronJob() {
@@ -145,7 +155,6 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
         } catch (Exception $e) {
             throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
         }
-
     }
 
     private function _enableResendOrders() {

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Riskified_Full>
-            <version>1.0.9.0</version>
+            <version>1.0.9.1</version>
         </Riskified_Full>
     </modules>
 
@@ -23,6 +23,9 @@
                     <retry>
                         <table>riskified_full_retry</table>
                     </retry>
+                    <historical_order_sent>
+                        <table>riskified_full_historical_sent</table>
+                    </historical_order_sent>
                 </entities>
             </riskified_full_resource>
         </models>
