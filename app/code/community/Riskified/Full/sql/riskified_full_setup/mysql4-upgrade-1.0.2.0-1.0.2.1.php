@@ -7,8 +7,8 @@ $installer->startSetup();
 $helper = Mage::helper('full/order_status');
 
 Mage::getModel('sales/order_status')
-	->setStatus($helper->getTransportErrorStatusCode())->setLabel($helper->getTransportErrorStatusLabel())
-	->assignState(Mage_Sales_Model_Order::STATE_HOLDED)
-	->save();
+    ->setStatus($helper->getTransportErrorStatusCode())->setLabel($helper->getTransportErrorStatusLabel())
+    ->assignState(Mage_Sales_Model_Order::STATE_HOLDED)
+    ->save();
 
 $installer->endSetup();

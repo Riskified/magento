@@ -22,8 +22,7 @@ class Riskified_Full_Helper_Debug extends Mage_Core_Helper_Abstract
 
         try {
             $mail->send();
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             Mage::helper('full/log')->logException($e);
         }
     }
@@ -47,8 +46,8 @@ class Riskified_Full_Helper_Debug extends Mage_Core_Helper_Abstract
         // All Riskified config values
         $configGroups = Mage::getStoreConfig(self::CONFIG_SECTION);
 
-        foreach($configGroups as $groupName => $group) {
-            foreach($group as $fieldName => $field) {
+        foreach ($configGroups as $groupName => $group) {
+            foreach ($group as $fieldName => $field) {
                 $data['magentoConfig-' . self::CONFIG_SECTION . '/' . $groupName . '/' . $fieldName] = $field;
             }
         }

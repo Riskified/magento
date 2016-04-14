@@ -19,8 +19,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
                 $statusCode = 200;
                 $msg = 'Test notification received successfully';
                 Mage::helper('full/log')->log("Test Notification received: ", serialize($notification));
-            }
-            else {
+            } else {
 
                 // Changing scope to ADMIN store so that all orders will be visible and all admin functionalities will work
                 Mage::app()->setCurrentStore(Mage_Core_Model_App::ADMIN_STORE_ID);
@@ -55,22 +54,23 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
 
         $response->setHttpResponseCode($statusCode);
         $response->setHeader('Content-Type', 'application/json');
-        $response->setBody('{ "order" : { "id" : "' . $id . '", "description" : "' . $msg .'" } }');
+        $response->setBody('{ "order" : { "id" : "' . $id . '", "description" : "' . $msg . '" } }');
     }
 
-    private function loadOrderByOrigId($full_orig_id) {
-        if(!$full_orig_id) {
+    private function loadOrderByOrigId($full_orig_id)
+    {
+        if (!$full_orig_id) {
             return null;
         }
 
-        $magento_ids = explode("_",$full_orig_id);
+        $magento_ids = explode("_", $full_orig_id);
         $order_id = $magento_ids[0];
         $increment_id = $magento_ids[1];
 
         if ($order_id && $increment_id) {
             return Mage::getModel('sales/order')->getCollection()
                 ->addFieldToFilter('entity_id', $order_id)
-                ->addFieldToFilter('increment_id',$increment_id)
+                ->addFieldToFilter('increment_id', $increment_id)
                 ->getFirstItem();
         }
         return Mage::getModel('sales/order')->load($order_id);

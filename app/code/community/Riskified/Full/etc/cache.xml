@@ -1,0 +1,10 @@
+<config>
+    <placeholders>
+        <riskified_full>
+            <block>full/beacon</block>
+            <name>riskified.full.beacon</name>
+            <placeholder>RISKIFIED_FULL_BEACON_CACHE</placeholder>
+            <container>Riskified_Full_Model_Container_Beacon</container>
+        </riskified_full>
+    </placeholders>
+</config>

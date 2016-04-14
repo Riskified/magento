@@ -9,10 +9,10 @@ $helper = Mage::helper('full/order_status');
 // create new approved and declined statuses
 
 Mage::getModel('sales/order_status')
-	->setStatus($helper->getRiskifiedDeclinedStatusCode())
+    ->setStatus($helper->getRiskifiedDeclinedStatusCode())
     ->setLabel($helper->getRiskifiedDeclinedStatusLabel())
-	->assignState(Mage_Sales_Model_Order::STATE_HOLDED)
-	->save();
+    ->assignState(Mage_Sales_Model_Order::STATE_HOLDED)
+    ->save();
 
 Mage::getModel('sales/order_status')
     ->setStatus($helper->getRiskifiedDeclinedStatusCode())
