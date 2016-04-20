@@ -92,6 +92,7 @@ class Riskified_Full_Model_Cron
         if(Mage::getStoreConfig('riskified/cron/resend')) {
             $orders->addFieldToFilter('entity_id', array('nin' => $this->getSentCollection()));
         }
+        $orders->getSelect()->order('entity_id DESC');
 
         Mage::helper('full/order')->postHistoricalOrders($orders);
 

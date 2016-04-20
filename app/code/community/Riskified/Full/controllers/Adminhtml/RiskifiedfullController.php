@@ -82,6 +82,7 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
         if(!$resend && count($alreadySent) > 0) {
             $orders_collection->addFieldToFilter('entity_id', array('nin' => $alreadySent));
         }
+        $orders_collection->getSelect()->order('entity_id DESC');
 
         $total_uploaded = 0;
         if($total_count > 0) {
@@ -98,6 +99,7 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
                     if(!$resend) {
                         $orders_collection->addFieldToFilter('entity_id', array('nin' => $this->getSentCollection()));
                     }
+                    $orders_collection->getSelect()->order('entity_id DESC');
 
                 } catch (Exception $e) {
                     Mage::logException($e);
