@@ -74,15 +74,13 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
             echo json_encode(array('success' => true, 'by_cron' => true));
             return;
         }
-        $orders_collection = Mage::getModel('sales/order')
-            ->getCollection()
-            ->setPageSize($batch_size)
-            ->setCurPage($page);
+        $orders_collection = Mage::getModel('sales/order')->getCollection();
+        $orders_collection->getSelect()->order('entity_id DESC');
+        $orders_collection->setPageSize($batch_size)->setCurPage($page);
 
         if(!$resend && count($alreadySent) > 0) {
             $orders_collection->addFieldToFilter('entity_id', array('nin' => $alreadySent));
         }
-        $orders_collection->getSelect()->order('entity_id DESC');
 
         $total_uploaded = 0;
         if($total_count > 0) {
@@ -90,17 +88,17 @@ class Riskified_Full_Adminhtml_RiskifiedfullController extends Mage_Adminhtml_Co
                 try {
                     Mage::helper('full/order')->postHistoricalOrders($orders_collection);
                     $total_uploaded += $orders_collection->count();
-                    $page++;
+
                     $orders_collection = Mage::getModel('sales/order')
                         ->getCollection()
                         ->setPageSize($batch_size)
                         ->setCurPage($page);
+                    $orders_collection->getSelect()->order('entity_id DESC');
 
                     if(!$resend) {
                         $orders_collection->addFieldToFilter('entity_id', array('nin' => $this->getSentCollection()));
                     }
-                    $orders_collection->getSelect()->order('entity_id DESC');
-
+                    $page++;
                 } catch (Exception $e) {
                     Mage::logException($e);
                     exit(1);
