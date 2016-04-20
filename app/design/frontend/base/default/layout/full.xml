@@ -2,7 +2,7 @@
 <layout version="0.1.0">
     <default>
         <reference name="before_body_end">
-            <block type="core/template" name="riskified_analytics" as="riskified_analytics" template="full/riskified.phtml" />
+            <block type="full/beacon" name="riskified.full.beacon" />
         </reference>
     </default>
 </layout> 
