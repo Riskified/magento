@@ -1,5 +1,5 @@
 <_>
-   <form_key>KkvASvAAuhL3xmwT</form_key>
+   <form_key>jrEDEozu35jSQPJW</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,11 +10,9 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.8.3</version>
+   <version>1.0.8.4</version>
    <stability>stable</stability>
-   <notes>* Beacon with FPC hole punching capabilities
-* Better support for status transitions with order status sync
-* Voiding payments at the gateway on decline when state set to canceled.</notes>
+   <notes>* Extended support for Braintree gateway</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -43,7 +41,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                    </files>
+            <files>                                                                                     </files>
          </files>
       </package>
       <extension>
@@ -120,4 +118,8 @@ transactions you would otherwise decline.</description>
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>
