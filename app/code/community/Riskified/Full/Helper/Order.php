@@ -538,6 +538,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                     Mage::helper('full/log')->log("transarmor payment additional info: " . PHP_EOL . var_export($payment->getAdditionalInformation(), 1));
                     break;
 
+                case 'braintree':
                 case 'braintreevzero':
                     $cvvResultCode = $payment->getAdditionalInformation('cvvResponseCode');
                     $creditCardBin = $payment->getAdditionalInformation('bin');
