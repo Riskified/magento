@@ -84,7 +84,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 case self::ACTION_CREATE:
                     $orderForTransport = $this->getOrder($order);
                     $response = $transport->createOrder($orderForTransport);
-
+                    $order->setIsSentToRiskfied(1);
+                    $order->save();
                     break;
                 case self::ACTION_UPDATE:
                     $orderForTransport = $this->getOrder($order);
@@ -124,7 +125,19 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             );
 
             throw $curlException;
-        } catch (Exception $e) {
+        }
+        catch (\Riskified\OrderWebhook\Exception\MalformedJsonException $e) {
+            if (strstr($e->getMessage(), "504") && strstr($e->getMessage(), "Status Code:")) {
+                $this->updateOrder($order, 'error', null, 'Error transferring order data to Riskified');
+                $this->scheduleSubmissionRetry($order, $action);
+            }
+            Mage::dispatchEvent(
+                'riskified_decider_post_order_error',
+                $eventData
+            );
+            throw $e;
+        }
+        catch (Exception $e) {
             Mage::helper('full/log')->logException($e);
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
 
@@ -143,7 +156,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     {
         $orders = array();
         foreach ($models as $model) {
-            $orders[] = $this->getOrder($model);
+            $order = $this->getOrder($model);
+            Mage::getModel('full/sent')->setOrderId($model->getId())->save();
+            $orders[] = $order;
         }
 
         $msgs = $this->getTransport()->sendHistoricalOrders($orders);
@@ -454,22 +469,22 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         try {
             switch ($gatewayName) {
                 case 'authorizenet':
-                    $authorize_data = $payment->getAdditionalInformation('authorize_cards');
-                    if ($authorize_data && is_array($authorize_data)) {
-                        $cards_data = array_values($authorize_data);
-                        if ($cards_data && $cards_data[0]) {
-                            $card_data = $cards_data[0];
-                            if (isset($card_data['cc_last4'])) {
-                                $creditCardNumber = $card_data['cc_last4'];
+                    $authorizeData = $payment->getAdditionalInformation('authorize_cards');
+                    if ($authorizeData && is_array($authorizeData)) {
+                        $cardsData = array_values($authorizeData);
+                        if ($cardsData && $cardsData[0]) {
+                            $cardData = $cardsData[0];
+                            if (isset($cardData['cc_last4'])) {
+                                $creditCardNumber = $cardData['cc_last4'];
                             }
-                            if (isset($card_data['cc_type'])) {
-                                $creditCardCompany = $card_data['cc_type'];
+                            if (isset($cardData['cc_type'])) {
+                                $creditCardCompany = $cardData['cc_type'];
                             }
-                            if (isset($card_data['cc_avs_result_code'])) {
-                                $avsResultCode = $card_data['cc_avs_result_code'];
+                            if (isset($cardData['cc_avs_result_code'])) {
+                                $avsResultCode = $cardData['cc_avs_result_code'];
                             }// getAvsResultCode
-                            if (isset($card_data['cc_response_code'])) {
-                                $cvvResultCode = $card_data['cc_response_code'];
+                            if (isset($cardData['cc_response_code'])) {
+                                $cvvResultCode = $cardData['cc_response_code'];
                             } // getCardCodeResponseCode
                         }
                     }
@@ -494,20 +509,20 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 case 'paypal_express':
                 case 'paypaluk_express':
                 case 'paypal_standard':
-                    $payer_email = $payment->getAdditionalInformation('paypal_payer_email');
-                    $payer_status = $payment->getAdditionalInformation('paypal_payer_status');
-                    $payer_address_status = $payment->getAdditionalInformation('paypal_address_status');
-                    $protection_eligibility = $payment->getAdditionalInformation('paypal_protection_eligibility');
-                    $payment_status = $payment->getAdditionalInformation('paypal_payment_status');
-                    $pending_reason = $payment->getAdditionalInformation('paypal_pending_reason');
+                    $payerEmail = $payment->getAdditionalInformation('paypal_payer_email');
+                    $payerStatus = $payment->getAdditionalInformation('paypal_payer_status');
+                    $payerAddressStatus = $payment->getAdditionalInformation('paypal_address_status');
+                    $protectionEligibility = $payment->getAdditionalInformation('paypal_protection_eligibility');
+                    $paymentStatus = $payment->getAdditionalInformation('paypal_payment_status');
+                    $pendingReason = $payment->getAdditionalInformation('paypal_pending_reason');
                     return new Model\PaymentDetails(array_filter(array(
                         'authorization_id' => $transactionId,
-                        'payer_email' => $payer_email,
-                        'payer_status' => $payer_status,
-                        'payer_address_status' => $payer_address_status,
-                        'protection_eligibility' => $protection_eligibility,
-                        'payment_status' => $payment_status,
-                        'pending_reason' => $pending_reason
+                        'payer_email' => $payerEmail,
+                        'payer_status' => $payerStatus,
+                        'payer_address_status' => $payerAddressStatus,
+                        'protection_eligibility' => $protectionEligibility,
+                        'payment_status' => $paymentStatus,
+                        'pending_reason' => $pendingReason
                     ), 'strlen'));
                 case 'paypal_direct':
                 case 'paypaluk_direct':
@@ -552,6 +567,11 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                     $cvvResultCode = $payment->getAdyenCvcResult();
                     $transactionId = $payment->getAdyenPspReference();
                     $creditCardBin = $payment->getAdyenCardBin();
+                    break;
+
+                // Conekta gateway
+                case 'card':
+                    $creditCardBin = $payment->getCardBin();
                     break;
 
                 default:
