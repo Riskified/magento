@@ -23,17 +23,5 @@ $table = $installer->getConnection()
 	), 'Date when order was sent');
 
 $installer->getConnection()->createTable($table);
-$orders = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('is_sent_to_riskified', 1);
-
-foreach($orders AS $order) {
-	Mage::getModel('full/sent')
-		->setOrderId($order->getId())
-		->save();
-}
-
-$installer->getConnection()->dropColumn(
-	$this->getTable('sales/order'),
-	'is_sent_to_riskified'
-);
 
 $installer->endSetup();
