@@ -50,6 +50,11 @@ class Riskified_Full_Model_Cron
             ->order('updated_at ASC')
             ->limit(self::BATCH_SIZE);
 
+        if ($retries->getSize() === 0) {
+            Mage::helper('full/log')->log('No orders to retry');
+            return $this;
+        }
+
         $mapperOrder = array();
         $orderIds = array();
 
