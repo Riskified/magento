@@ -84,7 +84,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 case self::ACTION_CREATE:
                     $orderForTransport = $this->getOrder($order);
                     $response = $transport->createOrder($orderForTransport);
-
+                    $order->setIsSentToRiskfied(1);
+                    $order->save();
                     break;
                 case self::ACTION_UPDATE:
                     $orderForTransport = $this->getOrder($order);
@@ -143,7 +144,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     {
         $orders = array();
         foreach ($models as $model) {
-            $orders[] = $this->getOrder($model);
+            $order = $this->getOrder($model);
+            Mage::getModel('full/sent')->setOrderId($model->getId())->save();
+            $orders[] = $order;
         }
 
         $msgs = $this->getTransport()->sendHistoricalOrders($orders);
