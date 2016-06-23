@@ -21,6 +21,8 @@
 
 <?php
 $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
+$alreadySent = Mage::getModel('full/sent')->getCollection()->getSize();
+$sendingOrdersToRiskified = Mage::getStoreConfig('riskified/cron/run_historical_orders', 0);
 ?>
 
 <style type="text/css">
@@ -48,6 +50,9 @@ $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
         text-decoration: none;
         color: #FFF;
     }
+    .riskified-botton.send {
+        margin-bottom: 10px;
+    }
 
     .step-inner {
         display: inline-block;
@@ -69,6 +74,73 @@ $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
         clear: both;
     }
 
+    #send-historical-orders-message {
+        font-family: Helvetica Neue, sans-serif;
+        color : #ff0000;
+        margin-bottom:30px;
+        font-size: 16px;
+    }
+
+    .already-sent {
+        margin-bottom: 30px;
+        font-size: 16px;
+        color: #1b6800;
+    }
+
+    .one {
+        opacity: 0;
+        -webkit-animation: dot 1.3s infinite;
+        -webkit-animation-delay: 0.0s;
+        animation: dot 1.3s infinite;
+        animation-delay: 0.0s;
+    }
+
+    .two {
+        opacity: 0;
+        -webkit-animation: dot 1.3s infinite;
+        -webkit-animation-delay: 0.2s;
+        animation: dot 1.3s infinite;
+        animation-delay: 0.2s;
+    }
+
+    .three {
+        opacity: 0;
+        -webkit-animation: dot 1.3s infinite;
+        -webkit-animation-delay: 0.3s;
+        animation: dot 1.3s infinite;
+        animation-delay: 0.3s;
+    }
+
+    @-webkit-keyframes dot {
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes dot {
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    #send-again {
+        color: #000;
+        font-weight: bolder;
+        cursor: pointer;
+    }
+
 </style>
 
 <script type="text/javascript">
@@ -76,6 +148,7 @@ $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
 
     document.observe("dom:loaded", function() {
         var rhtml = '';
+        var bottomHtml = '';
         rhtml += '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">';
         rhtml += '  <img width="204px" height="53px" src="<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"/>';
         rhtml += '</span>';
@@ -92,6 +165,12 @@ $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
             rhtml = '<span id="riskified-logo" style="margin-top: 12px; margin-bottom: 19px;  display:block">  <img width="204px" height="53px" src="<?php echo $this->getSkinUrl('images/riskified/logo.jpg'); ?>"></span>';
             rhtml += '<div id="riskified-header" style="font-family:Helvetica Neue; font-size: 19px; line-height: 23px; color: #393536;margin-bottom: 25px;">The extension is connected to your Riskified account</div>';
             rhtml += '<a class="riskified-botton" style="margin-bottom:30px" href="//<?php echo Mage::helper('full/order')->getRiskifiedApp()?>" target="_blank">Go to Riskified App</a>';
+            bottomHtml += '<a class="riskified-botton send" id="send-historical-orders" style="display:block;" href="javascript:void(0);">Send All Historical Orders</a>';
+            bottomHtml += '<p id="send-historical-orders-message"<?php echo $sendingOrdersToRiskified ? 'style="display:block;"' : 'style="display:none;"'; ?>>Sending orders to Riskified<span class="one">.</span><span class="two">.</span><span class="three">.</span>​</p>';
+            bottomHtml += '<p id="send-historical-orders-status" style="display:none;"></p>';
+            <?php if($alreadySent): ?>
+            bottomHtml += '<p class="already-sent"><span id="already-sent-count"><?php echo $alreadySent; ?></span> order(s) were sent in the past.<?php if(!$sendingOrdersToRiskified): ?> <span id="send-again"> Send All Again</span><?php endif; ?></p>';
+            <?php endif; ?>
         }else{
             rhtml += '<span class="step-wrapper">';
             rhtml += '    <div class="step-title"  style="font-family:Helvetica Neue; font-size: 25px; line-height: 30px; color: #393536; display:inline-block">';
@@ -111,6 +190,59 @@ $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
         htmlBody = rhtml;
 
         section.up().insert({top:htmlBody});
+        section.up().insert(bottomHtml);
+
+        $("send-historical-orders").observe('click', function(){
+            sendRequest();
+        });
+        if($("send-again")) {
+            $("send-again").observe('click', function() {
+                sendRequest(true);
+            });
+        }
+        var internal = null;
+        function sendRequest(resend) {
+            $('send-historical-orders-message').show();
+            new Ajax.Request('<?php echo Mage::helper('adminhtml')->getUrl("adminhtml/riskifiedfull/sendHistoricalOrders"); ?>', {
+                method:     'get',
+                parameters : {
+                    resend : resend
+                },
+                onSuccess : function(resp) {
+                    var response = JSON.parse(resp.responseText);
+
+                    if(response.success && !response.by_cron) {
+                        $('send-historical-orders-status').show().update(response.message);
+                        $('send-historical-orders-message').hide();
+                    } else if(response.by_cron){
+                        initUpdate();
+                    }
+                }
+            });
+        }
+
+        function initUpdate() {
+            internal = setInterval(getProgress, 5000);
+        }
+
+        function getProgress() {
+            new Ajax.Request('<?php echo Mage::helper('adminhtml')->getUrl("adminhtml/riskifiedfull/sendHistoricalOrdersStatus"); ?>', {
+                method:     'get',
+                onCreate: function(request) {
+                    Ajax.Responders.unregister(varienLoaderHandler.handler);
+                },
+                onSuccess : function(resp) {
+                    Ajax.Responders.register(varienLoaderHandler.handler);
+                    var response = JSON.parse(resp.responseText);
+                    if (response.success) {
+                        $('already-sent-count').update(response.total_sent);
+                        if(response.status == 1) {
+                            clearInterval(internal);
+                        }
+                    }
+                }
+            });
+        }
     });
 
     //]]>

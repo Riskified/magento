@@ -50,6 +50,11 @@ class Riskified_Full_Model_Cron
             ->order('updated_at ASC')
             ->limit(self::BATCH_SIZE);
 
+        if ($retries->getSize() === 0) {
+            Mage::helper('full/log')->log('No orders to retry');
+            return $this;
+        }
+
         $mapperOrder = array();
         $orderIds = array();
 
@@ -83,5 +88,33 @@ class Riskified_Full_Model_Cron
         }
 
         Mage::helper('full/log')->log("Done retrying failed order submissions");
+    }
+
+    public function uploadHistoricalOrders() {
+        if(!Mage::getStoreConfig('riskified/cron/run_historical_orders')) return;
+
+        $orders = Mage::getModel('sales/order')->getCollection();
+
+        if(Mage::getStoreConfig('riskified/cron/resend')) {
+            $orders->addFieldToFilter('entity_id', array('nin' => $this->getSentCollection()));
+        }
+        $orders->getSelect()->order('entity_id DESC');
+
+        Mage::helper('full/order')->postHistoricalOrders($orders);
+
+        Mage::getConfig()->saveConfig('riskified/cron/run_historical_orders', 0);
+        Mage::getConfig()->saveConfig('riskified/cron/resend', 0);
+        Mage::app()->getStore()->resetConfig();
+    }
+
+    protected function getSentCollection() {
+        $sentCollection = Mage::getModel('full/sent')->getCollection();
+        $sentArray = array();
+
+        foreach($sentCollection AS $entry) {
+            $sentArray[] = $entry->getOrderId();
+        }
+
+        return array_unique($sentArray);
     }
 }
