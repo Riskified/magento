@@ -1,5 +1,5 @@
 <_>
-   <form_key>jrEDEozu35jSQPJW</form_key>
+   <form_key>HZeAek1EFtRvFo9s</form_key>
    <name>riskified_magento</name>
    <channel>community</channel>
    <version_ids>
@@ -10,9 +10,10 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.8.4</version>
+   <version>1.0.9.1</version>
    <stability>stable</stability>
-   <notes>* Extended support for Braintree gateway</notes>
+   <notes>* Added historical orders cron to support the Riskified integration process
+* General bugfixes</notes>
    <authors>
       <name>
          <name>Riskified_Mage</name>
@@ -41,7 +42,7 @@ transactions you would otherwise decline.</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                     </files>
+            <files>                                                                                      </files>
          </files>
       </package>
       <extension>
@@ -118,8 +119,4 @@ transactions you would otherwise decline.</description>
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>
