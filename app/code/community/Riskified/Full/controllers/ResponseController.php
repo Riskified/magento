@@ -32,9 +32,27 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
                     $statusCode = 400;
                     $msg = 'Could not find order to update.';
                 } else {
-                    $helper->updateOrder($order, $notification->status, $notification->oldStatus, $notification->description);
-                    $statusCode = 200;
-                    $msg = 'Order-Update event triggered.';
+                    try {
+                        $helper->updateOrder(
+                            $order,
+                            $notification->status,
+                            $notification->oldStatus,
+                            $notification->description
+                        );
+
+                        $statusCode = 200;
+                        $msg = 'Order-Update event triggered.';
+                    } catch (PDOException $e) {
+                        $exceptionMessage = 'SQLSTATE[40001]: Serialization '
+                        . 'failure: 1213 Deadlock found when trying to get '
+                        . 'lock; try restarting transaction';
+
+                        if ($e->getMessage() === $exceptionMessage) {
+                            throw new Exception('Deadlock exception handled.');
+                        } else {
+                            throw $e;
+                        }
+                    }
                 }
             }
         } catch (Riskified\DecisionNotification\Exception\AuthorizationException $e) {
