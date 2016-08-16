@@ -288,6 +288,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
 
         $order_array = array(
             'id' => $this->getOrderOrigId($model),
+            'checkout_id' => $model->getQuoteId(),
             'name' => $model->getIncrementId(),
             'email' => $model->getCustomerEmail(),
             'created_at' => $this->formatDateAsIso8601($model->getCreatedAt()),
