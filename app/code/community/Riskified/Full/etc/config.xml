@@ -244,6 +244,14 @@
                     </module>
                 </observers>
             </adminhtml_widget_container_html_before>
+            <sales_order_creditmemo_save_after>
+                <observers>
+                    <riskified_full_handle_creditmemo_save>
+                        <class>full/observer_order_creditmemo_save</class>
+                        <method>handleCreditmemoSave</method>
+                    </riskified_full_handle_creditmemo_save>
+                </observers>
+            </sales_order_creditmemo_save_after>
         </events>
         <layout>
             <updates>
