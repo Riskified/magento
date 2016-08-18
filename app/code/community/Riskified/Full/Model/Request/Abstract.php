@@ -222,13 +222,15 @@ abstract class Riskified_Full_Model_Request_Abstract
     /**
      * Return current date time with timezone.
      *
+     * @param string $time Time.
+     *
      * @return string
      */
-    protected function getCurrentDateTime()
+    protected function getDateTime($time = 'now')
     {
         $timezone = Mage::getStoreConfig('general/locale/timezone');
         $dateTimeZone = new DateTimeZone($timezone);
-        $dateTime = new DateTime('now', $dateTimeZone);
+        $dateTime = new DateTime($time, $dateTimeZone);
 
         return $dateTime->format($dateTime::ATOM);
     }

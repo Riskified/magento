@@ -29,7 +29,7 @@ class Riskified_Full_Model_Request_Order_Payment_Failed
      */
     public function sendRequest(array $data)
     {
-        $data['authorization_error']['created_at'] = $this->getCurrentDateTime();
+        $data['authorization_error']['created_at'] = $this->getDateTime();
 
         return $this->executeRequest($data);
     }
