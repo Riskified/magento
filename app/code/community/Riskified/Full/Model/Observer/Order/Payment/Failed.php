@@ -32,7 +32,7 @@ class Riskified_Full_Model_Observer_Order_Payment_Failed
                     $paymentDetailsArray,
                     array(
                         'authorization_error' => array(
-                            'error_code' => 'processing_error',
+                            'error_code' => 'magento_generic_auth_error',
                             'message' => 'General processing error',
                         )
                     )
