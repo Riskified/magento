@@ -170,6 +170,7 @@ abstract class Riskified_Full_Model_Request_Abstract
      */
     protected function executeRequest(array $data)
     {
+        $data = array_merge($data, $this->getClientDetails());
         $jsonData = json_encode($data);
         $this->prepareResource($jsonData);
 
@@ -186,6 +187,17 @@ abstract class Riskified_Full_Model_Request_Abstract
         $responseStatus = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         return $this->processResponse($responseStatus, $responseBody);
+    }
+
+    protected function getClientDetails()
+    {
+        $clientDetails = array(
+            'client_details' => array(
+                'accept_language' => Mage::helper('full')->getAcceptLanguage(),
+            ),
+        );
+
+        return $clientDetails;
     }
 
     /**
