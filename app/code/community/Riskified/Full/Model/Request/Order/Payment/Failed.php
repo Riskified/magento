@@ -29,7 +29,18 @@ class Riskified_Full_Model_Request_Order_Payment_Failed
      */
     public function sendRequest(array $data)
     {
-        $data['authorization_error']['created_at'] = $this->getDateTime();
+        $data = array_merge_recursive(
+            $data,
+            array(
+                'checkout' => array(
+                    'payment_details' => array(
+                        'authorization_error' => array(
+                            'created_at' => $this->getDateTime(),
+                        ),
+                    ),
+                ),
+            )
+        );
 
         return $this->executeRequest($data);
     }
