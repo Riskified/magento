@@ -35,16 +35,16 @@ class Riskified_Full_Model_Observer_Order_Creditmemo_Save
         $reason = trim($reason);
 
         $payload = array(
-            'order' => array(
-                'id' => (int)$creditmemo->getOrderId(),
-                'refunds' => array(
-                    array(
-                        'refund_id' => $creditmemo->getId(),
-                        'amount' => $creditmemo->getGrandTotal(),
-                        'refunded_at' => $creditmemo->getCreatedAt(),
-                        'currency' => $creditmemo->getOrderCurrencyCode(),
-                        'reason' => $reason,
+            'id' => (int)$creditmemo->getOrderId(),
+            'refunds' => array(
+                array(
+                    'refund_id' => $creditmemo->getId(),
+                    'amount' => $creditmemo->getGrandTotal(),
+                    'refunded_at' => Mage::helper('full')->getDateTime(
+                        $creditmemo->getCreatedAt()
                     ),
+                    'currency' => $creditmemo->getOrderCurrencyCode(),
+                    'reason' => $reason,
                 ),
             ),
         );
@@ -57,15 +57,8 @@ class Riskified_Full_Model_Observer_Order_Creditmemo_Save
             $reason
         );
 
-        $request = Mage::getModel('full/request_order_creditmemo_save');
-
-        try {
-            $response = $request->sendRequest($payload);
-        } catch (\Exception $e) {
-            Mage::helper('full/log')->log(
-                'handleCreditmemoSave(): ' . PHP_EOL . $e->getMessage()
-            );
-        }
+        $helper = Mage::helper('full/order');
+        $helper->postOrder($payload, 'refund');
 
         return $this;
     }

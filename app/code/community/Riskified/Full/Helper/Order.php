@@ -15,6 +15,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     const ACTION_UPDATE = 'update';
     const ACTION_SUBMIT = 'submit';
     const ACTION_CANCEL = 'cancel';
+    const ACTION_REFUND = 'refund';
+    const ACTION_CHECKOUT_CREATE = 'checkout_create';
+    const ACTION_CHECKOUT_DENIED = 'checkout_denied';
 
     private $_customer = array();
 
@@ -90,17 +93,26 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 case self::ACTION_UPDATE:
                     $orderForTransport = $this->getOrder($order);
                     $response = $transport->updateOrder($orderForTransport);
-
                     break;
                 case self::ACTION_SUBMIT:
                     $orderForTransport = $this->getOrder($order);
                     $response = $transport->submitOrder($orderForTransport);
-
                     break;
                 case self::ACTION_CANCEL:
                     $orderForTransport = $this->getOrderCancellation($order);
                     $response = $transport->cancelOrder($orderForTransport);
-
+                    break;
+                case self::ACTION_REFUND:
+                    $orderForTransport = new Model\Refund($order);
+                    $response = $transport->refundOrder($orderForTransport);
+                    break;
+                case self::ACTION_CHECKOUT_CREATE:
+                    $checkoutForTransport = new Model\Checkout($order);
+                    $response = $transport->createCheckout($checkoutForTransport);
+                    break;
+                case self::ACTION_CHECKOUT_DENIED:
+                    $checkoutForTransport = new Model\Checkout($order);
+                    $response = $transport->deniedCheckout($checkoutForTransport);
                     break;
             }
 

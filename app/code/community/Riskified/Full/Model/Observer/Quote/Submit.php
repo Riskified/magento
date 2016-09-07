@@ -22,13 +22,11 @@ class Riskified_Full_Model_Observer_Quote_Submit
         $quote = $observer->getEvent()->getQuote();
 
         $payload = array(
-            'checkout' => array(
-                'id' => (int)$quote->getId(),
-            ),
+            'id' => (int)$quote->getId(),
         );
 
-        $request = Mage::getModel('full/request_quote_submit');
-        $response = $request->sendRequest($payload);
+        $helper = Mage::helper('full/order');
+        $helper->postOrder($payload, 'checkout_create');
 
         return $this;
     }

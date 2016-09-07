@@ -26,17 +26,16 @@ class Riskified_Full_Model_Observer_Order_Payment_Failed
 
         $paymentDetailsArray = json_decode($paymentDetails->toJson(), true);
         $payload = array(
-            'checkout' => array(
-                'id' => (int)$order->getQuoteId(),
-                'payment_details' => array_merge(
-                    $paymentDetailsArray,
-                    array(
-                        'authorization_error' => array(
-                            'error_code' => 'magento_generic_auth_error',
-                            'message' => 'General processing error',
-                        )
-                    )
-                ),
+            'id' => (int)$order->getQuoteId(),
+            'payment_details' => array_merge(
+                $paymentDetailsArray,
+                array(
+                    'authorization_error' => array(
+                        'error_code' => 'magento_generic_auth_error',
+                        'message' => 'General processing error',
+                        'created_at' => Mage::helper('full')->getDateTime(),
+                    ),
+                )
             ),
         );
 
@@ -46,8 +45,8 @@ class Riskified_Full_Model_Observer_Order_Payment_Failed
             $paymentDetailsArray
         );
 
-        $request = Mage::getModel('full/request_order_payment_failed');
-        $response = $request->sendRequest($payload);
+        $helper = Mage::helper('full/order');
+        $helper->postOrder($payload, 'checkout_denied');
 
         return $this;
     }
