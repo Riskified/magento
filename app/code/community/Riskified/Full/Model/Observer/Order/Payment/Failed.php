@@ -46,7 +46,10 @@ class Riskified_Full_Model_Observer_Order_Payment_Failed
         );
 
         $helper = Mage::helper('full/order');
-        $helper->postOrder($payload, 'checkout_denied');
+        $helper->postOrder(
+            $payload,
+            Riskified_Full_Helper_Order::ACTION_CHECKOUT_DENIED
+        );
 
         return $this;
     }

@@ -58,7 +58,10 @@ class Riskified_Full_Model_Observer_Order_Creditmemo_Save
         );
 
         $helper = Mage::helper('full/order');
-        $helper->postOrder($payload, 'refund');
+        $helper->postOrder(
+            $payload,
+            Riskified_Full_Helper_Order::ACTION_REFUND
+        );
 
         return $this;
     }

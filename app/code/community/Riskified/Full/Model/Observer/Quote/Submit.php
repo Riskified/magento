@@ -26,7 +26,10 @@ class Riskified_Full_Model_Observer_Quote_Submit
         );
 
         $helper = Mage::helper('full/order');
-        $helper->postOrder($payload, 'checkout_create');
+        $helper->postOrder(
+            $payload,
+            Riskified_Full_Helper_Order::ACTION_CHECKOUT_CREATE
+        );
 
         return $this;
     }
