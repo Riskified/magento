@@ -20,6 +20,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     const ACTION_CHECKOUT_DENIED = 'checkout_denied';
 
     private $_customer = array();
+    protected $requestData = array();
 
     public function __construct()
     {
@@ -109,10 +110,12 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 case self::ACTION_CHECKOUT_CREATE:
                     $checkoutForTransport = new Model\Checkout($order);
                     $response = $transport->createCheckout($checkoutForTransport);
+                    Mage::log(var_export($this->requestData, true), null, 'riskified-request-data.log');
                     break;
                 case self::ACTION_CHECKOUT_DENIED:
                     $checkoutForTransport = new Model\Checkout($order);
                     $response = $transport->deniedCheckout($checkoutForTransport);
+                    Mage::log(var_export($this->requestData, true), null, 'riskified-request-data.log');
                     break;
             }
 
@@ -275,6 +278,9 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     {
         $transport = new Transport\CurlTransport(new Signature\HttpDataSignature());
         $transport->timeout = 15;
+
+        $transport->requestData = &$this->requestData;
+
         return $transport;
     }
 

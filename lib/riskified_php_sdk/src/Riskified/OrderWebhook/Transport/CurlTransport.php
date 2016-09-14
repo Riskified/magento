@@ -27,6 +27,8 @@ class CurlTransport extends AbstractTransport {
     public $timeout = 10;
     public $dns_cache = true;
 
+    public $requestData;
+
     /**
      * @param $order object Order to send
      * @param $endpoint String API endpoint to send request
@@ -49,13 +51,17 @@ class CurlTransport extends AbstractTransport {
         );
         curl_setopt_array($ch, $curl_options);
 
+        $this->requestData['endpoint'] = $this->endpoint_prefix().$endpoint;
+        $this->requestData['payload'] = $json;
 
         $body = curl_exec($ch);
+        $this->requestData['responseBody'] = $body;
         if (curl_errno($ch)) {
             throw new Exception\CurlException(curl_error($ch), curl_errno($ch));
         }
 
         $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $this->requestData['responseStatus'] = $status;
         curl_close($ch);
 
         return $this->json_response($body, $status);
