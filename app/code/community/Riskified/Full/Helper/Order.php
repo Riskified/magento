@@ -153,6 +153,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             throw $e;
         }
         catch (Exception $e) {
+            Mage::log(var_export($this->requestData, true), null, 'riskified-request-data.log');
             Mage::helper('full/log')->logException($e);
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $e->getMessage());
 
