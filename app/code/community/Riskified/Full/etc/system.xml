@@ -43,7 +43,7 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                             <comment>
-                                <![CDATA[This is the shop domain used during signup. See <a href="http://www.riskified.com/documentation/magento.html" target="_blank">documentation</a> for more details.]]></comment>
+                                <![CDATA[This is the shop domain used during signup. See <a href="https://www.riskified.com/documentation/magento.html" target="_blank">documentation</a> for more details.]]></comment>
                         </domain>
                         <key translate="label comment">
                             <label>Auth token</label>
