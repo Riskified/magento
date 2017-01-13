@@ -182,6 +182,22 @@
                     </riskified_full_process_successful_post>
                 </observers>
             </riskified_full_post_order_success>
+            <sales_model_service_quote_submit_failure>
+                <observers>
+                    <riskified_full_handle_default_failed_transaction>
+                        <class>full/observer_order_payment_failed</class>
+                        <method>handleDefaultFailedTransaction</method>
+                    </riskified_full_handle_default_failed_transaction>
+                </observers>
+            </sales_model_service_quote_submit_failure>
+            <sales_model_service_quote_submit_before>
+                <observers>
+                    <riskified_full_handle_quote_submit>
+                        <class>full/observer_quote_submit</class>
+                        <method>handleQuoteSubmit</method>
+                    </riskified_full_handle_quote_submit>
+                </observers>
+            </sales_model_service_quote_submit_before>
         </events>
     </global>
 
@@ -228,6 +244,14 @@
                     </module>
                 </observers>
             </adminhtml_widget_container_html_before>
+            <sales_order_creditmemo_save_after>
+                <observers>
+                    <riskified_full_handle_creditmemo_save>
+                        <class>full/observer_order_creditmemo_save</class>
+                        <method>handleCreditmemoSave</method>
+                    </riskified_full_handle_creditmemo_save>
+                </observers>
+            </sales_order_creditmemo_save_after>
         </events>
         <layout>
             <updates>

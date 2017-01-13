@@ -104,4 +104,36 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return Riskified\Common\Riskified::API_VERSION;
     }
+
+    /**
+     * Return accept language header.
+     *
+     * @return string
+     */
+    public function getAcceptLanguage()
+    {
+        if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+        } else {
+            $acceptLanguage = Mage::app()->getLocale()->getLocaleCode();
+        }
+
+        return $acceptLanguage;
+    }
+
+    /**
+     * Return current date time with timezone.
+     *
+     * @param string $time Time.
+     *
+     * @return string
+     */
+    public function getDateTime($time = 'now')
+    {
+        $timezone = Mage::getStoreConfig('general/locale/timezone');
+        $dateTimeZone = new DateTimeZone($timezone);
+        $dateTime = new DateTime($time, $dateTimeZone);
+
+        return $dateTime->format($dateTime::ATOM);
+    }
 }

@@ -392,7 +392,7 @@ class Riskified_Full_Model_Observer
         $order = $observer->getOrder();
 
         // Sanity check
-        if (!$order || !$order->getId()) {
+        if (!$order || !$order instanceof Mage_Sales_Model_Order || !$order->getId()) {
             return;
         }
 
