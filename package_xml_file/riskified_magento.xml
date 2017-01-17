@@ -10,7 +10,7 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.9.2</version>
+   <version>1.0.9.3</version>
    <stability>stable</stability>
    <notes>* Better handling of SQL deadlock exception</notes>
    <authors>
