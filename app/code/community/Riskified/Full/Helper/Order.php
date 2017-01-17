@@ -301,6 +301,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     private function getOrder($model)
     {
         $gateway = 'unavailable';
+        $currentStore = Mage::app()->getStore();
+
         if ($model->getPayment()) {
             $gateway = $model->getPayment()->getMethod();
         }
@@ -334,6 +336,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         if (Mage::getSingleton('admin/session')->isLoggedIn()) {
             unset($order_array['browser_ip']);
             unset($order_array['cart_token']);
+        }
+
+        if ($currentStore->isAdmin()) {
+            $order_array['cart_token'] = null;
         }
 
         $order = new Model\Order(array_filter($order_array, 'strlen'));
