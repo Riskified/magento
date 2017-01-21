@@ -201,6 +201,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
      */
     public function updateOrder($order, $status, $oldStatus, $description)
     {
+
         Mage::helper('full/log')->log('Dispatching event for order ' . $order->getId() . ' with status "' . $status .
             '" old status "' . $oldStatus . '" and description "' . $description . '"');
 
@@ -255,7 +256,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         return $order->getId() . '_' . $order->getIncrementId();
     }
 
-    // duplicate of method in ResponseController.php for now
+    // similar of method in ResponseController.php for now
     private function loadOrderByOrigId($full_orig_id)
     {
         if (!$full_orig_id) {
@@ -263,7 +264,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         }
         $magento_ids = explode("_", $full_orig_id);
         $order_id = $magento_ids[0];
-        $increment_id = $magento_ids[1];
+        $increment_id = null;
+        if (count($magento_ids) > 1) {
+          $increment_id = $magento_ids[1];
+        }
         if ($order_id && $increment_id) {
             return Mage::getModel('sales/order')->getCollection()
                 ->addFieldToFilter('entity_id', $order_id)

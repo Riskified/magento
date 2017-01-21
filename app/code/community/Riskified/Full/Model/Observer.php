@@ -415,6 +415,10 @@ class Riskified_Full_Model_Observer
         /* @var Mage_Sales_Model_Order $order */
         $order = $observer->getOrder();
 
+        if (!method_exists($order, 'getId')) {
+          return;
+        }
+
         /* @var stdClass $response */
         $response = $observer->getResponse();
 
