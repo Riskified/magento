@@ -220,9 +220,7 @@ class Riskified_Full_Model_Observer
 
         switch ($riskifiedStatus) {
             case 'approved':
-                if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
-                    && ($currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
-                        || $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())
+                if (isUnderReview($currentState, $currentStatus)) {
                 ) {
                     $newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
                     $newStatus = $riskifiedOrderStatusHelper->getSelectedApprovedStatus();
@@ -230,9 +228,7 @@ class Riskified_Full_Model_Observer
 
                 break;
             case 'declined':
-                if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
-                    && ($currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
-                        || $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())
+                if (isUnderReview($currentState, $currentStatus)) {
                 ) {
                     $newState = $riskifiedOrderStatusHelper->getSelectedDeclinedState();
                     $newStatus = $riskifiedOrderStatusHelper->getSelectedDeclinedStatus();
@@ -299,6 +295,19 @@ class Riskified_Full_Model_Observer
         }
     }
 
+  /**
+     * True if order can be approved or declined
+     * @param string $currentState
+     * @param string $currentStatus
+     */
+    private function isUnderReview(string $currentState, string $currentStatus ) {
+   	   return ( ($currentState == 'payment_review' && $currentStatus == 'fraud') ||
+				($currentState == Order::STATE_HOLDED && 
+       		      ( $currentStatus == $this->apiOrderConfig->getOnHoldStatusCode()
+			     || $currentStatus == $this->apiOrderConfig->getTransportErrorStatusCode() ) )
+			 );
+    }
+    
     private function logInvoiceParameters($order)
     {
         try {
