@@ -220,21 +220,20 @@ class Riskified_Full_Model_Observer
 
         switch ($riskifiedStatus) {
             case 'approved':
-                if ($this->isUnderReview($currentState, $currentStatus)) {
-                    $newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
-                    $newStatus = $riskifiedOrderStatusHelper->getSelectedApprovedStatus();
-                }
+                $newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
+                $newStatus = $riskifiedOrderStatusHelper->getSelectedApprovedStatus();
+		if ($currentState == 'payment_review' && $currentStatus == 'fraud') {
+		    $order->getPayment()->accept();	
+		}
 
                 break;
             case 'declined':
-                if ($this->isUnderReview($currentState, $currentStatus)) {
-                    $newState = $riskifiedOrderStatusHelper->getSelectedDeclinedState();
-                    $newStatus = $riskifiedOrderStatusHelper->getSelectedDeclinedStatus();
-                }
+                $newState = $riskifiedOrderStatusHelper->getSelectedDeclinedState();
+                $newStatus = $riskifiedOrderStatusHelper->getSelectedDeclinedStatus();
 
-				break;
-			case 'submitted':
-				if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
+		break;
+	    case 'submitted':
+		if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
                     || ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
                         && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
 					$newState = Mage_Sales_Model_Order::STATE_HOLDED;
@@ -291,20 +290,6 @@ class Riskified_Full_Model_Observer
                 return;
             }
         }
-    }
-
-    /**
-     * True if order can be approved or declined
-     * @param string $currentState
-     * @param string $currentStatus
-     */
-    private function isUnderReview($currentState, $currentStatus ) {
-        $riskifiedOrderStatusHelper = Mage::helper('full/order_status');
-   	    return ( ($currentState == 'payment_review' && $currentStatus == 'fraud') ||
-				($currentState == Mage_Sales_Model_Order::STATE_HOLDED && 
-       		      ( $currentStatus == $riskifiedOrderStatusHelper->getOnHoldStatusCode()
-			     || $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode() ) )
-			   );
     }
     
     private function logInvoiceParameters($order)
