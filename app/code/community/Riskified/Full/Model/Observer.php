@@ -220,7 +220,7 @@ class Riskified_Full_Model_Observer
 
         switch ($riskifiedStatus) {
             case 'approved':
-				if ($currentState == 'payment_review' && $currentStatus == 'fraud') {
+				if ($currentState == 'payment_review') {
     		            $newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
             		    $newStatus = $riskifiedOrderStatusHelper->getSelectedApprovedStatus();
 					    $order->getPayment()->accept();	
