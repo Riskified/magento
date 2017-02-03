@@ -220,26 +220,11 @@ class Riskified_Full_Model_Observer
 
         switch ($riskifiedStatus) {
             case 'approved':
-                $newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
-                $newStatus = $riskifiedOrderStatusHelper->getSelectedApprovedStatus();
-		if ($currentState == 'payment_review' && $currentStatus == 'fraud') {
-		    $order->getPayment()->accept();	
-		}
-
-                break;
-            case 'declined':
-                $newState = $riskifiedOrderStatusHelper->getSelectedDeclinedState();
-                $newStatus = $riskifiedOrderStatusHelper->getSelectedDeclinedStatus();
-
-		break;
-	    case 'submitted':
-		if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
-                    || ($currentState == Mage_Sales_Model_Order::STATE_HOLDED
-                        && $currentStatus == $riskifiedOrderStatusHelper->getTransportErrorStatusCode())) {
-					$newState = Mage_Sales_Model_Order::STATE_HOLDED;
-					$newStatus = $riskifiedOrderStatusHelper->getOnHoldStatusCode();
+				if ($currentState == 'payment_review' && $currentStatus == 'fraud') {
+    		            $newState = $riskifiedOrderStatusHelper->getSelectedApprovedState();
+            		    $newStatus = $riskifiedOrderStatusHelper->getSelectedApprovedStatus();
+					    $order->getPayment()->accept();	
 				}
-
                 break;
             case 'error':
                 if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
