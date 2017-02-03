@@ -227,7 +227,7 @@ class Riskified_Full_Model_Observer
 				}
                 break;
 			case 'declined':
-				$description = 'DECLINED: ' . $description
+				$description = 'DECLINED: ' . $description;
                 break;
             case 'error':
                 if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
