@@ -226,6 +226,9 @@ class Riskified_Full_Model_Observer
 					    $order->getPayment()->accept();	
 				}
                 break;
+			case 'declined':
+				$description = 'DECLINED: ' . $description
+                break;
             case 'error':
                 if ($currentState == Mage_Sales_Model_Order::STATE_PROCESSING
                     && $riskifiedInvoiceHelper->isAutoInvoiceEnabled()
