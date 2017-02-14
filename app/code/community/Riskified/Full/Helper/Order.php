@@ -104,7 +104,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                     $response = $transport->cancelOrder($orderForTransport);
                     break;
                 case self::ACTION_REFUND:
-                    $orderForTransport = new Model\Refund($order);
+                    $orderForTransport = $this->getOrderRefund($order);
                     $response = $transport->refundOrder($orderForTransport);
                     break;
                 case self::ACTION_CHECKOUT_CREATE:
@@ -201,6 +201,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
      */
     public function updateOrder($order, $status, $oldStatus, $description)
     {
+
         Mage::helper('full/log')->log('Dispatching event for order ' . $order->getId() . ' with status "' . $status .
             '" old status "' . $oldStatus . '" and description "' . $description . '"');
 
@@ -255,6 +256,27 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         return $order->getId() . '_' . $order->getIncrementId();
     }
 
+    // similar of method in ResponseController.php for now
+    private function loadOrderByOrigId($full_orig_id)
+    {
+        if (!$full_orig_id) {
+            return null;
+        }
+        $magento_ids = explode("_", $full_orig_id);
+        $order_id = $magento_ids[0];
+        $increment_id = null;
+        if (count($magento_ids) > 1) {
+          $increment_id = $magento_ids[1];
+        }
+        if ($order_id && $increment_id) {
+            return Mage::getModel('sales/order')->getCollection()
+                ->addFieldToFilter('entity_id', $order_id)
+                ->addFieldToFilter('increment_id', $increment_id)
+                ->getFirstItem();
+        }
+        return Mage::getModel('sales/order')->load($order_id);
+    }
+
     private $version;
 
     private function initSdk()
@@ -283,6 +305,24 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         $transport->requestData = &$this->requestData;
 
         return $transport;
+    }
+
+    private function getOrderRefund($model)
+    {
+        $order = $this->loadOrderByOrigId($model['id']);
+        $orig_id = $this->getOrderOrigId($order);
+        if (!$orig_id) {
+            return null;
+        }
+
+        $orderRefund = new Model\Refund(array_filter(array(
+            'id' => $orig_id,
+            'refunds' => $model['refunds']
+        )));
+
+        Mage::helper('full/log')->log("getOrderRefund(): " . PHP_EOL . json_encode(json_decode($orderRefund->toJson())));
+
+        return $orderRefund;
     }
 
     private function getOrderCancellation($model)
