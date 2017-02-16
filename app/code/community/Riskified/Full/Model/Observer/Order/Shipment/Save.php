@@ -6,10 +6,7 @@ class Riskified_Full_Model_Observer_Order_Shipment_Save
         Varien_Event_Observer $observer
     ) {
         $shipment = $observer->getEvent()->getShipment();
-
-        if (!$shipment->isObjectNew()) {
-//            return $this;
-        }
+        
         $order = $shipment->getOrder();
         $helper = Mage::helper('full/order');
         $helper->postOrder(
