@@ -16,6 +16,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     const ACTION_SUBMIT = 'submit';
     const ACTION_CANCEL = 'cancel';
     const ACTION_REFUND = 'refund';
+    const ACTION_FULFILL = 'fulfill';
     const ACTION_CHECKOUT_CREATE = 'checkout_create';
     const ACTION_CHECKOUT_DENIED = 'checkout_denied';
 
@@ -106,6 +107,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 case self::ACTION_REFUND:
                     $orderForTransport = new Model\Refund($order);
                     $response = $transport->refundOrder($orderForTransport);
+                    break;
+                case self::ACTION_FULFILL:
+                    $orderForTransport = $this->getOrderFulfillments($order);
+                    $response = $transport->fulfillOrder($orderForTransport);
                     break;
                 case self::ACTION_CHECKOUT_CREATE:
                     $checkoutForTransport = new Model\Checkout($order);
@@ -296,6 +301,44 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         Mage::helper('full/log')->log("getOrderCancellation(): " . PHP_EOL . json_encode(json_decode($orderCancellation->toJson())));
 
         return $orderCancellation;
+    }
+
+    /**
+     * Method creates shipment information needed to update order shipment
+     * @param $model
+     * @return Model\Fulfillment
+     *
+     * @api http://apiref.riskified.com/curl/#actions-fulfill
+     */
+    protected function getOrderFulfillments($model)
+    {
+        $fulfillments = array();
+
+        foreach ($model->getShipmentsCollection() as $shipment) {
+            $tracking = $shipment->getTracksCollection()->getFirstItem();
+            $comment = $shipment->getCommentsCollection()->getFirstItem();
+            $payload = array(
+                "fulfillment_id" => $shipment->getIncrementId(),
+                "created_at" => $this->formatDateAsIso8601($shipment->getCreatedAt()),
+                "status" => "success",
+                "tracking_company" => $tracking->getTitle(),
+                "tracking_numbers" => $tracking->getTrackNumber(),
+                "message" => $comment->getComment(),
+                "line_items" => $this->getLineItems($shipment)
+            );
+
+            $fulfillments[] = new Model\FulfillmentDetails(array_filter($payload));
+        }
+
+
+        $orderFulfillments = new Model\Fulfillment(array_filter(array(
+            'id' => $this->getOrderOrigId($model),
+            'fulfillments' => $fulfillments,
+        )));
+
+        Mage::helper('full/log')->log("getOrderFulfillments(): " . PHP_EOL . json_encode(json_decode($orderFulfillments->toJson())));
+
+        return $orderFulfillments;
     }
 
     private function getOrder($model)
