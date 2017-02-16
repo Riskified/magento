@@ -324,7 +324,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 "tracking_company" => $tracking->getTitle(),
                 "tracking_numbers" => $tracking->getTrackNumber(),
                 "message" => $comment->getComment(),
-                "line_items" => $this->getLineItems($shipment)
+                "line_items" => $this->getAllLineItems($shipment)
             );
 
             $fulfillments[] = new Model\FulfillmentDetails(array_filter($payload));
@@ -462,49 +462,67 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     {
         $lineItems = array();
         foreach ($model->getAllVisibleItems() as $key => $val) {
-            $prodType = null;
-            $category = null;
-            $subCategories = null;
-            $brand = null;
-            $product = $val->getProduct();
-            if ($product) {
-                $prodType = $val->getProduct()->getTypeId();
-                $categoryIds = $product->getCategoryIds();
-                foreach ($categoryIds as $categoryId) {
-                    $cat = Mage::getModel('catalog/category')->load($categoryId);
-                    $catName = $cat->getName();
-                    if (!empty($catName)) {
-                        if (empty($category)) {
-                            $category = $catName;
-                        } else if (empty($subCategories)) {
-                            $subCategories = $catName;
-                        } else {
-                            $subCategories = $subCategories . '|' . $catName;
-                        }
-
-                    }
-                }
-
-
-                if ($product->getManufacturer()) {
-                    $brand = $product->getAttributeText('manufacturer');
-                }
-            }
-            $lineItems[] = new Model\LineItem(array_filter(array(
-                'price' => $val->getPrice(),
-                'quantity' => intval($val->getQtyOrdered()),
-                'title' => $val->getName(),
-                'sku' => $val->getSku(),
-                'product_id' => $val->getItemId(),
-                'grams' => $val->getWeight(),
-                'product_type' => $prodType,
-                'category' => $category,
-                'brand' => $brand,
-                //'sub_category' => $subCategories
-            ), 'strlen'));
+            $lineItems[] = $this->getLineItemData($val);
         }
 
         return $lineItems;
+    }
+
+    private function getAllLineItems($model)
+    {
+        $lineItems = array();
+        foreach ($model->getAllItems() as $key => $val) {
+            $lineItems[] = $this->getLineItemData($val);
+        }
+
+        return $lineItems;
+    }
+
+    private function getLineItemData($val)
+    {
+        $prodType = null;
+        $category = null;
+        $subCategories = null;
+        $brand = null;
+        $product = $val->getProduct();
+        if ($product) {
+            $prodType = $val->getProduct()->getTypeId();
+            $categoryIds = $product->getCategoryIds();
+            foreach ($categoryIds as $categoryId) {
+                $cat = Mage::getModel('catalog/category')->load($categoryId);
+                $catName = $cat->getName();
+                if (!empty($catName)) {
+                    if (empty($category)) {
+                        $category = $catName;
+                    } else if (empty($subCategories)) {
+                        $subCategories = $catName;
+                    } else {
+                        $subCategories = $subCategories . '|' . $catName;
+                    }
+
+                }
+            }
+
+
+            if ($product->getManufacturer()) {
+                $brand = $product->getAttributeText('manufacturer');
+            }
+        }
+
+        $lineItemData = new Model\LineItem(array_filter(array(
+            'price' => $val->getPrice(),
+            'quantity' => intval($val->getQtyOrdered()),
+            'title' => $val->getName(),
+            'sku' => $val->getSku(),
+            'product_id' => $val->getItemId(),
+            'grams' => $val->getWeight(),
+            'product_type' => $prodType,
+            'category' => $category,
+            'brand' => $brand,
+            //'sub_category' => $subCategories
+        ), 'strlen'));
+
+        return $lineItemData;
     }
 
     private function getShippingLines($model)
