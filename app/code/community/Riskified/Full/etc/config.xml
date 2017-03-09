@@ -252,6 +252,14 @@
                     </riskified_full_handle_creditmemo_save>
                 </observers>
             </sales_order_creditmemo_save_after>
+            <sales_order_shipment_save_after>
+                <observers>
+                    <riskified_full_handle_shipment_save>
+                        <class>full/observer_order_shipment_save</class>
+                        <method>handleShipmentSave</method>
+                    </riskified_full_handle_shipment_save>
+                </observers>
+            </sales_order_shipment_save_after>
         </events>
         <layout>
             <updates>

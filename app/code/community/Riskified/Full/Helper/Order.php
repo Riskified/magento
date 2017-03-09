@@ -16,6 +16,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     const ACTION_SUBMIT = 'submit';
     const ACTION_CANCEL = 'cancel';
     const ACTION_REFUND = 'refund';
+    const ACTION_FULFILL = 'fulfill';
     const ACTION_CHECKOUT_CREATE = 'checkout_create';
     const ACTION_CHECKOUT_DENIED = 'checkout_denied';
 
@@ -106,6 +107,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 case self::ACTION_REFUND:
                     $orderForTransport = $this->getOrderRefund($order);
                     $response = $transport->refundOrder($orderForTransport);
+                    break;
+                case self::ACTION_FULFILL:
+                    $orderForTransport = $this->getOrderFulfillments($order);
+                    $response = $transport->fulfillOrder($orderForTransport);
                     break;
                 case self::ACTION_CHECKOUT_CREATE:
                     $checkoutForTransport = new Model\Checkout($order);
@@ -338,6 +343,44 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         return $orderCancellation;
     }
 
+    /**
+     * Method creates shipment information needed to update order shipment
+     * @param $model
+     * @return Model\Fulfillment
+     *
+     * @api http://apiref.riskified.com/curl/#actions-fulfill
+     */
+    protected function getOrderFulfillments($model)
+    {
+        $fulfillments = array();
+
+        foreach ($model->getShipmentsCollection() as $shipment) {
+            $tracking = $shipment->getTracksCollection()->getFirstItem();
+            $comment = $shipment->getCommentsCollection()->getFirstItem();
+            $payload = array(
+                "fulfillment_id" => $shipment->getIncrementId(),
+                "created_at" => $this->formatDateAsIso8601($shipment->getCreatedAt()),
+                "status" => "success",
+                "tracking_company" => $tracking->getTitle(),
+                "tracking_numbers" => $tracking->getTrackNumber(),
+                "message" => $comment->getComment(),
+                "line_items" => $this->getAllLineItems($shipment)
+            );
+
+            $fulfillments[] = new Model\FulfillmentDetails(array_filter($payload));
+        }
+
+
+        $orderFulfillments = new Model\Fulfillment(array_filter(array(
+            'id' => $this->getOrderOrigId($model),
+            'fulfillments' => $fulfillments,
+        )));
+
+        Mage::helper('full/log')->log("getOrderFulfillments(): " . PHP_EOL . json_encode(json_decode($orderFulfillments->toJson())));
+
+        return $orderFulfillments;
+    }
+
     private function getOrder($model)
     {
         $gateway = 'unavailable';
@@ -459,49 +502,67 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
     {
         $lineItems = array();
         foreach ($model->getAllVisibleItems() as $key => $val) {
-            $prodType = null;
-            $category = null;
-            $subCategories = null;
-            $brand = null;
-            $product = $val->getProduct();
-            if ($product) {
-                $prodType = $val->getProduct()->getTypeId();
-                $categoryIds = $product->getCategoryIds();
-                foreach ($categoryIds as $categoryId) {
-                    $cat = Mage::getModel('catalog/category')->load($categoryId);
-                    $catName = $cat->getName();
-                    if (!empty($catName)) {
-                        if (empty($category)) {
-                            $category = $catName;
-                        } else if (empty($subCategories)) {
-                            $subCategories = $catName;
-                        } else {
-                            $subCategories = $subCategories . '|' . $catName;
-                        }
-
-                    }
-                }
-
-
-                if ($product->getManufacturer()) {
-                    $brand = $product->getAttributeText('manufacturer');
-                }
-            }
-            $lineItems[] = new Model\LineItem(array_filter(array(
-                'price' => $val->getPrice(),
-                'quantity' => intval($val->getQtyOrdered()),
-                'title' => $val->getName(),
-                'sku' => $val->getSku(),
-                'product_id' => $val->getItemId(),
-                'grams' => $val->getWeight(),
-                'product_type' => $prodType,
-                'category' => $category,
-                'brand' => $brand,
-                //'sub_category' => $subCategories
-            ), 'strlen'));
+            $lineItems[] = $this->getLineItemData($val);
         }
 
         return $lineItems;
+    }
+
+    private function getAllLineItems($model)
+    {
+        $lineItems = array();
+        foreach ($model->getAllItems() as $key => $val) {
+            $lineItems[] = $this->getLineItemData($val);
+        }
+
+        return $lineItems;
+    }
+
+    private function getLineItemData($val)
+    {
+        $prodType = null;
+        $category = null;
+        $subCategories = null;
+        $brand = null;
+        $product = $val->getProduct();
+        if ($product) {
+            $prodType = $val->getProduct()->getTypeId();
+            $categoryIds = $product->getCategoryIds();
+            foreach ($categoryIds as $categoryId) {
+                $cat = Mage::getModel('catalog/category')->load($categoryId);
+                $catName = $cat->getName();
+                if (!empty($catName)) {
+                    if (empty($category)) {
+                        $category = $catName;
+                    } else if (empty($subCategories)) {
+                        $subCategories = $catName;
+                    } else {
+                        $subCategories = $subCategories . '|' . $catName;
+                    }
+
+                }
+            }
+
+
+            if ($product->getManufacturer()) {
+                $brand = $product->getAttributeText('manufacturer');
+            }
+        }
+
+        $lineItemData = new Model\LineItem(array_filter(array(
+            'price' => $val->getPrice(),
+            'quantity' => intval($val->getQtyOrdered()),
+            'title' => $val->getName(),
+            'sku' => $val->getSku(),
+            'product_id' => $val->getItemId(),
+            'grams' => $val->getWeight(),
+            'product_type' => $prodType,
+            'category' => $category,
+            'brand' => $brand,
+            //'sub_category' => $subCategories
+        ), 'strlen'));
+
+        return $lineItemData;
     }
 
     private function getShippingLines($model)
