@@ -118,7 +118,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                     Mage::log(var_export($this->requestData, true), null, 'riskified-request-data.log');
                     break;
                 case self::ACTION_CHECKOUT_DENIED:
-                    $checkoutForTransport = new Model\Checkout($order);
+                    $checkoutForTransport = $this->getCheckout($order);
                     $response = $transport->deniedCheckout($checkoutForTransport);
                     Mage::log(var_export($this->requestData, true), null, 'riskified-request-data.log');
                     break;
@@ -381,7 +381,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         return $orderFulfillments;
     }
 
-    private function getOrder($model)
+    private function collectOrderData($model)
     {
         $gateway = 'unavailable';
         $currentStore = Mage::app()->getStore();
@@ -425,6 +425,46 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             $order_array['cart_token'] = null;
         }
 
+        return $order_array;
+    }
+
+    private function getCheckout($model)
+    {
+        $orderPaymentHelper = Mage::helper('full/order_payment');
+        $paymentDetails = $orderPaymentHelper->getPaymentDetails($model);
+
+        $paymentDetailsArray = json_decode($paymentDetails->toJson(), true);
+        $payload = $this->collectOrderData($model);
+
+        $payload['id'] = (int)$model->getQuoteId();
+        $payload['payment_details'] = array_merge(
+            $paymentDetailsArray,
+            array(
+                'authorization_error' => array(
+                    'error_code' => 'magento_generic_auth_error',
+                    'message' => 'General processing error',
+                    'created_at' => Mage::helper('full')->getDateTime(),
+                ),
+            )
+        );
+
+        $payload['customer'] = $this->getCustomer($model);
+        $payload['shipping_address'] = $this->getShippingAddress($model);
+        $payload['billing_address'] = $this->getBillingAddress($model);
+
+        $payload['line_items'] = $this->getLineItems($model);
+        $payload['shipping_lines'] = $this->getShippingLines($model);
+
+        if (!Mage::getSingleton('admin/session')->isLoggedIn()) {
+            $payload['client_details'] = $this->getClientDetails($model);
+        }
+
+        return new Model\Checkout($payload);
+    }
+
+    private function getOrder($model)
+    {
+        $order_array = $this->collectOrderData($model);
         $order = new Model\Order(array_filter($order_array, 'strlen'));
 
         $order->customer = $this->getCustomer($model);
