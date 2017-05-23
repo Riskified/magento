@@ -58,10 +58,16 @@ class Riskified_Full_Model_Observer_Order_Creditmemo_Save
         );
 
         $helper = Mage::helper('full/order');
-        $helper->postOrder(
-            $payload,
-            Riskified_Full_Helper_Order::ACTION_REFUND
-        );
+        try {
+            $helper->postOrder(
+                $payload,
+                Riskified_Full_Helper_Order::ACTION_REFUND
+            );
+        } catch (Exception $e) {
+            Mage::getSingleton('adminhtml/session')->addError('Riskified credit memo save: ' . $e->getMessage());
+            Mage::helper('full/log')->logException($e);
+
+        }
 
         return $this;
     }
