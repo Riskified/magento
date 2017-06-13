@@ -13,6 +13,11 @@
                     <authorizenet>Riskified_Full_Model_Authorizenet</authorizenet>
                 </rewrite>
             </paygate>
+            <paypal>
+                <rewrite>
+                    <payflowpro>Riskified_Full_Model_Payflowpro</payflowpro>
+                </rewrite>
+            </paypal>
             <full>
                 <class>Riskified_Full_Model</class>
                 <resourceModel>riskified_full_resource</resourceModel>
