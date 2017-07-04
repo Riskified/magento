@@ -25,13 +25,12 @@ class Riskified_Full_Model_Observer
     {
         Mage::helper('full/log')->log("saveRiskifiedConfig");
         $helper = Mage::helper('full');
-        $settings = Mage::getStoreConfig('fullsection/full');
+        $settings = Mage::getStoreConfig('fullsection/full', $evt->getStore());
         $riskifiedShopDomain = $helper->getShopDomain();
         $authToken = $helper->getAuthToken();
         $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
         $gateWays = '';
-        foreach ($all_active_methods as $key => $value)
-        {
+        foreach ($all_active_methods as $key => $value) {
             $gateWays .= $key . ",";
         }
         $extensionVersion = Mage::helper('full')->getExtensionVersion();
