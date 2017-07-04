@@ -21,8 +21,8 @@
                     <label>API settings</label>
                     <sort_order>10</sort_order>
                     <show_in_default>1</show_in_default>
-                    <show_in_website>0</show_in_website>
-                    <show_in_store>0</show_in_store>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
                     <fields>
                         <env translate="label comment">
                             <label>Riskified environment</label>
@@ -30,8 +30,8 @@
                             <source_model>full/system_config_source_env</source_model>
                             <sort_order>1</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[Select Riskified's environment.<br> You can use sandbox for testing.
                                           <br>If you don't have a sandbox account please contact support@riskified.com ]]></comment>
                         </env>
@@ -40,8 +40,8 @@
                             <frontend_type>Text</frontend_type>
                             <sort_order>2</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment>
                                 <![CDATA[This is the shop domain used during signup. See <a href="https://www.riskified.com/documentation/magento.html" target="_blank">documentation</a> for more details.]]></comment>
                         </domain>
@@ -50,8 +50,8 @@
                             <frontend_type>Text</frontend_type>
                             <sort_order>3</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment>
                                 <![CDATA[ Your <i>secret</i> auth token can be found in your <a href="https://app.riskified.com/main/settings/advanced" target="_blank">Riskified Settings page</a>. ]]></comment>
                         </key>
@@ -69,8 +69,8 @@
                             <frontend_type>select</frontend_type>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <source_model>adminhtml/system_config_source_enabledisable</source_model>
                         </order_status_sync>
                         <approved_state translate="label comment">
@@ -78,8 +78,8 @@
                             <frontend_type>select</frontend_type>
                             <sort_order>11</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[The Magento state to move to when an order is approved]]></comment>
                             <source_model>full/system_config_source_approvedState</source_model>
                             <depends>
@@ -91,8 +91,8 @@
                             <frontend_type>select</frontend_type>
                             <sort_order>12</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[The Magento status to move to when an order is approved]]></comment>
                             <source_model>full/system_config_source_processingStateStatuses</source_model>
                             <depends>
@@ -105,8 +105,8 @@
                             <frontend_type>select</frontend_type>
                             <sort_order>12</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[The Magento status to move to when an order is approved]]></comment>
                             <source_model>full/system_config_source_holdedStateStatuses</source_model>
                             <depends>
@@ -119,8 +119,8 @@
                             <frontend_type>select</frontend_type>
                             <sort_order>13</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[The Magento state to move to when an order is declined]]></comment>
                             <source_model>full/system_config_source_declinedState</source_model>
                             <depends>
@@ -132,8 +132,8 @@
                             <frontend_type>select</frontend_type>
                             <sort_order>14</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[The Magento status to move to when an order is declined]]></comment>
                             <source_model>full/system_config_source_canceledStateStatuses</source_model>
                             <depends>
@@ -146,8 +146,8 @@
                             <frontend_type>select</frontend_type>
                             <sort_order>14</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[The Magento status to move to when an order is declined]]></comment>
                             <source_model>full/system_config_source_holdedStateStatuses</source_model>
                             <depends>
@@ -161,8 +161,8 @@
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>110</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment>
                                 <![CDATA[Should an invoice automatically be created when Riskified approves this order?]]></comment>
                             <depends>
@@ -175,8 +175,8 @@
                             <source_model>full/system_config_source_captureCase</source_model>
                             <sort_order>120</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[Should this invoice be captured online or offline?]]></comment>
                             <depends>
                                 <order_status_sync>1</order_status_sync>
@@ -188,8 +188,8 @@
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>130</sort_order>
                             <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
                             <comment><![CDATA[Write additional debug logs?]]></comment>
                         </debug_logs>
                     </fields>
