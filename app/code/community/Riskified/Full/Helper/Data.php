@@ -15,39 +15,55 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
         }
     }
 
+    /**
+     * Retrieve store id based on order provided in the registry.
+     * If order is missing they store id is fetched from magento app
+     *
+     * @return int
+     */
+    protected function getStoreId()
+    {
+        if (Mage::registry("riskified-order")) {
+            $order = Mage::registry("riskified-order");
+            return $order->getStoreId();
+        }
+
+        return Mage::app()->getStore()->getId();
+    }
+
     public function getAuthToken()
     {
-        return Mage::getStoreConfig('fullsection/full/key', Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/key', $this->getStoreId());
     }
 
     public function getConfigStatusControlActive()
     {
-        return Mage::getStoreConfig('fullsection/full/order_status_sync', Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/order_status_sync', $this->getStoreId());
     }
 
     public function getConfigEnv()
     {
-        return 'Riskified\Common\Env::' . Mage::getStoreConfig('fullsection/full/env', Mage::app()->getStore());
+        return 'Riskified\Common\Env::' . Mage::getStoreConfig('fullsection/full/env', $this->getStoreId());
     }
 
     public function getConfigEnableAutoInvoice()
     {
-        return Mage::getStoreConfig('fullsection/full/auto_invoice_enabled', Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/auto_invoice_enabled', $this->getStoreId());
     }
 
     public function getConfigAutoInvoiceCaptureCase()
     {
-        return Mage::getStoreConfig('fullsection/full/auto_invoice_capture_case', Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/auto_invoice_capture_case', $this->getStoreId());
     }
 
     public function getConfigBeaconUrl()
     {
-        return Mage::getStoreConfig('fullsection/full/beaconurl', Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/beaconurl', $this->getStoreId());
     }
 
     public function getShopDomain()
     {
-        return Mage::getStoreConfig('fullsection/full/domain', Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/domain', $this->getStoreId());
     }
 
     public function getExtensionVersion()
@@ -57,29 +73,29 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getDeclinedState()
     {
-        return Mage::getStoreConfig('fullsection/full/declined_state', Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/declined_state', $this->getStoreId());
     }
 
     public function getDeclinedStatus()
     {
         $state = $this->getDeclinedState();
-        return Mage::getStoreConfig('fullsection/full/declined_status_' . $state, Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/declined_status_' . $state, $this->getStoreId());
     }
 
     public function getApprovedState()
     {
-        return Mage::getStoreConfig('fullsection/full/approved_state', Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/approved_state', $this->getStoreId());
     }
 
     public function getApprovedStatus()
     {
         $state = $this->getApprovedState();
-        return Mage::getStoreConfig('fullsection/full/approved_status_' . $state, Mage::app()->getStore());
+        return Mage::getStoreConfig('fullsection/full/approved_status_' . $state, $this->getStoreId());
     }
 
     public function isDebugLogsEnabled()
     {
-        return (bool)Mage::getStoreConfig('fullsection/full/debug_logs', Mage::app()->getStore());
+        return (bool)Mage::getStoreConfig('fullsection/full/debug_logs', $this->getStoreId());
     }
 
     public function getSessionId() {
