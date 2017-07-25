@@ -25,13 +25,12 @@ class Riskified_Full_Model_Observer
     {
         Mage::helper('full/log')->log("saveRiskifiedConfig");
         $helper = Mage::helper('full');
-        $settings = Mage::getStoreConfig('fullsection/full');
+        $settings = Mage::getStoreConfig('fullsection/full', $evt->getStore());
         $riskifiedShopDomain = $helper->getShopDomain();
         $authToken = $helper->getAuthToken();
         $all_active_methods = Mage::getModel('payment/config')->getActiveMethods();
         $gateWays = '';
-        foreach ($all_active_methods as $key => $value)
-        {
+        foreach ($all_active_methods as $key => $value) {
             $gateWays .= $key . ",";
         }
         $extensionVersion = Mage::helper('full')->getExtensionVersion();
@@ -130,7 +129,11 @@ class Riskified_Full_Model_Observer
             $order->riskifiedInSave = true;
 
             try {
+                if(!Mage::registry("riskified-order")) {
+                    Mage::register("riskified-order", $order);
+                }
                 Mage::helper('full/order')->postOrder($order, Riskified_Full_Helper_Order::ACTION_UPDATE);
+                Mage::unregister("riskified-order");
             } catch (Exception $e) {
                 // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
                 // We catch this exception so that the order is still saved in Magento.
