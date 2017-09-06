@@ -4,6 +4,7 @@ app/design/adminhtml/default/default/template/full/     app/design/adminhtml/def
 app/design/frontend/base/default/layout/full.xml        app/design/frontend/base/default/layout/full.xml
 app/design/frontend/base/default/template/full/         app/design/frontend/base/default/template/full/
 app/etc/modules/Riskified_Full.xml			            app/etc/modules/Riskified_Full.xml
+app/locale/en_US/template/email/full/order/declined.html app/locale/en_US/template/email/full/order/declined.html
 lib/riskified_php_sdk/                                  lib/riskified_php_sdk/
 lib/riskified_scripts/                                  lib/riskified_scripts/
 skin/adminhtml/default/default/images/riskified/        skin/adminhtml/default/default/images/riskified/
