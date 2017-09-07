@@ -203,15 +203,15 @@
                     </riskified_full_handle_quote_submit>
                 </observers>
             </sales_model_service_quote_submit_before>
-            <riskified_full_order_update_decline>
+            <riskified_full_order_update_declined>
                 <observers>
-                    <riskified_full_order_update_decline>
+                    <riskified_full_order_update_declined>
                         <type>singleton</type>
                         <class>full/observer_order_decline</class>
                         <method>handleOrderDecline</method>
-                    </riskified_full_order_update_decline>
+                    </riskified_full_order_update_declined>
                 </observers>
-            </riskified_full_order_update_decline>
+            </riskified_full_order_update_declined>
         </events>
         <template>
             <email>
