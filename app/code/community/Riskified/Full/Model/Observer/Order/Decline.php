@@ -92,7 +92,7 @@ class Riskified_Full_Model_Observer_Order_Decline
                     $order->getIncrementId()
                 );
                 $orderComment = $dataHelper->__(
-                    "Declination email was sent to customer %s (%s) - server internal error",
+                    "Declination email was not sent to customer %s (%s) - server internal error",
                     $order->getCustomerName(),
                     $order->getCustomerEmail()
                 );
