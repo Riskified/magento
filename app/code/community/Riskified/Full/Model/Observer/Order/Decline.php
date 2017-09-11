@@ -73,26 +73,26 @@ class Riskified_Full_Model_Observer_Order_Decline
 
             if ($wasSent === true) {
                 $fileLog = $dataHelper->__(
-                    "Declination email was sent to customer %s (%s) for order #%s",
+                    "Decline email was sent to customer %s (%s) for order #%s",
                     $order->getCustomerName(),
                     $order->getCustomerEmail(),
                     $order->getIncrementId()
                 );
 
                 $orderComment = $dataHelper->__(
-                    "Declination email was sent to customer %s (%s)",
+                    "Decline email was sent to customer %s (%s)",
                     $order->getCustomerName(),
                     $order->getCustomerEmail()
                 );
             } else {
                 $fileLog = $dataHelper->__(
-                    "Declination email was not sent to customer %s (%s) for order #%s - server internal error",
+                    "Decline email was not sent to customer %s (%s) for order #%s - server internal error",
                     $order->getCustomerName(),
                     $order->getCustomerEmail(),
                     $order->getIncrementId()
                 );
                 $orderComment = $dataHelper->__(
-                    "Declination email was not sent to customer %s (%s) - server internal error",
+                    "Decline email was not sent to customer %s (%s) - server internal error",
                     $order->getCustomerName(),
                     $order->getCustomerEmail()
                 );
