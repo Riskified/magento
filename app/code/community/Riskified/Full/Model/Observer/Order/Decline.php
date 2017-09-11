@@ -100,7 +100,9 @@ class Riskified_Full_Model_Observer_Order_Decline
 
             Mage::helper('full/log')->log($fileLog);
 
-            $order->addStatusHistoryComment($orderComment);
+            $order
+                ->addStatusHistoryComment($orderComment)
+                ->setIsCustomerNotified(true);
             $order->save();
         } catch (Exception $e) {
             Mage::logException($e);
