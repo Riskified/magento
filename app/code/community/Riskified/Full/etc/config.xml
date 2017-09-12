@@ -203,7 +203,25 @@
                     </riskified_full_handle_quote_submit>
                 </observers>
             </sales_model_service_quote_submit_before>
+            <riskified_full_order_update_declined>
+                <observers>
+                    <riskified_full_order_update_declined>
+                        <type>singleton</type>
+                        <class>full/observer_order_decline</class>
+                        <method>handleOrderDecline</method>
+                    </riskified_full_order_update_declined>
+                </observers>
+            </riskified_full_order_update_declined>
         </events>
+        <template>
+            <email>
+                <riskified_order_declined module="full">
+                    <label>Notification to customer when order was declined by Riskified</label>
+                    <file>full/order/declined.html</file>
+                    <type>html</type>
+                </riskified_order_declined>
+            </email>
+        </template>
     </global>
 
     <frontend>
@@ -325,6 +343,11 @@
                 <auto_invoice_capture_case>online</auto_invoice_capture_case>
                 <debug_logs>0</debug_logs>
             </full>
+            <decline_notification>
+                <email_identity>general</email_identity>
+                <title>{{store_name}}: Order # {{order_increment_id}} has been declined</title>
+                <content><![CDATA[<p>We regret to inform you that your recent order #{{order_increment_id}} for {{products}}  has been declined.</p>]]></content>
+            </decline_notification>
         </fullsection>
     </default>
 </config>
