@@ -10,7 +10,7 @@
 transactions you would otherwise decline.</description>
    <license>OSL v3.0</license>
    <license_uri/>
-   <version>1.0.9.3</version>
+   <version>1.0.10.1</version>
    <stability>stable</stability>
    <notes>* Support for /api/checkout_denied call.
 * Only sends session ID for orders initiated by the end customer.</notes>
