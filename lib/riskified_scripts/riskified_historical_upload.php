@@ -44,13 +44,15 @@ $orders_collection = Mage::getModel('sales/order')
     ->setPageSize($batch_size)
     ->setCurPage($page);
 
+$orders_collection->getSelect()->order('entity_id DESC');
 $total_uploaded = 0;
 
 while ($total_uploaded < $total_count) {
     $last_id = $orders_collection->getLastItem()->getEntityId();
 
     try {
-	Mage::helper('full/order')->postHistoricalOrders($orders_collection);
+    	Mage::helper('full/order')->postHistoricalOrders($orders_collection);
+
         $total_uploaded += $orders_collection->count();
         echo "last id: $last_id, page:$page, total_uploaded: $total_uploaded \n";
         $page++;
@@ -58,6 +60,8 @@ while ($total_uploaded < $total_count) {
             ->getCollection()
             ->setPageSize($batch_size)
             ->setCurPage($page);
+
+        $orders_collection->getSelect()->order('entity_id DESC');
     } catch (Exception $e) {
         echo "Error: ".$e->getMessage();
         exit(1);
