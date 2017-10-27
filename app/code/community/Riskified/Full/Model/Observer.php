@@ -192,6 +192,17 @@ class Riskified_Full_Model_Observer
     {
         $block = $observer->getEvent()->getBlock();
         if ($block->getType() == 'adminhtml/sales_order_view') {
+            $helper = Mage::helper('full');
+            $env = $helper->getConfigEnv();
+            $host = Riskified::getHostByEnv($env);
+            $order_id = $observer->getBlock()->getOrderId();
+            $order = Mage::getModel('sales/order')->load($order_id);
+            $increment_id = $order->getIncrementId();
+            $url = "https://$host/app/#/orders?search=$increment_id";
+            $block->addButton('riski_view', array(
+              'label' => Mage::helper('sales')->__('View on Riskified'),
+              'onclick' => "window.open('$url')"
+            ));
             $message = Mage::helper('sales')->__('Are you sure you want to submit this order to Riskified?');
             $url = $block->getUrl('adminhtml/riskifiedfull/send');
             $block->addButton('riski_submit', array(

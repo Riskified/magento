@@ -13,6 +13,11 @@ class Riskified_Full_Model_Observer_Order_Decline
         */
         $dataHelper = Mage::helper("full");
 
+        // TODO: change to custom settings
+        if ($dataHelper->getConfigEnableAutoInvoice()) {
+          $order->getPayment()->void();
+        }
+
         if (!$dataHelper->isDeclineNotificationEnabled()) {
             return $this;
         }
