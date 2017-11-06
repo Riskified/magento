@@ -151,4 +151,73 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
 
         return $dateTime->format($dateTime::ATOM);
     }
+
+
+    /**
+     * Retrieve configuration of decline notification
+     *
+     * @return bool
+     */
+    public function isDeclineNotificationEnabled()
+    {
+        return Mage::getStoreConfig('fullsection/decline_notification/enable', $this->getStoreId());
+    }
+
+    /**
+     * Retrieve declination email sender configuration
+     *
+     * @return string
+     */
+    public function getDeclineNotificationSender()
+    {
+        return Mage::getStoreConfig('fullsection/decline_notification/email_identity', $this->getStoreId());
+
+    }
+
+    /**
+     * Retrieve declination email subject set in admin panel
+     *
+     * @return string
+     */
+    public function getDeclineNotificationSubject()
+    {
+        return Mage::getStoreConfig('fullsection/decline_notification/title', $this->getStoreId());
+    }
+
+    /**
+     * Retrieve declination email content set in admin panel
+     *
+     * @return string
+     */
+    public function getDeclineNotificationContent()
+    {
+        return Mage::getStoreConfig('fullsection/decline_notification/content', $this->getStoreId());
+    }
+
+    /**
+     * Retrieve declination email sender email based on configuration in admin panel
+     *
+     * @return string
+     */
+    public function getDeclineNotificationSenderEmail()
+    {
+
+        return Mage::getStoreConfig(
+            'trans_email/ident_' . $this->getDeclineNotificationSender() . '/email',
+            $this->getStoreId()
+        );
+    }
+
+    /**
+     * Retrieve declination email sender name based on configuration in admin panel
+     *
+     * @return string
+     */
+    public function getDeclineNotificationSenderName()
+    {
+        return Mage::getStoreConfig(
+            'trans_email/ident_' . $this->getDeclineNotificationSender() . '/name',
+            $this->getStoreId()
+        );
+    }
 }

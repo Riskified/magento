@@ -159,6 +159,7 @@ class Riskified_Full_Helper_Order_Payment extends Mage_Core_Helper_Abstract
                     );
                     break;
 
+                case 'gene_braintree_creditcard':
                 case 'braintree':
                 case 'braintreevzero':
                     $cvvResultCode = $payment
