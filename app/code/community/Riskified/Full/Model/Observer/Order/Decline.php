@@ -3,6 +3,7 @@
 class Riskified_Full_Model_Observer_Order_Decline
 {
     private $order;
+
     public function handleOrderDecline(
         Varien_Event_Observer $observer
     ) {
@@ -16,7 +17,15 @@ class Riskified_Full_Model_Observer_Order_Decline
         if (!$dataHelper->isDeclineNotificationEnabled()) {
             return $this;
         }
+
         if (Mage::registry("decline-email-sent")) {
+            return $this;
+        }
+
+        $declinationNotificationSent = Mage::getModel("full/declination")
+            ->load($order->getId(), "order_id");
+
+        if ($declinationNotificationSent->getId()) {
             return $this;
         }
 
@@ -104,6 +113,10 @@ class Riskified_Full_Model_Observer_Order_Decline
                 ->addStatusHistoryComment($orderComment)
                 ->setIsCustomerNotified(true);
             $order->save();
+
+            Mage::getModel("full/declination")
+                ->setOrderId($order->getId())
+                ->save();
         } catch (Exception $e) {
             Mage::logException($e);
         }
