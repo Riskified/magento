@@ -1,7 +1,5 @@
 
-# Magento fraud protection extension by Riskified
-
-https://www.riskified.com/magento/
+# [Magento fraud protection extension by Riskified](https://www.riskified.com/magento/)
 
 ## Overview
 
@@ -24,3 +22,5 @@ Available options:
 * via the Magento Connect system
 * directly from github - download the latest release from the release section
 * using Modman with the modman file in the repository
+
+https://www.riskified.com/magento/
