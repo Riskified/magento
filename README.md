@@ -1,12 +1,15 @@
 
-#Riskified Magento extension
+# Magento fraud protection extension by Riskified
 
-##Overview##
+https://www.riskified.com/magento/
+
+## Overview
+
 This extension allows for automatic and/or manual submission of purchase orders to Riskified for fraud review and guarantee.
 
 If you don't have an existing account, please start by signing up to Riskified [here](https://www.riskified.com) - it's free and takes just a few minutes.
 
-##Features##
+## Features
 
 * Automatic/manual submission of orders to review.
 * Order cancellation also excludes it from review.
@@ -14,7 +17,7 @@ If you don't have an existing account, please start by signing up to Riskified [
 * Includes a **Sandbox Environment** option for testing and integration.
 
 
-##Installation##
+## Installation
 
 Available options:
 
