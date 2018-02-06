@@ -81,7 +81,13 @@ class Riskified_Full_Model_Observer
     {
         Mage::helper('full/log')->log("salesOrderPaymentCancel");
         $order = $evt->getPayment()->getOrder();
-        Mage::helper('full/order')->postOrder($order, 'cancel');
+        try {
+            Mage::helper('full/order')->postOrder($order, 'cancel');
+        } catch (Exception $e) {
+            Mage::logException($e);
+            // There is no need to do anything here.  The exception has already been handled and a retry scheduled.
+            // We catch this exception so that the order is still saved in Magento.
+        }
     }
 
     public function salesOrderPlaceBefore($evt)
