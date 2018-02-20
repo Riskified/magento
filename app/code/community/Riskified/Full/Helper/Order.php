@@ -589,7 +589,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             }
         }
 
-        $lineItemData = new Model\LineItem(array_filter(array(
+        $lineItemDataArray = array_filter(array(
             'price' => $val->getPrice(),
             'quantity' => intval($val->getQtyOrdered()),
             'title' => $val->getName(),
@@ -600,7 +600,11 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             'category' => $category,
             'brand' => $brand,
             //'sub_category' => $subCategories
-        ), 'strlen'));
+        ), 'strlen');
+
+        $lineItemDataArray['requires_shipping'] = (bool)!$val->getIsVirtual();
+
+        $lineItemData = new Model\LineItem($lineItemDataArray);
 
         return $lineItemData;
     }
