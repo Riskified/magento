@@ -215,6 +215,15 @@
                     </riskified_full_order_update_declined>
                 </observers>
             </riskified_full_order_update_declined>
+            <gene_braintree_creditcard_success>
+                <observers>
+                    <riskified_full_gene_braintree_creditcard_success>
+                        <type>singleton</type>
+                        <class>full/observer_gene_cc</class>
+                        <method>handleSuccessPayment</method>
+                    </riskified_full_gene_braintree_creditcard_success>
+                </observers>
+            </gene_braintree_creditcard_success>
         </events>
         <template>
             <email>
