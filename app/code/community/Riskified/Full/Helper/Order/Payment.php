@@ -159,6 +159,35 @@ class Riskified_Full_Helper_Order_Payment extends Mage_Core_Helper_Abstract
                     );
                     break;
 
+                case 'gene_braintree_paypal':
+                    $payerEmail = $payment
+                        ->getAdditionalInformation('paypal_email');
+                    $payerStatus = $payment
+                        ->getAdditionalInformation('payer_status');
+                    $payerAddressStatus = $payment
+                        ->getAdditionalInformation('address_status');
+                    $protectionEligibility = $payment
+                        ->getAdditionalInformation('protection_eligibility');
+                    $paymentStatus = $payment
+                        ->getAdditionalInformation('payment_status');
+                    $pendingReason = $payment
+                        ->getAdditionalInformation('pending_reason');
+
+                    return new Model\PaymentDetails(
+                        array_filter(
+                            array(
+                                'authorization_id' => $transactionId,
+                                'payer_email' => $payerEmail,
+                                'payer_status' => $payerStatus,
+                                'payer_address_status' => $payerAddressStatus,
+                                'protection_eligibility' => $protectionEligibility,
+                                'payment_status' => $paymentStatus,
+                                'pending_reason' => $pendingReason,
+                            ),
+                            'strlen'
+                        )
+                    );
+                    break;
                 case 'gene_braintree_creditcard':
                 case 'braintree':
                 case 'braintreevzero':
@@ -171,6 +200,10 @@ class Riskified_Full_Helper_Order_Payment extends Mage_Core_Helper_Abstract
                     $zipVerification = $payment
                         ->getAdditionalInformation('avsPostalCodeResponseCode');
                     $avsResultCode = $houseVerification . ',' . $zipVerification;
+
+                    if (strlen($creditCardBin) === 0) {
+                        $creditCardBin = Mage::registry("cc_bin");
+                    }
                     break;
 
                 case 'adyen_cc':
