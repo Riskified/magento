@@ -13,6 +13,7 @@ class Riskified_Full_ResponseController extends Mage_Core_Controller_Front_Actio
         $msg = null;
 
         try {
+            Mage::log($this->getRequest()->getParams(), null, 'riskified_full.log');
             $notification = $helper->parseRequest($request);
             $id = $notification->id;
             if ($notification->status == 'test' && $id == 0) {
