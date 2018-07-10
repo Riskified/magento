@@ -89,6 +89,7 @@ class Riskified_Full_Helper_Order_Payment extends Mage_Core_Helper_Abstract
                 case 'paypal_express':
                 case 'paypaluk_express':
                 case 'paypal_standard':
+                case 'payflow_express':
                     $payerEmail = $payment
                         ->getAdditionalInformation('paypal_payer_email');
                     $payerStatus = $payment
