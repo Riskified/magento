@@ -435,10 +435,11 @@ class Riskified_Full_Model_Observer
             $orderId = $response->order->id;
             $status = $response->order->status;
             $oldStatus = isset($response->order->old_status) ? $response->order->old_status : null;
-            $description = $response->order->description;
 
-            if (!$description) {
+            if (!isset($response->order->description)) {
                 $description = "Riskified Status: $status";
+            } else {
+                $description = $response->order->description;    
             }
 
             if ($orderId && $status) {
