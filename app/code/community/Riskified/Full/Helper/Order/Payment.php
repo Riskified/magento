@@ -218,6 +218,14 @@ class Riskified_Full_Helper_Order_Payment extends Mage_Core_Helper_Abstract
                     $creditCardBin = $payment->getCardBin();
                     break;
 
+                case 'pagarme_cc':
+                case 'pagarme_checkout':
+                    $creditCardNumber = $payment->getCcLast4();
+                    $creditCardCompany = $payment->getCcType();
+                    $transactionId = $payment->getPagarmeTransactionId();
+                    $avsResultCode = $payment->getPagarmeAntifraudScore();
+                    break;
+
                 default:
                     Mage::helper('full/log')->log('unknown gateway:' . $gatewayName);
                     Mage::helper('full/log')->log(
