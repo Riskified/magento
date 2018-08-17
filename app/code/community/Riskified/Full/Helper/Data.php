@@ -220,4 +220,45 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
             $this->getStoreId()
         );
     }
+
+    public function isDecoEnabled()
+    {
+        return Mage::getStoreConfig(
+            'fullsection/deco/enable',
+            $this->getStoreId()
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getDecoButtonColor()
+    {
+        return Mage::getStoreConfig(
+            'fullsection/deco/button_color',
+            $this->getStoreId()
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getDecoButtonTextColor()
+    {
+        return Mage::getStoreConfig(
+            'fullsection/deco/button_text_color',
+            $this->getStoreId()
+        );
+    }
+
+    /**
+     * @return string
+     */
+    public function getDecoLogoUrl()
+    {
+        return Mage::getStoreConfig(
+            'fullsection/deco/logo_url',
+            $this->getStoreId()
+        );
+    }
 }

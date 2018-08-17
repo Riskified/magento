@@ -1,0 +1,74 @@
+<?php /** @var Riskified_Full_Block_Checkout_Deco $this */ ?>
+<?php if ($this->isEnabled() && $this->isDecoEnabled()) : ?>
+    <script type="text/javascript">
+        (function (window, document) {
+            var loader = function() {
+                var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+                script.src = 'https://sandboxapp.decopayments.com/be/widget/widget.js?shop_url=<?php echo $this->getShopDomain(); ?>';
+                tag.parentNode.insertBefore(script, tag);
+            };
+            window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+        })(window, document);
+
+        Review.addMethods({
+            nextStep: function(transport){
+                if (transport) {
+                    var response = transport.responseJSON || transport.responseText.evalJSON(true) || {};
+
+                    if (response.redirect) {
+                        this.isSuccess = true;
+                        location.href = encodeURI(response.redirect);
+                        return;
+                    }
+                    if (response.success) {
+                        this.isSuccess = true;
+                        location.href = encodeURI(this.successUrl);
+                    }
+                    else{
+                        var msg = response.error_messages;
+                        if (Object.isArray(msg)) {
+                            msg = msg.join("\n").stripTags().toString();
+                        }
+                        if (msg) {
+                            alert(msg);
+                        }
+
+                        window.drawDecoWidget(function () {
+//                            review.decoSave();
+                        }, {
+                            buttonColor: "<?php echo $this->getButtonColor(); ?>",
+                            buttonText: "<?php echo $this->getButtonTextColor(); ?>",
+                            logoUrl: "<?php echo $this->getLogoUrl(); ?>"
+                        });
+                    }
+
+                    if (response.update_section) {
+                        $('checkout-'+response.update_section.name+'-load').update(response.update_section.html);
+                    }
+
+                    if (response.goto_section) {
+                        checkout.gotoSection(response.goto_section, true);
+                    }
+                }
+            },
+
+//            decoSave: function(){
+//                if (checkout.loadWaiting!=false) return;
+//                checkout.setLoadWaiting('review');
+//                var params = Form.serialize(payment.form);
+//                params.save = true;
+//
+//                new Ajax.Request(
+//                    this.saveUrl,
+//                    {
+//                        method:'post',
+//                        parameters:{payment: [method = 'deco'], form_key: "<?php //echo Mage::getSingleton('core/session')->getFormKey() ?>//"},
+//                        onComplete: this.onComplete,
+//                        onSuccess: this.onSave,
+//                        onFailure: checkout.ajaxFailure.bind(checkout)
+//                    }
+//                );
+//            }
+        });
+    </script>
+<?php endif; ?>

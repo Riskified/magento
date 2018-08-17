@@ -5,5 +5,15 @@
             <block type="full/beacon" name="riskified.full.beacon" />
         </reference>
     </default>
+    <checkout_onepage_index>
+        <reference name="before_body_end">
+            <block type="full/checkout_deco" name="riskified.deco.widget" template="full/checkout/deco/js.phtml"/>
+        </reference>
+    </checkout_onepage_index>
+    <checkout_onepage_review>
+        <reference name="checkout.onepage.review.info.items.after">
+            <block type="core/template" name="riskified.deco" template="full/checkout/deco/widget.phtml"/>
+        </reference>
+    </checkout_onepage_review>
 </layout> 
 
