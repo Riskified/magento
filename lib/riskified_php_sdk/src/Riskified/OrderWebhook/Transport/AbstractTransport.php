@@ -155,6 +155,28 @@ abstract class AbstractTransport {
         return $this->send_checkout($checkout, 'checkout_denied');
     }
 
+    /**
+     * @param $order object Order with id
+     *
+     * @return mixed
+     */
+    public function isEligible($order)
+    {
+        $json = '{"order":' . $order->toJson() . '}';
+        return $this->send_json_request($json, 'eligible');
+    }
+
+    /**
+     * @param $order object Order with id
+     *
+     * @return mixed
+     */
+    public function optIn($order)
+    {
+        $json = '{"order":' . $order->toJson() . '}';
+        return $this->send_json_request($json, 'opt_in');
+    }
+
     public function sendHistoricalOrders($orders) {
         $joined = join(',',array_map(function($order) { return $order->toJson(); }, $orders));
         $json = '{"orders":['.$joined.']}';

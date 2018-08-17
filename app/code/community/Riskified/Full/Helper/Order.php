@@ -672,6 +672,10 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
 
     private function getCancelledAt($model)
     {
+        if (!$model instanceof Mage_Sales_Model_Order) {
+            return null;
+        }
+
         $commentCollection = $model->getStatusHistoryCollection();
         foreach ($commentCollection as $comment) {
             if ($comment->getStatus() == Mage_Sales_Model_Order::STATE_CANCELED) {

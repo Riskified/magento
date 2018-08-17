@@ -33,13 +33,8 @@
                             alert(msg);
                         }
 
-                        window.drawDecoWidget(function () {
-                            review.decoSave();
-                        }, {
-                            buttonColor: "<?php echo $this->getButtonColor(); ?>",
-                            buttonText: "<?php echo $this->getButtonTextColor(); ?>",
-                            logoUrl: "<?php echo $this->getLogoUrl(); ?>"
-                        });
+                        review.checkoutDenied();
+                        review.isEligible();
                     }
 
                     if (response.update_section) {
@@ -52,7 +47,56 @@
                 }
             },
 
-            decoSave: function(){
+            checkoutDenied: function () {
+                new Ajax.Request(
+                    "<?php echo $this->getCheckoutDeniedUrl(); ?>",
+                    {
+                        method:'post'
+                    }
+                );
+            },
+
+            isEligible: function () {
+                new Ajax.Request(
+                    "<?php echo $this->getIsEligibleUrl(); ?>",
+                    {
+                        method:'post',
+                        onSuccess: function(transport) {
+                            var response = transport.responseJSON || transport.responseText.evalJSON(true) || {};
+                            if (response.status == 'eligible') {
+                                review.drawDecoWidget();
+                            }
+                        }
+                    }
+                );
+            },
+
+            drawDecoWidget: function () {
+                window.drawDecoWidget(function () {
+                    review.optInCall();
+                }, {
+                    buttonColor: "<?php echo $this->getButtonColor(); ?>",
+                    buttonText: "<?php echo $this->getButtonTextColor(); ?>",
+                    logoUrl: "<?php echo $this->getLogoUrl(); ?>"
+                });
+            },
+
+            optInCall: function () {
+                new Ajax.Request(
+                    "<?php echo $this->getOptInUrl(); ?>",
+                    {
+                        method:'post',
+                        onSuccess: function(transport) {
+                            var response = transport.responseJSON || transport.responseText.evalJSON(true) || {};
+                            if (response.status == 'opt_in') {
+                                review.decoSave();
+                            }
+                        }
+                    }
+                );
+            },
+
+            decoSave: function() {
                 if (checkout.loadWaiting!=false) return;
                 checkout.setLoadWaiting('review');
                 var params = Form.serialize(payment.form);

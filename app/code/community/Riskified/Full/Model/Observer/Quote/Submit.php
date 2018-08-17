@@ -19,7 +19,7 @@ class Riskified_Full_Model_Observer_Quote_Submit
     public function handleQuoteSubmit(
         Varien_Event_Observer $observer
     ) {
-        /*$quote = $observer->getEvent()->getQuote();
+        $quote = $observer->getEvent()->getQuote();
 
         $payload = array(
             'id' => (int)$quote->getId(),
@@ -29,7 +29,7 @@ class Riskified_Full_Model_Observer_Quote_Submit
         $helper->postOrder(
             $payload,
             Riskified_Full_Helper_Order::ACTION_CHECKOUT_CREATE
-        );*/
+        );
 
         return $this;
     }

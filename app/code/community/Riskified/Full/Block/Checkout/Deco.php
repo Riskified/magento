@@ -50,4 +50,28 @@ class Riskified_Full_Block_Checkout_Deco extends Mage_Core_Block_Template
     {
         return $this->helper->getDecoLogoUrl();
     }
+
+    /**
+     * @return string
+     */
+    public function getCheckoutDeniedUrl()
+    {
+        return $this->getUrl('full/ajax/checkoutDenied');
+    }
+
+    /**
+     * @return string
+     */
+    public function getIsEligibleUrl()
+    {
+        return $this->getUrl('full/ajax/isEligible');
+    }
+
+    /**
+     * @return string
+     */
+    public function getOptInUrl()
+    {
+        return $this->getUrl('full/ajax/optIn');
+    }
 }

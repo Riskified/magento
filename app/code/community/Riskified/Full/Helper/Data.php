@@ -232,6 +232,17 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * @return string
      */
+    public function getDecoEnv()
+    {
+        return Mage::getStoreConfig(
+            'fullsection/deco/environment_type',
+            $this->getStoreId()
+        );
+    }
+
+    /**
+     * @return string
+     */
     public function getDecoButtonColor()
     {
         return Mage::getStoreConfig(
