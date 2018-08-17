@@ -34,7 +34,7 @@
                         }
 
                         window.drawDecoWidget(function () {
-//                            review.decoSave();
+                            review.decoSave();
                         }, {
                             buttonColor: "<?php echo $this->getButtonColor(); ?>",
                             buttonText: "<?php echo $this->getButtonTextColor(); ?>",
@@ -52,23 +52,26 @@
                 }
             },
 
-//            decoSave: function(){
-//                if (checkout.loadWaiting!=false) return;
-//                checkout.setLoadWaiting('review');
-//                var params = Form.serialize(payment.form);
-//                params.save = true;
-//
-//                new Ajax.Request(
-//                    this.saveUrl,
-//                    {
-//                        method:'post',
-//                        parameters:{payment: [method = 'deco'], form_key: "<?php //echo Mage::getSingleton('core/session')->getFormKey() ?>//"},
-//                        onComplete: this.onComplete,
-//                        onSuccess: this.onSave,
-//                        onFailure: checkout.ajaxFailure.bind(checkout)
-//                    }
-//                );
-//            }
+            decoSave: function(){
+                if (checkout.loadWaiting!=false) return;
+                checkout.setLoadWaiting('review');
+                var params = Form.serialize(payment.form);
+                params.save = true;
+
+                var values = { };
+                values['payment[method]'] = 'deco';
+                values['form_key'] = "<?php echo Mage::getSingleton('core/session')->getFormKey() ?>";
+                new Ajax.Request(
+                    this.saveUrl,
+                    {
+                        method:'post',
+                        parameters: values,
+                        onComplete: this.onComplete,
+                        onSuccess: this.onSave,
+                        onFailure: checkout.ajaxFailure.bind(checkout)
+                    }
+                );
+            }
         });
     </script>
 <?php endif; ?>

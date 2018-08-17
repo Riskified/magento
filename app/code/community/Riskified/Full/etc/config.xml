@@ -361,5 +361,16 @@
                 <content><![CDATA[<p>We regret to inform you that your recent order #{{order_increment_id}} for {{products}}  has been declined.</p>]]></content>
             </decline_notification>
         </fullsection>
+
+        <payment>
+            <deco>
+                <active>1</active>
+                <title>Deco</title>
+                <model>full/deco</model>
+                <order_status>processing</order_status>
+                <allowspecific>0</allowspecific>
+                <payment_action>sale</payment_action>
+            </deco>
+        </payment>
     </default>
 </config>
