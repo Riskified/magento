@@ -81,11 +81,13 @@
             },
 
             optInCall: function () {
+                checkout.setLoadWaiting('review');
                 new Ajax.Request(
                     "<?php echo $this->getOptInUrl(); ?>",
                     {
                         method:'post',
                         onSuccess: function(transport) {
+                            checkout.setLoadWaiting(false);
                             var response = transport.responseJSON || transport.responseText.evalJSON(true) || {};
                             if (response.status == 'opt_in') {
                                 review.decoSave();
