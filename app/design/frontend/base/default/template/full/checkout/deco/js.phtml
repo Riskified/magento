@@ -62,9 +62,9 @@
                         method:'post',
                         onSuccess: function(transport) {
                             var response = transport.responseJSON || transport.responseText.evalJSON(true) || {};
-//                            if (response.status == 'eligible') {
+                            if (response.status == 'eligible') {
                                 review.drawDecoWidget();
-//                            }
+                            }
                         }
                     }
                 );
@@ -87,9 +87,9 @@
                         method:'post',
                         onSuccess: function(transport) {
                             var response = transport.responseJSON || transport.responseText.evalJSON(true) || {};
-//                            if (response.status == 'opt_in') {
+                            if (response.status == 'opt_in') {
                                 review.decoSave();
-//                            }
+                            }
                         }
                     }
                 );
