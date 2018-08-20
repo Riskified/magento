@@ -224,6 +224,15 @@
                     </riskified_full_gene_braintree_creditcard_success>
                 </observers>
             </gene_braintree_creditcard_success>
+            <payment_method_is_active>
+                <observers>
+                    <riskified_full_handle_payment_is_active>
+                        <type>singleton</type>
+                        <class>full/observer</class>
+                        <method>paymentMethodIsActive</method>
+                    </riskified_full_handle_payment_is_active>
+                </observers>
+            </payment_method_is_active>
         </events>
         <template>
             <email>

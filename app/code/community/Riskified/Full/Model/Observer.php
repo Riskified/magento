@@ -439,7 +439,7 @@ class Riskified_Full_Model_Observer
             if (!isset($response->order->description)) {
                 $description = "Riskified Status: $status";
             } else {
-                $description = $response->order->description;    
+                $description = $response->order->description;
             }
 
             if ($orderId && $status) {
@@ -451,6 +451,24 @@ class Riskified_Full_Model_Observer
             Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('adminhtml')->__("Order #$name was successfully updated at Riskified"));
         } else {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('adminhtml')->__("Malformed response from Riskified"));
+        }
+    }
+
+    public function paymentMethodIsActive(Varien_Event_Observer $observer)
+    {
+        $event           = $observer->getEvent();
+        $method          = $event->getMethodInstance();
+        $result          = $event->getResult();
+
+        if ($method->getCode() !== 'deco') {
+            return $this;
+        }
+
+        $request = Mage::app()->getRequest();
+        if ($request->getActionName() === 'saveOrder') {
+            $result->isAvailable = true;
+        } else {
+            $result->isAvailable = false;
         }
     }
 }
