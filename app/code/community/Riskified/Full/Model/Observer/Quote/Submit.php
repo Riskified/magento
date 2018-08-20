@@ -25,11 +25,14 @@ class Riskified_Full_Model_Observer_Quote_Submit
             'id' => (int)$quote->getId(),
         );
 
-        $helper = Mage::helper('full/order');
-        $helper->postOrder(
-            $payload,
-            Riskified_Full_Helper_Order::ACTION_CHECKOUT_CREATE
-        );
+        $paymentCode = $quote->getPayment()->getMethodInstance()->getCode();
+        if ($paymentCode !== 'deco') {
+            $helper = Mage::helper('full/order');
+            $helper->postOrder(
+                $payload,
+                Riskified_Full_Helper_Order::ACTION_CHECKOUT_CREATE
+            );
+        }
 
         return $this;
     }
