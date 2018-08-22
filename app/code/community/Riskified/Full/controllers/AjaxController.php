@@ -79,11 +79,6 @@ class Riskified_Full_AjaxController extends Mage_Core_Controller_Front_Action
                     Riskified_Full_Helper_Deco::ACTION_OPT_IN
                 );
 
-                if ($response->order->status == 'opt_in') {
-                    $this->processOrder($quote->getPayment()->getMethodInstance()->getCode());
-                }
-
-
                 $this->getResponse()->clearHeaders()->setHeader('Content-type', 'application/json', true);
                 $this->getResponse()->setBody(
                     Mage::helper('core')->jsonEncode(array(
