@@ -62,9 +62,9 @@
                         method:'post',
                         onSuccess: function(transport) {
                             var response = transport.responseJSON || transport.responseText.evalJSON(true) || {};
-                            if (response.status == 'eligible') {
+//                            if (response.status == 'eligible') {
                                 review.drawDecoWidget();
-                            }
+//                            }
                         }
                     }
                 );
@@ -116,6 +116,18 @@
                         onFailure: checkout.ajaxFailure.bind(checkout)
                     }
                 );
+            }
+        });
+
+        directPost.addMethods({
+            showError : function(msg) {
+                this.hasError = true;
+                if (this.controller == 'onepage') {
+                    $(this.iframeId).hide();
+                    this.resetLoadWaiting();
+                }
+                alert(msg.stripTags().toString());
+                review.isEligible();
             }
         });
     </script>

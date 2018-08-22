@@ -78,6 +78,12 @@ class Riskified_Full_AjaxController extends Mage_Core_Controller_Front_Action
                     $quote,
                     Riskified_Full_Helper_Deco::ACTION_OPT_IN
                 );
+
+                if ($response->order->status == 'opt_in') {
+                    $this->processOrder($quote->getPayment()->getMethodInstance()->getCode());
+                }
+
+
                 $this->getResponse()->clearHeaders()->setHeader('Content-type', 'application/json', true);
                 $this->getResponse()->setBody(
                     Mage::helper('core')->jsonEncode(array(
@@ -100,5 +106,55 @@ class Riskified_Full_AjaxController extends Mage_Core_Controller_Front_Action
                 );
             }
         }
+    }
+
+    /**
+     * Return customer quote
+     *
+     * @param string $paymentMethod
+     *
+     * @return void
+     */
+    protected function processOrder($paymentMethod)
+    {
+        switch ($paymentMethod) {
+            case 'authorizenet_directpost':
+                $incrementId = $this->_getDirectPostSession()->getLastOrderIncrementId();
+                if ($incrementId) {
+                    /* @var $order Mage_Sales_Model_Order */
+                    $order = Mage::getModel('sales/order')->loadByIncrementId($incrementId);
+                    if ($order->getId()) {
+                        $order->getPayment()->setMethod('deco')->save();
+                        $order->save();
+                        $state = Mage_Sales_Model_Order::STATE_PROCESSING;
+                        if (Mage::helper('full')->getConfigStatusControlActive()) {
+                            $status = Mage::helper('full/order_status')->getOnHoldStatusCode();
+                        } else {
+                            $status = Mage_Sales_Model_Order::STATE_PROCESSING;
+                        }
+
+                        $order->setState($state)->setStatus($status);
+                        $order->addStatusHistoryComment('Order submitted to Riskified', false);
+                        $order->save();
+
+                        $quote = Mage::getModel('sales/quote')
+                            ->load($order->getQuoteId());
+                        if ($quote->getId()) {
+                            $quote->setIsActive(0)
+                                ->save();
+                        }
+                    }
+                }
+        }
+    }
+
+    /**
+     * Get session model
+
+     * @return Mage_Authorizenet_Model_Directpost_Session
+     */
+    protected function _getDirectPostSession()
+    {
+        return Mage::getSingleton('authorizenet/directpost_session');
     }
 }
