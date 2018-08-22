@@ -223,7 +223,6 @@ class Riskified_Full_Helper_Order_Payment extends Mage_Core_Helper_Abstract
                     $creditCardNumber = $payment->getCcLast4();
                     $creditCardCompany = $payment->getCcType();
                     $transactionId = $payment->getPagarmeTransactionId();
-                    $avsResultCode = $payment->getPagarmeAntifraudScore();
                     if ($payment->getCardFirstDigits()) {
                         $creditCardBin = $payment->getCardFirstDigits();
                     }
