@@ -5,7 +5,7 @@
 
 This extension allows for automatic and/or manual submission of purchase orders to Riskified for fraud review and guarantee.
 
-If you don't have an existing account, please start by signing up to Riskified [here](https://www.riskified.com) - it's free and takes just a few minutes.
+If you don't have an existing Riskified account, feel free to reach out for a demo and we will follow up with more information: https://www.riskified.com/request-demo/
 
 ## Features
 
@@ -19,8 +19,6 @@ If you don't have an existing account, please start by signing up to Riskified [
 
 Available options:
 
-* via the Magento Connect system
 * directly from github - download the latest release from the release section
-* using Modman with the modman file in the repository
 
 https://www.riskified.com/magento/
