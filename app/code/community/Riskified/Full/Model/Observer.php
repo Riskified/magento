@@ -344,6 +344,10 @@ class Riskified_Full_Model_Observer
             return;
         }
 
+        if ($this->isPaymentVoid($order)) {
+            return $this;
+        }
+
         Mage::helper('full/log')->log("Auto-invoicing  order " . $order->getId());
 
         if (!$order->canInvoice() || $order->getState() != Mage_Sales_Model_Order::STATE_PROCESSING) {
@@ -388,6 +392,27 @@ class Riskified_Full_Model_Observer
         }
 
         Mage::helper('full/log')->log("Transaction saved");
+    }
+
+    /**
+     * @param Mage_Sales_Model_Order $order
+     *
+     * @return bool
+     */
+    public function isPaymentVoid($order)
+    {
+        $collection = Mage::getModel('sales/order_payment_transaction')->getCollection()
+            ->setOrderFilter($order)
+            ->addPaymentIdFilter($order->getPayment()->getId())
+            ->addTxnTypeFilter(Mage_Sales_Model_Order_Payment_Transaction::TYPE_VOID)
+            ->setOrder('created_at', Varien_Data_Collection::SORT_ORDER_DESC)
+            ->setOrder('transaction_id', Varien_Data_Collection::SORT_ORDER_DESC);
+
+        if ($collection->getSize() > 0) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
