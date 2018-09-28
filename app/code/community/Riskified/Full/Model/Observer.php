@@ -345,6 +345,8 @@ class Riskified_Full_Model_Observer
         }
 
         if ($this->isPaymentVoid($order)) {
+            Mage::helper('full/log')->log("Auto-invoicing  order " . $order->getId() . ' not done, payment voided.');
+
             return $this;
         }
 
@@ -408,6 +410,7 @@ class Riskified_Full_Model_Observer
             ->setOrder('created_at', Varien_Data_Collection::SORT_ORDER_DESC)
             ->setOrder('transaction_id', Varien_Data_Collection::SORT_ORDER_DESC);
 
+        $collection->load();
         if ($collection->getSize() > 0) {
             return true;
         }
