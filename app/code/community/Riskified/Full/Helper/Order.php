@@ -69,7 +69,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
      *
      * @param Mage_Sales_Model_Order $order
      * @param string $action - one of self::ACTION_*
-     * @return stdClass
+     * @return object
      * @throws Exception
      */
     public function postOrder($order, $action)
@@ -77,12 +77,24 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         $transport = $this->getTransport();
         $headers = $this->getHeaders();
 
-        Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $action);
+        /** @var Riskified_Full_Helper_Log $logHelper */
+        $logHelper = Mage::helper('full/log');
+        $logHelper->log('postOrder ' . serialize($headers) . ' - ' . $action);
 
         $eventData = array(
             'order' => $order,
             'action' => $action
         );
+
+        if (!$this->validate($order)) {
+            $logHelper->log(
+                sprintf(
+                    'Order #%s did not pass the validation of the extension. It won\'t be sent to the Riskified.',
+                    $order->getIncrementId()
+                )
+            );
+            return $this;
+        }
 
         try {
             switch ($action) {
@@ -124,7 +136,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                     break;
             }
 
-            Mage::helper('full/log')->log('Order posted successfully - invoking post order event');
+            $logHelper->log('Order posted successfully - invoking post order event');
 
             $eventData['response'] = $response;
 
@@ -133,7 +145,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
                 $eventData
             );
         } catch (\Riskified\OrderWebhook\Exception\CurlException $curlException) {
-            Mage::helper('full/log')->logException($curlException);
+            $logHelper->logException($curlException);
             Mage::getSingleton('adminhtml/session')->addError('Riskified extension: ' . $curlException->getMessage());
 
             $this->updateOrder($order, 'error', null, 'Error transferring order data to Riskified');
@@ -737,5 +749,18 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         } catch (Exception $e) {
             Mage::helper('full/log')->logException($e);
         }
+    }
+
+    /**
+     * Method checks is order can be processed.
+     *
+     * @param Mage_Sales_Model_Order $order
+     */
+    protected function validate($order)
+    {
+        /** @var Riskified_Full_Helper_Data $dataHelper */
+        $dataHelper = Mage::helper('full');
+
+        return $dataHelper->validateOrderEmail($order->getCustomerEmail());
     }
 }

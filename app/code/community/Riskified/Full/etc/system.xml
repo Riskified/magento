@@ -192,6 +192,15 @@
                             <show_in_store>1</show_in_store>
                             <comment><![CDATA[Write additional debug logs?]]></comment>
                         </debug_logs>
+                        <blocked_emails translate="label comment">
+                            <label>Blocked email list</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>150</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment><![CDATA[Enter emails that orders won't be sent to riskified. Comma separated.]]></comment>
+                        </blocked_emails>
                     </fields>
                 </full>
                 <decline_notification translate="label">

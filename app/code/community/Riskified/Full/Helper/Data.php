@@ -87,6 +87,24 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
         return Mage::getStoreConfig('fullsection/full/approved_state', $this->getStoreId());
     }
 
+    /**
+     * Retrieve array of disabled emails added in system configuration.
+     *
+     * @return array
+     */
+    public function getDisabledEmailAddresses()
+    {
+        $allowedPaymentMethods = Mage::getStoreConfig('fullsection/full/blocked_emails', $this->getStoreId());
+
+        $allowedPaymentMethodsArray = explode(',', $allowedPaymentMethods);
+
+        foreach($allowedPaymentMethodsArray as $key => $email) {
+            $allowedPaymentMethodsArray[$key] = trim($email);
+        }
+
+        return $allowedPaymentMethodsArray;
+    }
+
     public function getApprovedStatus()
     {
         $state = $this->getApprovedState();
@@ -219,5 +237,22 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
             'trans_email/ident_' . $this->getDeclineNotificationSender() . '/name',
             $this->getStoreId()
         );
+    }
+
+    /**
+     * Method checks if provided email is blocked in configuration.
+     *
+     * @param string $email
+     * @return bool
+     */
+    public function validateOrderEmail($email)
+    {
+        $disabledEmailAddresses = $this->getDisabledEmailAddresses();
+
+        if (!in_array($email, $disabledEmailAddresses)) {
+            return true;
+        }
+
+        return false;
     }
 }
