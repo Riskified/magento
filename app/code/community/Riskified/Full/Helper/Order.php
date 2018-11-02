@@ -400,7 +400,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             'updated_at' => $this->formatDateAsIso8601($model->getUpdatedAt()),
             'gateway' => $gateway,
             'browser_ip' => $this->getRemoteIp($model),
-            'cart_token' => Mage::helper('full')->getSessionId(),
+            'cart_token' => $model->getRiskifiedCartToken(),
             'note' => $model->getCustomerNote(),
             'total_price' => $model->getGrandTotal(),
             'total_discounts' => $model->getDiscountAmount(),

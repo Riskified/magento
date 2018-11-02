@@ -92,6 +92,8 @@ class Riskified_Full_Model_Observer
 
     public function salesOrderPlaceBefore($evt)
     {
+        /** Fill riskified_cart_token which is used in post order to Riskified */
+        $evt->getEvent()->getOrder()->setRiskifiedCartToken(Mage::helper('full')->getSessionId());
         Mage::helper('full/log')->log("salesOrderPlaceBefore");
     }
 
