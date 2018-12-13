@@ -160,6 +160,13 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function isDeclineNotificationEnabled()
     {
+        Mage::log("isDeclineNotificationEnabled", null, 'decline_email_debug.log');
+        Mage::log($this->getStoreId(), null, 'decline_email_debug.log');
+        if (Mage::registry("riskified-order")) {
+            Mage::log(Mage::registry("riskified-order")->getIncrementId(), null, 'decline_email_debug.log');
+        } else {
+            Mage::log("No order in registry.", null, 'decline_email_debug.log');
+        }
         return Mage::getStoreConfig('fullsection/decline_notification/enable', $this->getStoreId());
     }
 
@@ -170,6 +177,13 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getDeclineNotificationSender()
     {
+        Mage::log("getDeclineNotificationSender", null, 'decline_email_debug.log');
+        Mage::log($this->getStoreId(), null, 'decline_email_debug.log');
+        if (Mage::registry("riskified-order")) {
+            Mage::log(Mage::registry("riskified-order")->getIncrementId(), null, 'decline_email_debug.log');
+        } else {
+            Mage::log("No order in registry.", null, 'decline_email_debug.log');
+        }
         return Mage::getStoreConfig('fullsection/decline_notification/email_identity', $this->getStoreId());
 
     }
@@ -181,6 +195,13 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getDeclineNotificationSubject()
     {
+        Mage::log("getDeclineNotificationSubject", null, 'decline_email_debug.log');
+        Mage::log($this->getStoreId(), null, 'decline_email_debug.log');
+        if (Mage::registry("riskified-order")) {
+            Mage::log(Mage::registry("riskified-order")->getIncrementId(), null, 'decline_email_debug.log');
+        } else {
+            Mage::log("No order in registry.", null, 'decline_email_debug.log');
+        }
         return Mage::getStoreConfig('fullsection/decline_notification/title', $this->getStoreId());
     }
 
@@ -191,6 +212,13 @@ class Riskified_Full_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getDeclineNotificationContent()
     {
+        Mage::log("getDeclineNotificationContent", null, 'decline_email_debug.log');
+        Mage::log($this->getStoreId(), null, 'decline_email_debug.log');
+        if (Mage::registry("riskified-order")) {
+            Mage::log(Mage::registry("riskified-order")->getIncrementId(), null, 'decline_email_debug.log');
+        } else {
+            Mage::log("No order in registry.", null, 'decline_email_debug.log');
+        }
         return Mage::getStoreConfig('fullsection/decline_notification/content', $this->getStoreId());
     }
 
