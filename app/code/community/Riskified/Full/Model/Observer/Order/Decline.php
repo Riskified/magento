@@ -14,6 +14,10 @@ class Riskified_Full_Model_Observer_Order_Decline
         */
         $dataHelper = Mage::helper("full");
 
+        if (!Mage::registry("riskified-order")) {
+            Mage::register("riskified-order", $order, true);
+        }
+
         if (!$dataHelper->isDeclineNotificationEnabled()) {
             return $this;
         }
