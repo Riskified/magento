@@ -224,6 +224,24 @@
                     </riskified_full_gene_braintree_creditcard_success>
                 </observers>
             </gene_braintree_creditcard_success>
+            <adyen_payment_process_notifications_before>
+                <observers>
+                    <riskified_full_adyen_payment_process_notifications_before>
+                        <type>singleton</type>
+                        <class>full/observer_adyen_notification</class>
+                        <method>handleProcessNotificationBefore</method>
+                    </riskified_full_adyen_payment_process_notifications_before>
+                </observers>
+            </adyen_payment_process_notifications_before>
+            <adyen_payment_process_notifications_after>
+                <observers>
+                    <riskified_full_adyen_payment_process_notifications_after>
+                        <type>singleton</type>
+                        <class>full/observer_adyen_notification</class>
+                        <method>handleProcessNotificationAfter</method>
+                    </riskified_full_adyen_payment_process_notifications_after>
+                </observers>
+            </adyen_payment_process_notifications_after>
         </events>
         <template>
             <email>
