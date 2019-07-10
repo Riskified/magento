@@ -412,7 +412,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
             'cancelled_at' => $this->formatDateAsIso8601($this->getCancelledAt($model)),
             'financial_status' => $model->getState(),
             'fulfillment_status' => $model->getStatus(),
-            'vendor_id' => $model->getStoreId(),
+            'vendor_id' => strval($model->getStoreId()),
             'vendor_name' => $model->getStoreName()
         );
 
@@ -487,7 +487,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
 
     private function getCustomer($model)
     {
-        $customer_id = $model->getCustomerId();
+        $customer_id = strval($model->getCustomerId());
         $customer_props = array(
             'id' => $customer_id,
             'email' => $model->getCustomerEmail(),
@@ -590,7 +590,7 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
         }
 
         $lineItemDataArray = array_filter(array(
-            'price' => $val->getPrice(),
+            'price' => floatval($val->getPrice()),
             'quantity' => intval($val->getQtyOrdered()),
             'title' => $val->getName(),
             'sku' => $val->getSku(),
@@ -611,11 +611,11 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
 
     private function getShippingLines($model)
     {
-        return new Model\ShippingLine(array_filter(array(
+        return [new Model\ShippingLine(array_filter(array(
             'price' => $model->getShippingAmount(),
             'title' => $model->getShippingDescription(),
             'code' => $model->getShippingMethod()
-        ), 'strlen'));
+        ), 'strlen'))];
     }
 
     private function getClientDetails($model)
