@@ -271,11 +271,12 @@ class Riskified_Full_Model_Observer
         }
 
         $changed = false;
+        $isStatusSyncEnabled =  Mage::helper('full')->getConfigStatusControlActive();
 
         // if newState exists and new state/status are different from current and config is set to status-sync
         if ($newState
             && ($newState != $currentState || $newStatus != $currentStatus)
-			 && Mage::helper('full')->getConfigStatusControlActive()
+			 && $isStatusSyncEnabled
         ) {
             if ($currentState == Mage_Sales_Model_Order::STATE_HOLDED && $newState != Mage_Sales_Model_Order::STATE_HOLDED) {
                 $order->unhold();
@@ -291,7 +292,7 @@ class Riskified_Full_Model_Observer
             }
             Mage::helper('full/log')->log("Updated order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
             $changed=true;
-		} elseif ($description && $riskifiedStatus != $riskifiedOldStatus && Mage::helper('full')->getConfigStatusControlActive()) {
+		} elseif ($description && $riskifiedStatus != $riskifiedOldStatus && $isStatusSyncEnabled) {
             Mage::helper('full/log')->log("Updated order " . $order->getId() . " history comment to: "  . $description);
             $order->addStatusHistoryComment($description);
             $changed = true;
