@@ -79,6 +79,8 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
 
         Mage::helper('full/log')->log('postOrder ' . serialize($headers) . ' - ' . $action);
 
+        $this->validateSdk();
+
         $eventData = array(
             'order' => $order,
             'action' => $action
@@ -295,6 +297,37 @@ class Riskified_Full_Helper_Order extends Mage_Core_Helper_Abstract
 
         Mage::helper('full/log')->log("Riskified initSdk() - shop: $shopDomain, env: $env, token: $authToken, extension_version: $this->version, sdk_version: $sdkVersion");
         Riskified::init($shopDomain, $authToken, $env, Validations::SKIP);
+    }
+
+    /**
+     * Method checks if already provided shop domain matches the domain related to processed orders.
+     * This will prevent to send orders to wrong account when multiple orders are handled in cron job or via api.
+     *
+     * @return $this
+     */
+    protected function validateSdk()
+    {
+        /** @var Riskified_Full_Helper_Data $dataHelper */
+        $dataHelper = Mage::helper('full');
+
+        if (Riskified::$domain != $dataHelper->getShopDomain()) {
+            Mage::helper('full/log')->log(
+                $dataHelper->__(
+                    "Currently initialized shop is not matching the shop domain related to the store for this order. \n"
+                    . "Changing SDK settings: \n"
+                    . "Shop domain : %s to %s \n"
+                    . "env : %s to %s \n"
+                    . "token : %s to %s \n",
+                    Riskified::$domain, $dataHelper->getShopDomain(),
+                    Riskified::$env, $dataHelper->getConfigEnv(),
+                    Riskified::$auth_token, $dataHelper->getAuthToken()
+                )
+            );
+
+            $this->initSdk();
+        }
+
+        return $this;
     }
 
     private function getHeaders()
