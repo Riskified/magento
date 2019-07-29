@@ -291,7 +291,7 @@ class Riskified_Full_Model_Observer
             }
             Mage::helper('full/log')->log("Updated order '" . $order->getId()   . "' to: state:  '$newState', status: '$newStatus', description: '$description'");
             $changed=true;
-		} elseif ($description && $riskifiedStatus != $riskifiedOldStatus) {
+		} elseif ($description && $riskifiedStatus != $riskifiedOldStatus && Mage::helper('full')->getConfigStatusControlActive()) {
             Mage::helper('full/log')->log("Updated order " . $order->getId() . " history comment to: "  . $description);
             $order->addStatusHistoryComment($description);
             $changed = true;
