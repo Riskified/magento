@@ -227,7 +227,34 @@ class Riskified_Full_Helper_Order_Payment extends Mage_Core_Helper_Abstract
                         $creditCardBin = $payment->getCardFirstDigits();
                     }
                     break;
+                case 'verisign':
+                    $commentCollection = $order->getStatusHistoryCollection();
+                    foreach($commentCollection as $comment) {
+                        $cleanJson = strip_tags($comment->getComment());
+                        $decodedJson = json_decode((string) $cleanJson, true);
 
+                        if (json_last_error() != 0) {
+                            continue;
+                        }
+
+                        if (!isset($decodedJson['avsaddr']) || !isset($decodedJson['avszip'])) {
+                            continue;
+                        }
+
+                        if ($decodedJson['avsaddr'] == "Y" && $decodedJson['avszip'] == "Y") {
+                            $avsResultCode = "Y";
+                        } elseif($decodedJson['avsaddr'] == "Y" && $decodedJson['avszip'] != "Y") {
+                            $avsResultCode = "A";
+                        } elseif($decodedJson['avsaddr'] != "Y" && $decodedJson['avszip'] == "Y") {
+                            $avsResultCode = "Z";
+                        } else {
+                            $avsResultCode = "N";
+                        }
+                        if (isset($decodedJson['cvv2match'])) {
+                            $cvvResultCode = $decodedJson['cvv2match'];
+                        }
+                    }
+                    break;
                 default:
                     Mage::helper('full/log')->log('unknown gateway:' . $gatewayName);
                     Mage::helper('full/log')->log(
